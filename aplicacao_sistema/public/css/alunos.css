@@ -1,0 +1,265 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #F5F4F0;
+  --surface: #FFFFFF;
+  --border: #E2E0D8;
+  --text: #1A1916;
+  --muted: #8A877E;
+  --accent: #2D2D2A;
+  --tag-bg: #EAE9E3;
+  --tag-text: #5A5851;
+  --danger: #C0392B;
+  --edit: #2D7A5F;
+  --radius: 10px;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 40px 24px;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;  /*centraliza horizontalmente*/
+}
+
+
+.tabs {
+  display: flex;
+  gap: 6px;
+  background: #E5E4DC;
+  border-radius: 50px;
+  padding: 5px;
+  width: fit-content;
+  margin-bottom: 36px;
+}
+
+.tab {
+  padding: 8px 22px;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: var(--muted);
+}
+
+.tab.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.tab:hover:not(.active) {
+  background: #D8D7CE;
+  color: var(--text);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.header h1 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: -0.3px;
+}
+
+.btn-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 10px 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-add:hover {
+  background: #444440;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+
+.table-wrap {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead tr {
+  background: #F0EFE9;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s ease;
+}
+
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #F9F8F5; }
+
+
+td {
+  padding: 14px 16px;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+td.name  { font-weight: 500; min-width: 150px; }
+td.email { color: var(--muted); font-size: 13px; }
+td.turma { font-size: 13px; }
+
+td.tag span {
+  background: var(--tag-bg);
+  color: var(--tag-text);
+  padding: 3px 12px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+td.actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.btn-icon {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.btn-icon.edit            { color: var(--edit); }
+.btn-icon.edit:hover      { background: #EAF4F0; }
+.btn-icon.delete          { color: var(--danger); }
+.btn-icon.delete:hover    { background: #FDECEA; }
+
+
+
+/* MODAL */
+
+.fundo {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+
+.fundo.abrir {
+  display: flex;
+}
+
+
+.caixa {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 30px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.caixa h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.campo label {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.campo input,
+.campo select {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.botoes {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.cancelar {
+  padding: 8px 20px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.adicionar {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 20px;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+}
