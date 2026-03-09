@@ -1,0 +1,45 @@
+{
+  "alunos": [
+    {
+      "nome": "teste",
+      "email": "teste@gmail.com",
+      "turma": "filosofia",
+      "nascimento": "13/05/1985",
+      "dataIngresso": "13/02/2026",
+      "genero": "Masculino",
+      "tipo": "Aluno",
+      "id": "b7f0"
+    },
+    {
+      "id": "906d",
+      "nome": "aaaa",
+      "email": "aaa@gmail.com",
+      "turma": "filosofia para viver ",
+      "nascimento": "13/05/1985",
+      "dataIngresso": "13/02/2026",
+      "genero": "Feminino",
+      "tipo": "Voluntário"
+    },
+    {
+      "id": "1a75",
+      "nome": "aaaa",
+      "email": "aaa@gmail.com",
+      "turma": "filosofia para viver ",
+      "nascimento": "13/05/1985",
+      "dataIngresso": "13/02/2026",
+      "genero": "Feminino",
+      "tipo": "Voluntário"
+    },
+    {
+      "id": "cc8c",
+      "nome": "aaaa",
+      "email": "aaa@gmail.com",
+      "turma": "filosofia para viver ",
+      "nascimento": "13/05/1985",
+      "dataIngresso": "13/02/2026",
+      "genero": "Feminino",
+      "tipo": "Voluntário"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
