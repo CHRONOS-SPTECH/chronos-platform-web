@@ -1,44 +1,48 @@
 {
   "alunos": [
     {
-      "nome": "teste",
+      "id": "b7f0",
+      "nome": "ovos",
       "email": "teste@gmail.com",
       "turma": "filosofia",
-      "nascimento": "13/05/1985",
-      "dataIngresso": "13/02/2026",
-      "genero": "Masculino",
+      "nascimento": "1985-05-13",
+      "dataIngresso": "2026-02-13",
+      "genero": "Feminino",
       "tipo": "Aluno",
-      "id": "b7f0"
+      "senha": "123"
     },
     {
       "id": "906d",
       "nome": "aaaa",
       "email": "aaa@gmail.com",
       "turma": "filosofia para viver ",
-      "nascimento": "13/05/1985",
-      "dataIngresso": "13/02/2026",
+      "nascimento": "1985-05-13",
+      "dataIngresso": "2026-02-13",
       "genero": "Feminino",
-      "tipo": "Voluntário"
+      "tipo": "Voluntário",
+      "senha": "123"
     },
     {
       "id": "1a75",
       "nome": "aaaa",
       "email": "aaa@gmail.com",
       "turma": "filosofia para viver ",
-      "nascimento": "13/05/1985",
-      "dataIngresso": "13/02/2026",
+      "nascimento": "1985-05-13",
+      "dataIngresso": "2026-02-13",
       "genero": "Feminino",
-      "tipo": "Voluntário"
+      "tipo": "Voluntário",
+      "senha": "123"
     },
     {
       "id": "cc8c",
       "nome": "aaaa",
       "email": "aaa@gmail.com",
       "turma": "filosofia para viver ",
-      "nascimento": "13/05/1985",
-      "dataIngresso": "13/02/2026",
+      "nascimento": "1985-05-13",
+      "dataIngresso": "2026-02-13",
       "genero": "Feminino",
-      "tipo": "Voluntário"
+      "tipo": "Voluntário",
+      "senha": "123"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
