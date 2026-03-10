@@ -4,7 +4,7 @@
  * @returns {Object} - { isLoggedIn: boolean, hasPermission: boolean, user: Object|null }
  */
 
-export const checkAuth = (permissions = []) => {
+export function checkAuth(permissions = []) {
     const storedUser = localStorage.getItem('chronos_user');
 
     if (!storedUser) {
@@ -32,7 +32,7 @@ export const checkAuth = (permissions = []) => {
 @param {string[]} permissions - Array de permissões permitidas 
 @param {string} redirectUrl - URL para redirecionar se não autorizado
  */
-export const checkPageAccess = (permissions = [], redirectUrl = 'login.html') => {
+export function checkPageAccess(permissions = [], redirectUrl = 'login.html') {
     const auth = checkAuth(permissions);
 
     if (!auth.isLoggedIn) {
@@ -47,13 +47,3 @@ export const checkPageAccess = (permissions = [], redirectUrl = 'login.html') =>
 
     return true;
 };
-
-/**
- * Valida se uma string é um email válido (simples).
- * @param {string} email - O email a ser validado
- * @returns {boolean} - true se parece válido, false caso contrário
- */
-export const isValidEmail = (email) => {
-    return email.includes('@') && email.includes('.') && email.length > 5;
-};
-

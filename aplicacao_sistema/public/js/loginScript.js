@@ -1,3 +1,5 @@
+import { isValidEmail } from "./utils/validationForm";
+
 document.addEventListener('DOMContentLoaded', () => {
     const btnEntrar = document.querySelector('.btn-entrar');
     const emailInput = document.getElementById('email');
@@ -9,6 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!email || !senha) {
             alert('Por favor, preencha email e senha.');
+            return;
+        }
+
+        if(isValidEmail(email)){
+            alert('Por favor, insira um e-mail válido')
             return;
         }
 
