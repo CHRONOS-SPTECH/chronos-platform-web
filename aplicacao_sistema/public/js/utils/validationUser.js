@@ -5,28 +5,30 @@
  */
 
 export function checkAuth(permissions = []) {
+    permissions = permissions.map(perm => perm.toLowerCase());
+
     const storedUser = localStorage.getItem('chronos_user');
 
     if (!storedUser) {
         return { isLoggedIn: false, hasPermission: false, user: null };
     }
-
     try {
         const user = JSON.parse(storedUser);
 
-        // Se não exigir de permissões, mas estiver logado passa na validação 
+        // Se não exigir permissões, apenas estar logado já basta
         if (permissions.length === 0) {
             return { isLoggedIn: true, hasPermission: true, user };
         }
 
-        // Verifica se as permissões do usuário está na lista permitida
-        const hasPermission = permissions.includes(user.role);
+        // Verifica se o tipo do usuário está entre as permissões
+        const hasPermission = permissions.includes(user.tipo?.toLowerCase());
 
         return { isLoggedIn: true, hasPermission, user };
+
     } catch (error) {
         return { isLoggedIn: false, hasPermission: false, user: null };
     }
-};
+}
 
 /**
 @param {string[]} permissions - Array de permissões permitidas 

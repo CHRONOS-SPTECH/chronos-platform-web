@@ -2,7 +2,7 @@ import { checkPageAccess } from './utils/validationUser.js';
 
 // Verificação de login e permissões ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
-    checkPageAccess(['aluno', 'voluntario']); // Permite alunos e voluntários
+    checkPageAccess(['aluno', 'voluntário']); // Permite alunos e voluntários
 });
 
 // Tornar funções globais para onclick no HTML

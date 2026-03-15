@@ -1,21 +1,24 @@
-import { isValidEmail } from "./utils/validationForm";
+import { isValidEmail } from "./utils/validationForm.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const btnEntrar = document.querySelector('.btn-entrar');
     const emailInput = document.getElementById('email');
     const senhaInput = document.getElementById('senha');
-
+    const alertInput = document.querySelector('.alert-input')
+    alertInput.classList.remove('active');
+    
     btnEntrar.addEventListener('click', async () => {
         const email = emailInput.value.trim();
         const senha = senhaInput.value.trim();
+        alertInput.classList.remove('active');
 
         if (!email || !senha) {
             alert('Por favor, preencha email e senha.');
             return;
         }
 
-        if(isValidEmail(email)){
-            alert('Por favor, insira um e-mail válido')
+        if(!isValidEmail(email)){
+            alertInput.classList.add('active');
             return;
         }
 
