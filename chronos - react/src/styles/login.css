@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+    font-family: 'Poppins', sans-serif; 
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+  
+}
+
+/* Lado esquerdo: foto */
+.esquerda {
+  flex: 1;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.esquerda div {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.imagem_login{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+/* lado direito: forms */
+.direita {
+  flex: 1;
+  background: #fff;
+  border: black 1px solid;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.logo {
+  display: flex;
+  justify-content:start;
+  margin-bottom: 10rem;
+
+}
+
+.logoChronos {
+  width: 150%;
+  height: 150%;
+
+}
+
+.login_forms {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: 50rem;
+  height: 35%;
+  align-items: center;
+}
+
+.login_forms input:first-of-type {
+  margin-bottom: 3rem;  /* espaço entre email e senha */
+}
+
+.login_forms input:last-of-type {
+  margin-bottom: 0.3rem;  /* espaço entre senha e "Esqueceu sua senha?" */
+}
+
+.login_forms p{
+    font-size: 1.5rem;
+    align-self: flex-end;
+    margin-bottom: 3rem;
+    color: rgba(0, 0, 0, 0.726);
+}
+
+
+input {
+  padding: 12px 12px 12px 40px; /* espaço para ícone */
+  border-radius: 20px;
+  border: 0.3rem solid #1E7A3C;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color .25s, box-shadow .25s;
+  width: 100%;
+  height: 18%;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+button {
+  padding: 12px;
+  background: #00AC25;
+  color: white;
+  border: none;
+  border-radius: 0px 20px 0px 20px;
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+  width: 40%;
+  height: 18%;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  
+}
+
+
