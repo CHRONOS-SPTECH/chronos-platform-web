@@ -1,8 +1,8 @@
 const eventos = [
-  { id: 1, data: "30/03/2026", titulo: "Título – Evento", descricao: "Descrição do Evento, Regras e Como Participar", link: "Em caso de forma, ou meios de inscrição" },
-  { id: 2, data: "30/03/2026", titulo: "Título – Evento", descricao: "Descrição do Evento, Regras e Como Participar", link: "Em caso de forma, ou meios de inscrição" },
-  { id: 3, data: "30/03/2026", titulo: "Título – Evento", descricao: "Descrição do Evento, Regras e Como Participar", link: "Em caso de forma, ou meios de inscrição" },
-  { id: 4, data: "30/03/2026", titulo: "Título – Evento", descricao: "Descrição do Evento, Regras e Como Participar", link: "Em caso de forma, ou meios de inscrição", highlighted: true },
+  { id: 1, data: "30/03/2026", titulo: "Título - Evento", descricao: "Descrição do Evento, Regras e Como Participar", link: "Em caso de forma, ou meios de inscrição" },
+  { id: 2, data: "30/03/2026", titulo: "Título - Evento", descricao: "Descrição do Evento, Regras e Como Participar", link: "Em caso de forma, ou meios de inscrição" },
+  { id: 3, data: "30/03/2026", titulo: "Título - Evento", descricao: "Descrição do Evento, Regras e Como Participar", link: "Em caso de forma, ou meios de inscrição" },
+  { id: 4, data: "30/03/2026", titulo: "Título - Evento", descricao: "Descrição do Evento, Regras e Como Participar", link: "Em caso de forma, ou meios de inscrição"},
 ];
 
 function Eventos() {
@@ -10,10 +10,10 @@ function Eventos() {
     <section className="eventos">
       <p className="section-title">Próximos Eventos</p>
 
-      <div className="eventos-semana">Semana do dia – 29/03 à 05/04</div>
+      <div className="eventos-semana">Semana do dia - 29/03 à 05/04</div>
 
       {eventos.map((ev) => (
-        <div key={ev.id} className={`evento-card ${ev.highlighted ? "highlighted" : ""}`}>
+        <div key={ev.id} className="evento-card">
           <div className="evento-top">
             <span className="evento-tag">Evento</span>
             <span className="evento-data">{ev.data}</span>

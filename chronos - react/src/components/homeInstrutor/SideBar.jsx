@@ -4,8 +4,8 @@ function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
-        <div className="sidebar-logo-box">L</div>
-        <span>Lucas</span>
+        <div className="sidebar-logo-box">H</div>
+        <span>Henrique</span>
       </div>
 
       <nav className="sidebar-nav">

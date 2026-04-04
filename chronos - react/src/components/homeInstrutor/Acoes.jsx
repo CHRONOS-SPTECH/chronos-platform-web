@@ -5,6 +5,7 @@ function Acoes() {
 
       <button className="btn-presenca">
         <div className="btn-presenca-icon">
+          {/* icon de check */}
           <svg width="22" height="22" fill="none" stroke="white" strokeWidth="2.5" viewBox="0 0 24 24">
             <polyline points="20 6 9 17 4 12" />
           </svg>

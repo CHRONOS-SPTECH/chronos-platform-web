@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-/* ── GERAL ─────────────────────────────────────────────── */
+
+
 .page {
   display: flex;
   min-height: 100vh;
@@ -32,7 +33,7 @@
 }
 
 .section-title {
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -40,7 +41,7 @@
   margin: 0 0 12px;
 }
 
-/* ── SIDEBAR ───────────────────────────────────────────── */
+/* ── SIDEBAR */
 /* Sidebar container */
 .sidebar {
   width: 185px;
@@ -64,7 +65,7 @@
   gap: 10px;
   color: white;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 17px;
 }
 
 .sidebar-logo-box {
@@ -80,7 +81,7 @@
   color: white;
 }
 
-/* Navegação */
+
 .sidebar-nav {
   flex: 1;
   padding-top: 12px;
@@ -140,14 +141,14 @@
   color: white;
 }
 
-/* Rodapé */
+
 .sidebar-footer {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding: 12px 0;
 }
 
 
-/* ── HEADER ────────────────────────────────────────────── */
+/* ── HEADER  */
 .header {
   background: white;
   padding: 12px 28px;
@@ -178,7 +179,29 @@
   color: #888;
 }
 
-/* ── PROFILE CARD ──────────────────────────────────────── */
+.header_instrutor {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #ffffff;
+}
+
+.header_instrutor h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.header_instrutor p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ── PROFILE CARD*/
 .profile-card {
   grid-column: 1 / -1;
   display: flex;
@@ -220,9 +243,10 @@
   border: 1px solid #a5d6a7;
 }
 
-/* ── AÇÕES ─────────────────────────────────────────────── */
+/* ── AÇÕES ─ */
 .btn-presenca {
   width: 100%;
+  height: 30%;
   background: linear-gradient(135deg, #2d7a2d, #1a5a1a);
   color: white;
   border: none;
@@ -373,7 +397,7 @@
   color: #e65100;
 }
 
-/* ── EVENTOS ───────────────────────────────────────────── */
+/* ── EVENTOS */
 .eventos {
   display: flex;
   flex-direction: column;
