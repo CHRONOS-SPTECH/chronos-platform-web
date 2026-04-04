@@ -1,0 +1,460 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ── GERAL ─────────────────────────────────────────────── */
+.page {
+  display: flex;
+  min-height: 100vh;
+  background: #f0f2f5;
+  font-family: 'Poppins', sans-serif; 
+}
+
+.main-wrap {
+  margin-left: 185px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+  padding: 22px 26px;
+  display: grid;
+  grid-template-columns: 1fr 265px;
+  grid-template-rows: auto 1fr;
+  gap: 18px 20px;
+}
+
+.left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #666;
+  margin: 0 0 12px;
+}
+
+/* ── SIDEBAR ───────────────────────────────────────────── */
+/* Sidebar container */
+.sidebar {
+  width: 185px;
+  min-height: 100vh;
+  background: #1a4a1a; /* verde escuro */
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
+/* Logo / nome do usuário */
+.sidebar-logo {
+  background: #0f2e0f;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.sidebar-logo-box {
+  width: 32px;
+  height: 32px;
+  background: #3a9a3a;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 16px;
+  color: white;
+}
+
+/* Navegação */
+.sidebar-nav {
+  flex: 1;
+  padding-top: 12px;
+}
+
+.sidebar-section-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: #7ab87a;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 16px 4px;
+  margin: 0;
+}
+
+/* Itens principais */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  color: #c8e6c8;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.nav-item.active {
+  background: #2d7a2d;
+  color: white;
+  font-weight: 600;
+  border-left: 3px solid #5dba5d;
+}
+
+/* Sub-itens */
+.nav-sub-item {
+  padding: 11px 16px 11px 20px;
+  font-size: 12px;
+  color: #c8e6c8;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nav-sub-item:first-of-type {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nav-sub-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+}
+
+/* Rodapé */
+.sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 0;
+}
+
+
+/* ── HEADER ────────────────────────────────────────────── */
+.header {
+  background: white;
+  padding: 12px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e8ecf0;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.header-icon {
+  color: #2d7a2d;
+}
+
+.header-date {
+  font-size: 12px;
+  color: #888;
+}
+
+/* ── PROFILE CARD ──────────────────────────────────────── */
+.profile-card {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3a9a3a, #1a5a1a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+}
+
+.profile-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a2e1a;
+  margin: 0 0 4px;
+}
+
+.profile-badge {
+  display: inline-block;
+  background: #e8f5e9;
+  color: #2d7a2d;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 20px;
+  border: 1px solid #a5d6a7;
+}
+
+/* ── AÇÕES ─────────────────────────────────────────────── */
+.btn-presenca {
+  width: 100%;
+  background: linear-gradient(135deg, #2d7a2d, #1a5a1a);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 18px 24px;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif; ;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 14px rgba(45, 122, 45, 0.35);
+  margin-bottom: 14px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn-presenca:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(45, 122, 45, 0.45);
+}
+
+.btn-presenca-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.atalhos {
+  display: flex;
+  gap: 12px;
+}
+
+.atalho-card {
+  background: white;
+  border-radius: 10px;
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #e8ecf0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  transition: box-shadow 0.2s, transform 0.2s;
+  width: 50%;
+}
+
+.atalho-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.atalho-icon {
+  width: 50px;
+  height: 50px;
+  background: #f0f7f0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── CRONOGRAMA ────────────────────────────────────────── */
+.cronograma-header {
+  background: #2d7a2d;
+  color: white;
+  border-radius: 8px;
+  padding: 9px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cronograma-count {
+  background: rgba(255, 255, 255, 0.22);
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+}
+
+.aula-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  border: 1px solid #eef0f3;
+}
+
+.aula-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.aula-titulo {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 500;
+  color: #333;
+}
+
+.aula-horario {
+  font-size: 11px;
+  color: #888;
+  margin-right: 6px;
+}
+
+.aula-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.status-concluida {
+  background: #e8f5e9;
+  color: #2d7a2d;
+}
+
+.status-andamento {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.status-pendente {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+/* ── EVENTOS ───────────────────────────────────────────── */
+.eventos {
+  display: flex;
+  flex-direction: column;
+}
+
+.eventos-semana {
+  background: #2d7a2d;
+  color: white;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.evento-card {
+  background: white;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border: 1px solid #e8ecf0;
+  transition: box-shadow 0.2s;
+}
+
+.evento-card:hover {
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.09);
+}
+
+.evento-card.highlighted {
+  border: 2px solid #2d7a2d;
+}
+
+.evento-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.evento-tag {
+  background: #e8f5e9;
+  color: #2d7a2d;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.evento-data {
+  background: #1a4a1a;
+  color: white;
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.evento-titulo {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a2e1a;
+  margin: 0 0 3px;
+}
+
+.evento-desc {
+  font-size: 10.5px;
+  color: #666;
+  margin: 0 0 4px;
+  line-height: 1.4;
+}
+
+.evento-link {
+  font-size: 10px;
+  color: #2d7a2d;
+  font-weight: 500;
+  margin: 0;
+}
+
+.evento-link-label {
+  color: #888;
+  font-weight: 400;
+}
