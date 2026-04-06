@@ -4,8 +4,8 @@ import HomeInstrutor from "./pages/HomeInstrutor"
 function App(){
   return(
     <div>
-        {/* <Login /> */}
-       <HomeInstrutor /> 
+        <Login />
+       {/* <HomeInstrutor />  */}
     </div>
      
   )
