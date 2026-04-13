@@ -1,12 +1,13 @@
-import Login from "./pages/login"
+import Login from "./pages/Presenca"
 import HomeInstrutor from "./pages/HomeInstrutor"
 
 function App(){
   return(
-    <div>
+    <>
         <Login />
-       {/* <HomeInstrutor />  */}
-    </div>
+
+       
+    </>
      
   )
   
