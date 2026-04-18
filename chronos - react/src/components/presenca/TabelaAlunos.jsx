@@ -6,7 +6,8 @@ function TabelaAlunos({ alunos }) {
           <th>Nome do Aluno</th>
           <th>Percent. Presença</th>
           <th>CPF do Aluno</th>
-          <th>Presença</th>
+          <th> Percent. Presença %</th>
+            <th>Presença</th>
           <th>Ações</th>
         </tr>
       </thead>
