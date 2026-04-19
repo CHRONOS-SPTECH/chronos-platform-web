@@ -1,17 +1,13 @@
-import Login from "./pages/Presenca"
-import HomeInstrutor from "./pages/HomeInstrutor"
+import HomeSecretario from "./pages/HomeSecretario";
 import Perfils from "./pages/Perfils";
 
 function App(){
   return(
     <>
-        {/* <Login /> */}
-        {/* <HomeInstrutor /> */}
-        <Perfils />
-
-       
+        {/* <HomeSecretario/>
+         */}
+         <Perfils/>
     </>
-     
   )
   
 }
