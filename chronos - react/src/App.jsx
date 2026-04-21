@@ -1,16 +1,14 @@
 import Perfils from "./pages/Perfils";
 import HomeSecretario from "./pages/HomeSecretario";
-import Presenca from "./pages/Presenca";
+import HomeInstrutor from "./pages/HomeInstrutor";
 
 function App(){
   return(
-    <>
-        {/* <HomeSecretario/>
-                <Presenca/>
-               <Perfils/>
-         */}
-      <Perfils/>
-    </>
+    <div>
+      {/* <HomeSecretario/> */}
+      <HomeInstrutor/>
+    </div>
+    
   )
   
 }
