@@ -39,7 +39,7 @@ function ModalConfirmacao({ isOpen, onClose, alunos }) {
               {alunos.map((aluno, index) => (
                 <tr key={index} className="hover:bg-gray-50">
                   
-                  {/* Ícone */}
+                  {/*Ícone*/}
                   <td className="px-4 py-3">
                     <UserCircle size={32} className="text-green-500 bg-green-100 rounded-full" />
                   </td>
@@ -64,7 +64,7 @@ function ModalConfirmacao({ isOpen, onClose, alunos }) {
                     </div>
                   </td>
                   
-                  {/* Botão Switch (Toggle) */}
+                  {/* Botão Switch*/}
                   <td className="px-4 py-3 text-center">
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" defaultChecked className="sr-only peer" />
@@ -78,17 +78,26 @@ function ModalConfirmacao({ isOpen, onClose, alunos }) {
           </table>
         </div>
 
-        {/* Botões do Rodapé */}
-        <div className="flex justify-end gap-4">
+        {/* Botões do Rodapé*/}
+        <div className="flex justify-end gap-3 mt-10 mb-2">
+          
+          {/* Botão Cancelar */}
           <button 
             onClick={onClose}
-            className="px-6 py-2.5 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors"
+            className="h-[40px] px-6 bg-[#595959] hover:bg-[#4a4a4a] text-white text-[14px] font-bold rounded-lg flex items-center justify-center border-none transition-colors shadow-sm"
+            style={{ margin: 0 }}
           >
             Cancelar
           </button>
-          <button className="px-6 py-2.5 bg-[#009ee3] hover:bg-[#0080b8] text-white font-medium rounded-lg transition-colors shadow-md">
+          
+          {/* Botão Confirmar Chamada */}
+          <button 
+            className="h-[40px] px-6 bg-[#0098DA] hover:bg-[#007bb5] text-white text-[14px] font-bold rounded-lg flex items-center justify-center border-none transition-colors shadow-sm"
+            style={{ margin: 0 }}
+          >
             Confirmar Chamada
           </button>
+
         </div>
 
       </div>
@@ -97,3 +106,5 @@ function ModalConfirmacao({ isOpen, onClose, alunos }) {
 }
 
 export default ModalConfirmacao;
+
+
