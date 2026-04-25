@@ -2,6 +2,8 @@ import { useState } from "react";
 import Input from "./Input";
 import Button from "./Button";
 
+import authService from "../services/authService";
+
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,33 +14,20 @@ function LoginForm() {
     setStatus({ type: "", message: "" });
     setLoading(true);
 
-    if (!email || !password) {
-      setStatus({ type: "error", message: "Preencha todos os campos." });
-      setLoading(false);
-      return;
-    }
-
     try {
-      const response = await fetch("/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json().catch(() => null);
-
-      if (!response.ok) {
-        setStatus({
-          type: "error",
-          message: data?.message || "Credenciais inválidas.",
-        });
-        setLoading(false);
-        return;
-      }
+      const data = await authService.login(email, password);
 
       setStatus({ type: "success", message: "Entrando no sistema..." });
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+
+      console.log("Sucesso:", data);
     } catch (err) {
-      setStatus({ type: "error", message: "Erro na conexão com o servidor." });
+      const errorMsg =
+        err.response?.data?.message || "Erro ao conectar com o servidor.";
+      setStatus({ type: "error", message: errorMsg });
     } finally {
       setLoading(false);
     }
@@ -95,7 +84,7 @@ function LoginForm() {
         onClick={login}
         disabled={loading}
         type="button"
-        text={loading ? "Entrando..." : "Entrar na plataforma"}
+        text={loading ? "Entrando..." : "Login"}
         className="w-full bg-[#1E7A3C] hover:bg-[#165a2d] text-white font-bold py-4 rounded-2xl shadow-lg shadow-green-200/50 transition-all disabled:opacity-60"
       />
     </div>
