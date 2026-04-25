@@ -1,12 +1,17 @@
-// import Login from "./pages/Presenca";
-import LoginPage from "./pages/Login";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
 import HomeInstrutor from "./pages/HomeInstrutor";
 
 function App() {
   return (
-    <>
-      <LoginPage />
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/home" element={<HomeInstrutor />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
