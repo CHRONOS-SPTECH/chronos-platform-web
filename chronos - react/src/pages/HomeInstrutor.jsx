@@ -8,7 +8,6 @@ import Cronograma from "../components/homeInstrutor/Cronograma";
 function HomeInstrutor() {
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans">
-      {/* Sidebar Inteligente - Enviando apenas o tipo */}
       <Sidebar
         tipoUsuario="instrutor"
         usuario={{ inicial: "H", nome: "Henrique" }}
@@ -16,10 +15,8 @@ function HomeInstrutor() {
 
       {/* Painel Principal */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header com sombra sutil para separar do conteúdo */}
         <Header className="z-10 shadow-sm bg-white" />
 
-        {/* Área de Conteúdo com Scroll Suave */}
         <main className="flex-1 overflow-y-auto custom-scrollbar">
           <div className="max-w-[1600px] mx-auto p-8 flex flex-col gap-8">
             {/* Boas-vindas / Perfil */}
@@ -27,11 +24,10 @@ function HomeInstrutor() {
               <Profile nome="Henrique" cargo="Instrutor" />
             </section>
 
-            {/* Grid Principal: Ações/Cronograma vs Sidebar Direita */}
             <div className="flex flex-col xl:flex-row gap-8 items-start">
               {/* Coluna da Esquerda (Conteúdo Dinâmico) */}
               <div className="flex-1 flex flex-col gap-8 min-w-0 w-full">
-                <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                <div className="overflow-hidden">
                   <Acoes
                     titulo="MINHAS AÇÕES"
                     acaoPrincipal={{
@@ -45,14 +41,14 @@ function HomeInstrutor() {
                   />
                 </div>
 
-                <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-2">
+                <div>
                   <Cronograma />
                 </div>
               </div>
 
               {/* Coluna da Direita (Eventos / Sidebar de Contexto) */}
               <aside className="w-full xl:w-[400px] shrink-0 sticky top-0">
-                <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                <div className="overflow-hidden">
                   <Evento />
                 </div>
               </aside>
