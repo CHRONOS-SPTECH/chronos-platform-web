@@ -1,6 +1,11 @@
+import { useState } from "react";
 import TabelaAlunos from "./TabelaAlunos";
+import ModalConfirmacao from "./ModalConfirmacao";
 
 function CardPresenca({ alunos }) {
+ 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <section className="card">
 
@@ -31,9 +36,23 @@ function CardPresenca({ alunos }) {
 
         <div className="buttons">
           <button className="cancelar">Cancelar</button>
-          <button className="salvar">Salvar Chamada</button>
+          
+          {/* BOTÃO*/}
+          <button 
+            className="salvar" 
+            onClick={() => setIsModalOpen(true)}
+          >
+            Salvar Chamada
+          </button>
         </div>
       </div>
+
+      {/*MODAL*/}
+      <ModalConfirmacao 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        alunos={alunos} 
+      />
 
     </section>
   );
