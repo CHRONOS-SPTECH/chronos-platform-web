@@ -1,7 +1,15 @@
-
-function Input({type, placeholder}){
-    // type e placeholder são props que serão passados para o componente Input
-    return <input type={type} placeholder={placeholder} className="input" />
+function Input(props) {
+  return (
+    <input
+      type={props.type}
+      name={props.name}
+      placeholder={props.placeholder}
+      value={props.value}
+      onChange={props.onChange}
+      className="input"
+      {...props}
+    />
+  );
 }
 
 export default Input;

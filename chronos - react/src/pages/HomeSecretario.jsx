@@ -3,22 +3,22 @@ import Evento from "../components/homeSecretario/Evento";
 import Header from "../components/homeSecretario/Header";
 import Profile from "../components/homeSecretario/Profile";
 import Sidebar from "../components/homeSecretario/SideBar";
-import Cronograma from "../components/homeInstrutor/Cronograma";
-import { CheckSquare, Users, CalendarDays } from "lucide-react";
+import VisaoGeral from "../components/homeSecretario/VisaoGeral";
+import { UserPlus, Users, CalendarPlus } from "lucide-react";
 
-function HomeInstrutor() {
+function HomeSecretario() {
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
-
+      
       {/* Sidebar */}
       <Sidebar
         usuario={{ inicial: "H", nome: "Henrique" }}
         secoes={[
           {
-            label: "Acadêmico",
-            titulo: "Controle de Frequência",
+            label: "Operacional",
+            titulo: "Gestão Acadêmica",
             icone: <Users size={20} />,
-            itens: ["Chamada do dia", "Minhas Turmas", "Minha Agenda"],
+            itens: ["Alunos", "Turmas", "Eventos"],
           },
         ]}
       />
@@ -35,28 +35,30 @@ function HomeInstrutor() {
           <div className="p-6 flex flex-col gap-6">
 
             {/* Perfil */}
-            <Profile nome="Henrique" cargo="Instrutor" />
+            <Profile nome="Henrique" cargo="Secretário" />
 
             {/* Grid principal */}
             <div className="flex gap-6 items-start justify-between">
 
-              {/* Ações + Cronograma */}
+              {/* Ações */}
               <div className="flex-1 flex flex-col gap-6">
                 <Acoes
                   titulo="MINHAS AÇÕES"
-                  acaoPrincipal={{ texto: "Marcar Presença Agora", icone: <CheckSquare size={24} /> }}
+                  acaoPrincipal={{ texto: "+ Novo Aluno", icone: <UserPlus size={24} /> }}
                   acoesSecundarias={[
-                    { texto: "Minha Agenda", icone: <CalendarDays size={20} /> },
-                    { texto: "Minhas Turmas", icone: <Users size={20} /> },
+                    { texto: "Matricular em Turma", icone: <Users size={20} /> },
+                    { texto: "Adicionar Evento", icone: <CalendarPlus size={20} /> },
                   ]}
                 />
-                <Cronograma />
+                <VisaoGeral />
               </div>
 
               {/* Eventos */}
               <div className="w-[380px] shrink-0">
                 <Evento />
               </div>
+
+             
 
             </div>
 
@@ -68,4 +70,4 @@ function HomeInstrutor() {
   );
 }
 
-export default HomeInstrutor;
+export default HomeSecretario;

@@ -6,12 +6,12 @@ import CardPresenca from "../components/presenca/CardPresenca";
 function Presenca() {
 
   const alunos = [
-    { nome: "Natalia", presenca: 80, cpf: "123.456.789-00" },
-    { nome: "Emilly", presenca: 95, cpf: "987.654.321-00" },
-    { nome: "Daniel", presenca: 60, cpf: "456.789.123-00" },
-    { nome: "Fernando", presenca: 100, cpf: "321.654.987-00" },
-    { nome: "Zozo", presenca: 70, cpf: "789.123.456-00" },
-    { nome: "Natally", presenca: 85, cpf: "654.321.987-00" },
+    { nome: "Daniel Costa", presenca: 80, cpf: "123.456.789-00" },
+    { nome: "Emilly Dos Reis", presenca: 95, cpf: "987.654.321-00" },
+    { nome: "Nathalii Ribeiro", presenca: 60, cpf: "456.789.123-00" },
+    { nome: "Matheus Zorzete", presenca: 100, cpf: "321.654.987-00" },
+    { nome: "Fernando Fefe", presenca: 70, cpf: "789.123.456-00" },
+    { nome: "Natalia Souza", presenca: 85, cpf: "654.321.987-00" },
   ];
 
   return (
