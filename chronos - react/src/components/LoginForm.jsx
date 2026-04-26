@@ -5,8 +5,8 @@ import Button from "./Button";
 import authService from "../services/authService";
 
 function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("usuario@gmail.com");
+  const [password, setPassword] = useState("senhaSegura123");
   const [status, setStatus] = useState({ type: "", message: "" });
   const [loading, setLoading] = useState(false);
 
@@ -22,6 +22,8 @@ function LoginForm() {
       if (data.token) {
         localStorage.setItem("token", data.token);
       }
+
+      console.log("Login bem-sucedido:", data);
 
       setStatus({ type: "success", message: "Sucesso! Redirecionando..." });
 

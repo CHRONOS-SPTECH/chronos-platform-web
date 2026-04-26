@@ -47,7 +47,7 @@ function HomeInstrutor() {
               </div>
 
               {/* Coluna da Direita (Eventos / Sidebar de Contexto) */}
-              <aside className="w-full xl:w-[400px] shrink-0 sticky top-0">
+              <aside className="w-full xl:w-[500px] shrink-0 sticky top-0">
                 <div className="overflow-hidden">
                   <Evento />
                 </div>

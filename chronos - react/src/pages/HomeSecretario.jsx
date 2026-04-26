@@ -51,7 +51,7 @@ function HomeSecretario() {
               </div>
 
               {/* Eventos */}
-              <div className="w-[380px] shrink-0">
+              <div className="w-[500px] shrink-0">
                 <Evento />
               </div>
             </div>
