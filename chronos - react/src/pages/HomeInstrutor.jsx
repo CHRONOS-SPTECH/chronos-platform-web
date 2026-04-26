@@ -1,3 +1,4 @@
+import { Home } from "lucide-react";
 import Acoes from "../components/homeSecretario/Acoes";
 import Evento from "../components/homeSecretario/Evento";
 import Header from "../components/homeSecretario/Header";
@@ -15,7 +16,7 @@ function HomeInstrutor() {
 
       {/* Painel Principal */}
       <div className="flex-1 flex flex-col min-w-0">
-        <Header className="z-10 shadow-sm bg-white" />
+        <Header titulo="Home" icone={Home} />
 
         <main className="flex-1 overflow-y-auto custom-scrollbar">
           <div className="max-w-[1600px] mx-auto p-8 flex flex-col gap-8">

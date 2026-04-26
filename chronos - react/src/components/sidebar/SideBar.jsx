@@ -28,7 +28,7 @@ export default function Sidebar({
             <LayoutGrid className="text-white" size={24} />
           </div>
           <span className="text-xl font-bold tracking-tight text-white">
-            SuaLogo
+            CHRONOS
           </span>
         </div>
       </div>

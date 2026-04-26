@@ -1,10 +1,10 @@
+import { Home } from "lucide-react";
 import Acoes from "../components/homeSecretario/Acoes";
 import Evento from "../components/homeSecretario/Evento";
 import Header from "../components/homeSecretario/Header";
 import Profile from "../components/homeSecretario/Profile";
 import Sidebar from "../components/sidebar/SideBar";
 import VisaoGeral from "../components/homeSecretario/VisaoGeral";
-import { UserPlus, Users, CalendarPlus } from "lucide-react";
 
 function HomeSecretario() {
   return (
@@ -18,7 +18,7 @@ function HomeSecretario() {
       {/* Conteúdo principal */}
       <div className="flex-1 flex flex-col h-screen">
         {/* Header fixo */}
-        <Header />
+        <Header titulo="Home" icone={Home} />
 
         {/* Área com scroll */}
         <div className="flex-1 overflow-y-auto">
