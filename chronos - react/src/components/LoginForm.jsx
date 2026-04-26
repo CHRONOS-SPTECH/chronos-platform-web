@@ -5,7 +5,7 @@ import Button from "./Button";
 import authService from "../services/authService";
 
 function LoginForm() {
-  const [email, setEmail] = useState("usuario@gmail.com");
+  const [email, setEmail] = useState("henrique@gmail.com");
   const [password, setPassword] = useState("senhaSegura123");
   const [status, setStatus] = useState({ type: "", message: "" });
   const [loading, setLoading] = useState(false);

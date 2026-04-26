@@ -6,6 +6,8 @@ import HomeSecretario from "./pages/HomeSecretario";
 import Presenca from "./pages/Presenca";
 import Perfils from "./pages/Perfils";
 
+import GestaoUsuarios from "./pages/GestaoUsuarios";
+
 function App() {
   return (
     <BrowserRouter>
@@ -32,6 +34,8 @@ function App() {
         <Route path="/turmas" element={<div>Tela de Turmas</div>} />
         <Route path="/agenda" element={<div>Tela de Agenda</div>} />
         <Route path="/eventos" element={<div>Tela de Eventos</div>} />
+
+        <Route path="/usuarios" element={<GestaoUsuarios />} />
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
