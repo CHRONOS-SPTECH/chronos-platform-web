@@ -8,6 +8,7 @@ import {
   ChevronRight,
   LayoutGrid,
 } from "lucide-react";
+import "../../styles/sidebar.css";
 import { MENU_CONFIG } from "../../config/navigation";
 
 export default function Sidebar({
@@ -48,7 +49,7 @@ export default function Sidebar({
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-4 overflow-y-auto">
+      <nav className="flex-1 px-4 overflow-y-auto custom-scrollbar">
         <button
           onClick={() => navigate(config.dashboardPath)}
           className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all mb-2 ${

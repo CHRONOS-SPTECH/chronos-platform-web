@@ -8,7 +8,7 @@ import perfil from "../../assets/perfil.svg";
  */
 function Profile({ nome = "Henrique", cargo = "Secretário", avatar = perfil }) {
   return (
-    <div className="flex flex-row gap-4 items-center group cursor-pointer rounded-xl hover:bg-gray-50 transition-all duration-300">
+    <div className="flex flex-row gap-4 items-center group cursor-pointer rounded-xl transition-all">
       <div className="relative">
         <img
           src={avatar}

@@ -35,6 +35,15 @@ export const MENU_CONFIG = {
           { nome: "Eventos", rota: "/eventos" },
         ],
       },
+      {
+        label: "Gestão de Usuários",
+        titulo: "Controle de Acesso",
+        icone: <LayoutDashboard size={20} />,
+        itens: [
+          { nome: "Usuários", rota: "/usuarios" },
+          { nome: "Permissões", rota: "/permissoes" },
+        ],
+      },
     ],
   },
 };

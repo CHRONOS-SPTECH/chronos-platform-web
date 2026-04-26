@@ -1,4 +1,4 @@
-import { Home } from "lucide-react";
+import { Home, UserPlus, Users, CalendarPlus } from "lucide-react";
 import Acoes from "../components/homeSecretario/Acoes";
 import Evento from "../components/homeSecretario/Evento";
 import Header from "../components/homeSecretario/Header";
