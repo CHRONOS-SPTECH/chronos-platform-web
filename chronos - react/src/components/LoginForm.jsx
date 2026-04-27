@@ -5,28 +5,34 @@ import Button from "./Button";
 import authService from "../services/authService";
 
 function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("henrique@gmail.com");
+  const [password, setPassword] = useState("senhaSegura123");
   const [status, setStatus] = useState({ type: "", message: "" });
   const [loading, setLoading] = useState(false);
 
   async function login() {
+    localStorage.removeItem("token");
+
     setStatus({ type: "", message: "" });
     setLoading(true);
 
     try {
       const data = await authService.login(email, password);
 
-      setStatus({ type: "success", message: "Entrando no sistema..." });
-
       if (data.token) {
         localStorage.setItem("token", data.token);
       }
 
-      console.log("Sucesso:", data);
+      console.log("Login bem-sucedido:", data);
+
+      setStatus({ type: "success", message: "Sucesso! Redirecionando..." });
+
+      setTimeout(() => {
+        window.location.href = "/perfis";
+      }, 1000);
     } catch (err) {
       const errorMsg =
-        err.response?.data?.message || "Erro ao conectar com o servidor.";
+        err.response?.data?.message || "E-mail ou senha incorretos.";
       setStatus({ type: "error", message: errorMsg });
     } finally {
       setLoading(false);
