@@ -42,7 +42,7 @@ function CardUsuario({ usuario }) {
 
       <div className="col-span-2 text-gray-500 font-medium text-sm flex items-center gap-2">
         <Calendar size={16} className="opacity-40" />
-        {new Date(usuario.pessoa.dataNascimento).toLocaleDateString("pt-BR")}
+        {new Date(usuario.pessoa.data_nascimento).toLocaleDateString("pt-BR")}
       </div>
 
       <div className="col-span-2 flex justify-center">
