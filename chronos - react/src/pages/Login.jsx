@@ -4,7 +4,7 @@ import logoChronos from "../assets/logoChronos.svg";
 
 function Login() {
   return (
-    <div className="flex h-screen w-full bg-gray-50">
+    <div className="flex h-screen w-full bg-[#F1F5F9]">
       <div className="hidden lg:block lg:w-1/2">
         <img
           src={imagemLogin}

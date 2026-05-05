@@ -3,43 +3,26 @@ import TabelaAlunos from "./TabelaAlunos";
 import ModalConfirmacao from "./ModalConfirmacao";
 
 function CardPresenca({ alunos }) {
- 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <section className="card">
-
-      {/* HEADER */}
-      <div className="card-header">
-        <div className="user-info">
-          <div className="avatar"></div>
-
-          <div className="user-text">
-            <h2>Lucas Alberto</h2>
-            <span>Instrutor Acadêmico</span>
-          </div>
-        </div>
-
-        <div className="box-info">
-          <p><strong>Turma Iniciada:</strong> Janeiro/2026</p>
-          <p><strong>Previsão:</strong> Setembro/2026</p>
-        </div>
-      </div>
-
+    <section className="overflow-hidden h-auto animate-in fade-in duration-500">
       {/* CORPO */}
-      <div className="card-body">
-        <h3 className="titulo">
+      <div className="">
+        <h3 className="text-base font-bold text-gray-700 mb-4">
           Frequência Diária - Turma 3 | Aula 2 (Filosofia antiga)
         </h3>
 
         <TabelaAlunos alunos={alunos} />
 
-        <div className="buttons">
-          <button className="cancelar">Cancelar</button>
-          
+        <div className="flex justify-end gap-3 mt-6">
+          <button className="px-6 py-2.5 rounded-xl font-semibold text-sm text-white bg-gray-600 hover:bg-gray-700 transition-colors">
+            Cancelar
+          </button>
+
           {/* BOTÃO*/}
-          <button 
-            className="salvar" 
+          <button
+            className="px-6 py-2.5 rounded-xl font-semibold text-sm text-white bg-[#00871D] hover:bg-[#006d17] transition-colors shadow-md"
             onClick={() => setIsModalOpen(true)}
           >
             Salvar Chamada
@@ -48,12 +31,11 @@ function CardPresenca({ alunos }) {
       </div>
 
       {/*MODAL*/}
-      <ModalConfirmacao 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        alunos={alunos} 
+      <ModalConfirmacao
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        alunos={alunos}
       />
-
     </section>
   );
 }
