@@ -7,6 +7,7 @@ import HomeDiretor from "../pages/HomeDiretor";
 import Presenca from "../pages/Presenca";
 import Perfils from "../pages/Perfils";
 import GestaoUsuarios from "../pages/GestaoUsuarios";
+import GestaoAcademica from "../pages/GestaoAcademica";
 import { elements } from "chart.js";
 
 export const routes = createBrowserRouter([
@@ -40,7 +41,7 @@ export const routes = createBrowserRouter([
   },
   {
     path: "/turmas",
-    element: <div>Tela de Turmas</div>,
+    element: <GestaoAcademica />,
   },
   {
     path: "/agenda",
