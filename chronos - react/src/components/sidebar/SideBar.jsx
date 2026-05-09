@@ -43,7 +43,7 @@ export default function Sidebar({
             {usuario.nome}
           </span>
           <span className="text-[10px] text-green-200 font-bold mt-1.5 uppercase tracking-widest opacity-80">
-            {tipoUsuario === "instrutor" ? "Instrutor" : "Secretário"}
+            {tipoUsuario}
           </span>
         </div>
       </div>

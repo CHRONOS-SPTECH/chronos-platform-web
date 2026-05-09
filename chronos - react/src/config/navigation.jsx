@@ -46,4 +46,18 @@ export const MENU_CONFIG = {
       },
     ],
   },
+  Administrador: {
+    dashboardPath: "/administrador",
+    secoes: [
+      {
+        label: "Operacional",
+        titulo: "Dashboard's",
+        icone: <LayoutDashboard size={20} />,
+        itens: [
+          { nome: "Panorama Acadêmico", rota: "/panorama" },
+          { nome: "Engajamento das Atividades", rota: "/engajamento" },
+        ],
+      },
+    ],
+  },
 };

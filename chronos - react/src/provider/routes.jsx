@@ -3,9 +3,11 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import Login from "../pages/Login";
 import HomeInstrutor from "../pages/HomeInstrutor";
 import HomeSecretario from "../pages/HomeSecretario";
+import HomeDiretor from "../pages/HomeDiretor";
 import Presenca from "../pages/Presenca";
 import Perfils from "../pages/Perfils";
 import GestaoUsuarios from "../pages/GestaoUsuarios";
+import { elements } from "chart.js";
 
 export const routes = createBrowserRouter([
   {
@@ -23,6 +25,10 @@ export const routes = createBrowserRouter([
   {
     path: "/secretario",
     element: <HomeSecretario />,
+  },
+  {
+    path: "/administrador",
+    element: <HomeDiretor/>
   },
   {
     path: "/presenca",
