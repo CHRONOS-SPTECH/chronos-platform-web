@@ -8,6 +8,7 @@ import Presenca from "../pages/Presenca";
 import Perfils from "../pages/Perfils";
 import GestaoUsuarios from "../pages/GestaoUsuarios";
 import GestaoAcademica from "../pages/GestaoAcademica";
+import Eventos from "../pages/Eventos";
 import { elements } from "chart.js";
 
 export const routes = createBrowserRouter([
@@ -49,7 +50,7 @@ export const routes = createBrowserRouter([
   },
   {
     path: "/eventos",
-    element: <div>Tela de Eventos</div>,
+    element: <Eventos />,
   },
   {
     path: "/usuarios",
