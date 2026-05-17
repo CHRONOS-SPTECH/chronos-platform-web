@@ -2,7 +2,6 @@ import { ClipboardList } from "lucide-react";
 import "../styles/presenca.css";
 import Header from "../components/homeSecretario/Header";
 import Sidebar from "../components/sidebar/SideBar";
-import Profile from "../components/homeSecretario/Profile";
 import CardPresenca from "../components/presenca/CardPresenca";
 
 function Presenca() {
@@ -29,8 +28,6 @@ function Presenca() {
         <main className="flex-1 min-h-0">
           {/* HEADER */}
           <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100">
-            <Profile nome="Henrique" cargo="Instrutor" />
-
             <div className="w-[210px] bg-gray-50 border-l-4 border-l-green-500 rounded-lg p-3 shadow-sm text-xs leading-relaxed">
               <p>
                 <strong>Turma Iniciada:</strong> Janeiro/2026

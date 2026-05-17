@@ -1,19 +1,28 @@
 import { Home, UserPlus, Users, CalendarPlus } from "lucide-react";
+
 import Acoes from "../components/homeSecretario/Acoes";
 import Evento from "../components/homeSecretario/Evento";
 import Header from "../components/homeSecretario/Header";
-import Profile from "../components/homeSecretario/Profile";
 import Sidebar from "../components/sidebar/SideBar";
 import VisaoGeral from "../components/homeSecretario/VisaoGeral";
 
 function HomeSecretario() {
+  const cadastrarAluno = () => {
+    console.log("Abrindo tela de cadastro de Novo Aluno...");
+  };
+
+  const matricularAluno = () => {
+    console.log("Abrindo tela de Matrícula em Turma...");
+  };
+
+  const criarEvento = () => {
+    console.log("Abrindo tela de Adicionar Evento...");
+  };
+
   return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
+    <div className="flex h-screen bg-gray-100 overflow-hidden font-sans">
       {/* Sidebar */}
-      <Sidebar
-        tipoUsuario="secretario"
-        usuario={{ inicial: "H", nome: "Henrique" }}
-      />
+      <Sidebar tipoUsuario="secretario" />
 
       {/* Conteúdo principal */}
       <div className="flex-1 flex flex-col h-screen">
@@ -23,34 +32,40 @@ function HomeSecretario() {
         {/* Área com scroll */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 flex flex-col gap-6">
-            {/* Perfil */}
-            <Profile nome="Henrique" cargo="Secretário" />
-
             {/* Grid principal */}
             <div className="flex gap-6 items-start justify-between">
-              {/* Ações */}
+              {/* Coluna da Esquerda (Ações e Visão Geral) */}
               <div className="flex-1 flex flex-col gap-6">
+                {/* Chamando o componente dinâmico manualmente por props */}
                 <Acoes
-                  titulo="MINHAS AÇÕES"
-                  acaoPrincipal={{
-                    texto: "+ Novo Aluno",
-                    icone: <UserPlus size={24} />,
-                  }}
-                  acoesSecundarias={[
+                  acoes={[
                     {
-                      texto: "Matricular em Turma",
-                      icone: <Users size={20} />,
+                      id: "novo-aluno",
+                      label: "Novo Aluno",
+                      subLabel: "Cadastrar no sistema", // Opcional, se o layout aceitar
+                      icon: UserPlus,
+                      isPrimary: true, // Ocupa 2 colunas e tem destaque
+                      onClick: cadastrarAluno,
                     },
                     {
-                      texto: "Adicionar Evento",
-                      icone: <CalendarPlus size={20} />,
+                      id: "matricular",
+                      label: "Matricular em Turma",
+                      icon: Users,
+                      onClick: matricularAluno,
+                    },
+                    {
+                      id: "novo-evento",
+                      label: "Adicionar Evento",
+                      icon: CalendarPlus,
+                      onClick: criarEvento,
                     },
                   ]}
                 />
+
                 <VisaoGeral />
               </div>
 
-              {/* Eventos */}
+              {/* Coluna da Direita (Eventos) */}
               <div className="w-[500px] shrink-0">
                 <Evento />
               </div>

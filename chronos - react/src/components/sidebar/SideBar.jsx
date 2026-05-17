@@ -1,4 +1,3 @@
-// src/components/sidebar/SideBar.jsx
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -11,10 +10,7 @@ import {
 import "../../styles/sidebar.css";
 import { MENU_CONFIG } from "../../config/navigation";
 
-export default function Sidebar({
-  tipoUsuario = "instrutor",
-  usuario = { inicial: "H", nome: "Henrique" },
-}) {
+export default function Sidebar({ tipoUsuario = "instrutor" }) {
   const navigate = useNavigate();
   const location = useLocation();
   const config = MENU_CONFIG[tipoUsuario];
@@ -23,6 +19,7 @@ export default function Sidebar({
 
   return (
     <aside className="w-[280px] h-screen bg-[#00871D] text-white flex flex-col shadow-xl shrink-0">
+      {/* Brand / Logo */}
       <div className="px-6 py-8">
         <div className="flex items-center gap-3">
           <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
@@ -34,21 +31,7 @@ export default function Sidebar({
         </div>
       </div>
 
-      <div className="px-6 mb-8 flex items-center gap-3">
-        <div className="bg-white text-[#00871D] font-bold text-lg w-12 h-12 flex items-center justify-center rounded-2xl shadow-lg">
-          {usuario.inicial}
-        </div>
-        <div className="flex flex-col">
-          <span className="font-bold text-white text-base leading-none">
-            {usuario.nome}
-          </span>
-          <span className="text-[10px] text-green-200 font-bold mt-1.5 uppercase tracking-widest opacity-80">
-            {tipoUsuario}
-          </span>
-        </div>
-      </div>
-
-      {/* Nav */}
+      {/* Nav - Agora começa diretamente abaixo do Header do menu */}
       <nav className="flex-1 px-4 overflow-y-auto custom-scrollbar">
         <button
           onClick={() => navigate(config.dashboardPath)}
@@ -102,17 +85,6 @@ export default function Sidebar({
           </div>
         ))}
       </nav>
-
-      {/* Footer */}
-      <div className="p-4 mt-auto border-t border-white/10">
-        <button
-          onClick={() => navigate("/login")}
-          className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl text-green-100 font-bold hover:bg-red-500 hover:text-white transition-all"
-        >
-          <LogOut size={22} strokeWidth={2.5} />
-          <span className="text-sm">Sair</span>
-        </button>
-      </div>
     </aside>
   );
 }

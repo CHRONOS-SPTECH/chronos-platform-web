@@ -1,62 +1,98 @@
-import { Check, Play } from "lucide-react";
-
-const statusConfig = {
-  concluida: {
-    label: "Concluída",
-    icon: <Check size={12} strokeWidth={3} />,
-    circleClass: "bg-[#e8f5e9] text-[#2d7a2d]",
-    badgeClass: "bg-[#e8f5e9] text-[#2d7a2d]",
-  },
-  andamento: {
-    label: "andamento",
-    icon: <Play size={10} fill="currentColor" />,
-    circleClass: "bg-[#e3f2fd] text-[#1565c0]",
-    badgeClass: "bg-[#e3f2fd] text-[#1565c0]",
-  },
-  pendente: {
-    label: "pendente",
-    icon: null,
-    circleClass: "bg-[#fff3e0] text-[#e65100]",
-    badgeClass: "bg-[#fff3e0] text-[#e65100]",
-  },
-};
+import { Check, Play, Clock } from "@phosphor-icons/react";
 
 function Cronograma() {
   const aulas = [
-    { id: 1, titulo: "Aula 1 - Filosofia antiga", horario: "10h - 12h", status: "concluida" },
-    { id: 2, titulo: "Aula 2- Filosofia antiga",  horario: "10h - 12h", status: "andamento" },
-    { id: 3, titulo: "Aula 3- Filosofia antiga",  horario: "10h - 12h", status: "pendente" },
-    { id: 4, titulo: "Aula 4- Filosofia antiga",  horario: "10h - 12h", status: "pendente" },
+    {
+      id: 1,
+      titulo: "Aula 1 - Filosofia antiga",
+      horario: "10h - 12h",
+      status: "concluida",
+    },
+    {
+      id: 2,
+      titulo: "Aula 2 - Filosofia antiga",
+      horario: "14h - 16h",
+      status: "andamento",
+    },
+    {
+      id: 3,
+      titulo: "Aula 3 - Filosofia antiga",
+      horario: "16h - 18h",
+      status: "pendente",
+    },
   ];
 
   return (
-    <div className="flex flex-col gap-2">
-      <p className="text-sm font-bold tracking-wide uppercase text-gray-700">Cronograma do Dia</p>
+    <div className="flex flex-col w-full animate-fade-in">
+      <p className="text-xs font-black tracking-[0.2em] text-slate-400 uppercase mb-3 ml-1">
+        Cronograma do Dia
+      </p>
 
-      <div className="bg-[#2d7a2d] text-white rounded-lg px-4 py-2 flex items-center justify-between text-xs font-semibold">
-        <span>Hoje - Sab, 18 de abril</span>
-        <span className="bg-white/20 px-3 py-0.5 rounded-full text-[11px]">{aulas.length} aulas</span>
+      {/* Header Estilo Tabela Verde */}
+      <div className="bg-[#1E7A3C] text-white rounded-t-2xl px-6 py-4 flex items-center justify-between shadow-lg shadow-green-900/10">
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+          <span className="text-sm font-bold tracking-tight">
+            Sábado, 18 de Abril
+          </span>
+        </div>
+        <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider">
+          {aulas.length} aulas
+        </span>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        {aulas.map((aula, idx) => {
-          const cfg = statusConfig[aula.status];
-          return (
-            <div key={aula.id} className="flex items-center gap-3 bg-white rounded-lg px-3 py-2.5 border border-gray-100">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0 ${cfg.circleClass}`}>
-                {cfg.icon ?? idx + 1}
-              </div>
-              <span className="flex-1 text-xs font-medium text-gray-700">{aula.titulo}</span>
-              <span className="text-[11px] text-gray-400 mr-2">{aula.horario}</span>
-              <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full ${cfg.badgeClass}`}>
-                {cfg.label}
+      {/* Lista Estilo Tabela */}
+      <div className="bg-white border-x border-b border-slate-100 rounded-b-2xl overflow-hidden shadow-sm">
+        {aulas.map((aula, idx) => (
+          <div
+            key={aula.id}
+            className="flex items-center gap-4 px-6 py-4 border-b border-slate-50 last:border-none hover:bg-slate-50/50 transition-colors group"
+          >
+            {/* Indicador de Status Compacto */}
+            <div
+              className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110
+              ${
+                aula.status === "concluida"
+                  ? "bg-emerald-50 text-emerald-600"
+                  : aula.status === "andamento"
+                    ? "bg-blue-50 text-blue-600"
+                    : "bg-slate-50 text-slate-400"
+              }`}
+            >
+              {aula.status === "concluida" ? (
+                <Check size={16} weight="bold" />
+              ) : aula.status === "andamento" ? (
+                <Play size={14} weight="fill" />
+              ) : (
+                <span className="text-xs font-bold">{idx + 1}</span>
+              )}
+            </div>
+
+            <span className="flex-1 text-sm font-bold text-slate-700 tracking-tight">
+              {aula.titulo}
+            </span>
+
+            <div className="flex items-center gap-4">
+              <span className="text-[11px] font-semibold text-slate-400 flex items-center gap-1.5">
+                <Clock size={14} /> {aula.horario}
+              </span>
+              <span
+                className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md border
+                ${
+                  aula.status === "concluida"
+                    ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                    : aula.status === "andamento"
+                      ? "bg-blue-50 text-blue-600 border-blue-100 animate-pulse"
+                      : "bg-slate-50 text-slate-400 border-slate-100"
+                }`}
+              >
+                {aula.status}
               </span>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </div>
   );
 }
-
 export default Cronograma;

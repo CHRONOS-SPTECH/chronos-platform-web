@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Input from "../Input";
 import Button from "../Button";
 import authService from "../../services/authService";
 
 function LoginForm({ onForgotPassword, onStatusChange }) {
   const [email, setEmail] = useState("henrique@gmail.com");
-  const [password, setPassword] = useState("senhaSegura123");
+  const [password, setPassword] = useState("senhaHash123");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    localStorage.removeItem("token");
+  }, []);
 
   async function login() {
     onStatusChange({ type: "", message: "" });

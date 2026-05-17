@@ -1,31 +1,27 @@
 import perfil from "../../assets/perfil.svg";
 
-/**
- * Props:
- * - nome: string
- * - cargo: string
- * - avatar: string
- */
-function Profile({ nome = "Henrique", cargo = "Secretário", avatar = perfil }) {
+function Profile({ nome = "Instrutor", cargo = "Instrutor", avatar = perfil }) {
   return (
-    <div className="flex flex-row gap-4 items-center group cursor-pointer rounded-xl transition-all">
+    <div className="flex flex-row gap-5 items-center group cursor-pointer rounded-2xl">
       <div className="relative">
+        <div className="absolute inset-0 bg-[#1E7A3C] rounded-full blur-md opacity-0 group-hover:opacity-20 transition-opacity"></div>
         <img
           src={avatar}
           alt={`Foto de perfil de ${nome}`}
-          className="w-16 h-16 rounded-full object-cover border-2 border-transparent group-hover:border-[#228B22] transition-all shadow-sm"
+          className="w-12 h-12 rounded-full object-cover border-2 border-slate-100 relative z-10"
         />
-        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+        <span className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-4 border-white rounded-full z-20"></span>
       </div>
 
-      <div className="flex flex-col items-start leading-tight">
-        <h2 className="font-bold text-gray-800 text-[15px] group-hover:text-[#228B22] transition-colors">
+      <div className="flex flex-col items-start justify-center">
+        <h2 className="text-[15px] font-black text-slate-800 text-base tracking-tight group-hover:text-[#1E7A3C] transition-colors leading-none">
           {nome}
         </h2>
-
-        <span className="mt-1 px-3 py-0.5 bg-[#228B22]/10 text-[#228B22] border border-[#228B22]/20 rounded-full font-medium text-[11px] uppercase tracking-wider">
-          {cargo}
-        </span>
+        <div className="mt-1.5 flex items-center gap-2">
+          <span className="px-2.5 py-0.5 bg-slate-100 text-slate-500 rounded-md font-bold text-[8px] uppercase tracking-[0.1em] border border-slate-200 group-hover:bg-green-50 group-hover:text-[#1E7A3C] group-hover:border-green-100 transition-all">
+            {cargo}
+          </span>
+        </div>
       </div>
     </div>
   );
