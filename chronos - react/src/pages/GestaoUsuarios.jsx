@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Users } from "lucide-react";
 import Sidebar from "../components/sidebar/SideBar";
 import Header from "../components/homeSecretario/Header";
-import Profile from "../components/homeSecretario/Profile";
 
 import BarraAcoes from "../components/gestaoUsuarios/BarraAcoes";
 import CardUsuario from "../components/gestaoUsuarios/CardUsuarios";
@@ -29,17 +28,13 @@ function GestaoUsuarios() {
 
   return (
     <div className="flex h-screen bg-[#F1F5F9] overflow-hidden">
-      <Sidebar
-        tipoUsuario="secretario"
-        usuario={{ inicial: "H", nome: "Henrique" }}
-      />
+      <Sidebar tipoUsuario="secretario" />
       <div className="flex-1 flex flex-col h-screen">
         <Header titulo="Gestão de Usuários" icone={Users} />
 
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           <div className="p-8 flex flex-col gap-8">
-            <div className="flex flex-row justify-between items-center">
-              <Profile nome="Henrique" cargo="Secretário" />
+            <div className="flex flex-row items-end-safe">
               <BarraAcoes onNovoClick={() => setIsModalOpen(true)} />
             </div>
 
