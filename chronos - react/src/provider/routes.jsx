@@ -1,14 +1,18 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import Login from "../pages/Login";
-import HomeInstrutor from "../pages/HomeInstrutor";
-import HomeSecretario from "../pages/HomeSecretario";
-import HomeDiretor from "../pages/HomeDiretor";
-import Presenca from "../pages/Presenca";
 import Perfils from "../pages/Perfils";
-import GestaoUsuarios from "../pages/GestaoUsuarios";
-import GestaoAcademica from "../pages/GestaoAcademica";
-import Eventos from "../pages/Eventos";
+
+//Homes
+import HomeInstrutor from "../pages/instrutor/HomeInstrutor";
+import HomeSecretario from "../pages/secretaria/HomeSecretario";
+import HomeDiretor from "../pages/HomeDiretor";
+
+import Presenca from "../pages/instrutor/Presenca";
+import GestaoUsuarios from "../pages/secretaria/GestaoUsuarios";
+import GestaoAcademica from "../pages/secretaria/GestaoAcademica";
+import Eventos from "../pages/secretaria/Eventos";
+
 import { elements } from "chart.js";
 
 export const routes = createBrowserRouter([
@@ -30,7 +34,7 @@ export const routes = createBrowserRouter([
   },
   {
     path: "/administrador",
-    element: <HomeDiretor/>
+    element: <HomeDiretor />,
   },
   {
     path: "/presenca",

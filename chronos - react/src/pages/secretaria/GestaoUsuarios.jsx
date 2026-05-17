@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Users } from "lucide-react";
-import Sidebar from "../components/sidebar/SideBar";
-import Header from "../components/homeSecretario/Header";
+import Sidebar from "../../components/sidebar/SideBar";
+import Header from "../../components/homeSecretario/Header";
 
-import BarraAcoes from "../components/gestaoUsuarios/BarraAcoes";
-import CardUsuario from "../components/gestaoUsuarios/CardUsuarios";
-import Paginacao from "../components/gestaoUsuarios/Paginacao";
-import ModalUsuario from "../components/gestaoUsuarios/ModalUsuario";
-import api from "../services/api";
+import BarraAcoes from "../../components/gestaoUsuarios/BarraAcoes";
+import CardUsuario from "../../components/gestaoUsuarios/CardUsuarios";
+import Paginacao from "../../components/gestaoUsuarios/Paginacao";
+import ModalUsuario from "../../components/gestaoUsuarios/ModalUsuario";
+import api from "../../services/api";
 
 function GestaoUsuarios() {
   const [isModalOpen, setIsModalOpen] = useState(false);

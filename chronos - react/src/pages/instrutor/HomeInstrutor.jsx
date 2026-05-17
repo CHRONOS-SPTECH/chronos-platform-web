@@ -1,11 +1,11 @@
 import { Home } from "lucide-react";
 import { Play, Calendar, Users } from "@phosphor-icons/react";
 
-import Acoes from "../components/homeSecretario/Acoes";
-import Evento from "../components/homeSecretario/Evento";
-import Header from "../components/homeSecretario/Header";
-import Sidebar from "../components/sidebar/SideBar";
-import Cronograma from "../components/homeInstrutor/Cronograma";
+import Acoes from "../../components/homeSecretario/Acoes";
+import Evento from "../../components/homeSecretario/Evento";
+import Header from "../../components/homeSecretario/Header";
+import Sidebar from "../../components/sidebar/SideBar";
+import Cronograma from "../../components/homeInstrutor/Cronograma";
 
 function HomeInstrutor() {
   const abrirTelaPresenca = () => {

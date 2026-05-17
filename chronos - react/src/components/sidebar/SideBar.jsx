@@ -7,7 +7,6 @@ import {
   ChevronRight,
   LayoutGrid,
 } from "lucide-react";
-import "../../styles/sidebar.css";
 import { MENU_CONFIG } from "../../config/navigation";
 
 export default function Sidebar({ tipoUsuario = "instrutor" }) {

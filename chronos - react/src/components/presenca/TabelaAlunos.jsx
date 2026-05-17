@@ -3,7 +3,7 @@ import { UserCircle } from "lucide-react";
 
 function TabelaAlunos({ alunos, onTogglePresenca }) {
   return (
-    <div className="max-h-[380px] overflow-y-auto border border-gray-200 rounded-lg custom-scrollbar">
+    <div className="max-h-[360px] overflow-y-auto border border-gray-200 rounded-lg custom-scrollbar">
       <table className="w-full border-separate border-spacing-0">
         <thead className="sticky top-0 z-10 bg-white">
           <tr className="text-left text-sm font-semibold text-gray-600">

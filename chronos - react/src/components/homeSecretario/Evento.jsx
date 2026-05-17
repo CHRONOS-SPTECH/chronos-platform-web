@@ -18,6 +18,22 @@ const eventos = [
     descricao: "Entendendo os ciclos de aprendizado e a gestão de performance.",
     tipo: "Palestra",
   },
+  {
+    id: 2,
+    data: "02/04",
+    ano: "2026",
+    titulo: "Palestra: O Tempo em Cronos",
+    descricao: "Entendendo os ciclos de aprendizado e a gestão de performance.",
+    tipo: "Palestra",
+  },
+  {
+    id: 2,
+    data: "02/04",
+    ano: "2026",
+    titulo: "Palestra: O Tempo em Cronos",
+    descricao: "Entendendo os ciclos de aprendizado e a gestão de performance.",
+    tipo: "Palestra",
+  },
 ];
 
 function Evento() {

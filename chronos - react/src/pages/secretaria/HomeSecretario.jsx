@@ -1,10 +1,10 @@
 import { Home, UserPlus, Users, CalendarPlus } from "lucide-react";
 
-import Acoes from "../components/homeSecretario/Acoes";
-import Evento from "../components/homeSecretario/Evento";
-import Header from "../components/homeSecretario/Header";
-import Sidebar from "../components/sidebar/SideBar";
-import VisaoGeral from "../components/homeSecretario/VisaoGeral";
+import Acoes from "../../components/homeSecretario/Acoes";
+import Evento from "../../components/homeSecretario/Evento";
+import Header from "../../components/homeSecretario/Header";
+import Sidebar from "../../components/sidebar/SideBar";
+import VisaoGeral from "../../components/homeSecretario/VisaoGeral";
 
 function HomeSecretario() {
   const cadastrarAluno = () => {

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { BookOpen, Users, CalendarDays } from "lucide-react";
-import Sidebar from "../components/sidebar/SideBar";
-import Header from "../components/homeSecretario/Header";
-import CardTurma from "../components/turmas/CardTurma";
+import Sidebar from "../../components/sidebar/SideBar";
+import Header from "../../components/homeSecretario/Header";
+import CardTurma from "../../components/turmas/CardTurma";
 
 const alunos = [
   {
@@ -169,17 +169,13 @@ function GestaoAcademica() {
                           NOME/EMAIL
                         </th>
 
-                        <th className="p-2 text-[10px] font-bold">
-                          CPF
-                        </th>
+                        <th className="p-2 text-[10px] font-bold">CPF</th>
 
                         <th className="p-2 text-[10px] font-bold">
                           DATA NASC.
                         </th>
 
-                        <th className="p-2 text-[10px] font-bold">
-                          VÍNCULO
-                        </th>
+                        <th className="p-2 text-[10px] font-bold">VÍNCULO</th>
 
                         <th className="p-2 text-[10px] font-bold">
                           DATA MEMBRO
@@ -189,9 +185,7 @@ function GestaoAcademica() {
                           VOLUNTÁRIO?
                         </th>
 
-                        <th className="p-2 text-[10px] font-bold">
-                          AÇÕES
-                        </th>
+                        <th className="p-2 text-[10px] font-bold">AÇÕES</th>
                       </tr>
                     </thead>
 
@@ -277,9 +271,7 @@ function GestaoAcademica() {
                   Eventos
                 </h2>
 
-                <p className="text-gray-400 text-sm">
-                  Em desenvolvimento...
-                </p>
+                <p className="text-gray-400 text-sm">Em desenvolvimento...</p>
               </div>
             )}
           </div>
