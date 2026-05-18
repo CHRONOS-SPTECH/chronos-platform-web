@@ -10,8 +10,10 @@ import HomeDiretor from "../pages/HomeDiretor";
 
 import Presenca from "../pages/instrutor/Presenca";
 import GestaoUsuarios from "../pages/secretaria/GestaoUsuarios";
-import GestaoAcademica from "../pages/secretaria/GestaoAcademica";
+
 import Eventos from "../pages/secretaria/Eventos";
+import Turmas from "../pages/secretaria/Turmas";
+import Alunos from "../pages/secretaria/Alunos";
 
 import { elements } from "chart.js";
 
@@ -46,7 +48,11 @@ export const routes = createBrowserRouter([
   },
   {
     path: "/turmas",
-    element: <GestaoAcademica />,
+    element: <Turmas />,
+  },
+  {
+    path: "/alunos",
+    element: <Alunos />,
   },
   {
     path: "/agenda",
