@@ -5,11 +5,12 @@ import authService from "../../services/authService";
 
 function LoginForm({ onForgotPassword, onStatusChange }) {
   const [email, setEmail] = useState("henrique@gmail.com");
-  const [password, setPassword] = useState("senhaHash123");
+  const [password, setPassword] = useState("senhaSegura123");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    localStorage.removeItem("token");
+    // Clear any existing auth data when visiting the login screen
+    authService.clearSession();
   }, []);
 
   async function login() {
@@ -19,9 +20,7 @@ function LoginForm({ onForgotPassword, onStatusChange }) {
     try {
       const data = await authService.login(email, password);
 
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
+      authService.setSession(data);
 
       onStatusChange({
         type: "success",

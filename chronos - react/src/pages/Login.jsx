@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LoginForm from "../components/login/LoginForm";
 import ForgotForm from "../components/login/ForgotForm";
 import Alert from "../components/alert-toast/AlertToast";
 import logoChronos from "../assets/logoChronos.svg";
+import authService from "../services/authService";
 
 function Login() {
+  useEffect(() => {
+    // Clear any existing auth data whenever the login page is shown
+    authService.clearSession();
+  }, []);
   const [view, setView] = useState("login");
   const [status, setStatus] = useState({ type: "", message: "" });
 
