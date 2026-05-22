@@ -19,7 +19,7 @@ const eventos = [
     tipo: "Palestra",
   },
   {
-    id: 2,
+    id: 3,
     data: "02/04",
     ano: "2026",
     titulo: "Palestra: O Tempo em Cronos",
@@ -27,7 +27,7 @@ const eventos = [
     tipo: "Palestra",
   },
   {
-    id: 2,
+    id: 4,
     data: "02/04",
     ano: "2026",
     titulo: "Palestra: O Tempo em Cronos",

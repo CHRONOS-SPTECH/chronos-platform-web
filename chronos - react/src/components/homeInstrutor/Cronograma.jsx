@@ -1,6 +1,14 @@
 import { Check, Play, Clock } from "@phosphor-icons/react";
 
 function Cronograma() {
+  // const fetchUsuarios = async () => {
+  //   try {
+  //     const response = await api.get("/usuarios");
+  //     setUsuarios(response.data);
+  //   } catch (error) {
+  //     console.error("Erro ao buscar usuários:", error);
+  //   }
+  // };
   const aulas = [
     {
       id: 1,
