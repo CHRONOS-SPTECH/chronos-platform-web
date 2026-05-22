@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { House, Calendar, SignOut, Gear, User } from "@phosphor-icons/react";
 import Profile from "./Profile";
+import { useNavigate } from "react-router-dom";
 
 function Header({
   titulo = "Dashboard",
@@ -10,7 +11,9 @@ function Header({
 }) {
   const [perfilAberto, setPerfilAberto] = useState(false);
 
-  const handleLogout = () => console.log("Logout executado");
+  const navigation = useNavigate();
+
+  const Logout = () => navigation("/perfis");
   const handleConfiguracoes = () => console.log("Abrindo configurações");
 
   return (
@@ -73,7 +76,7 @@ function Header({
 
                 <button
                   onClick={() => {
-                    handleLogout();
+                    Logout();
                     setPerfilAberto(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors text-sm font-medium"
