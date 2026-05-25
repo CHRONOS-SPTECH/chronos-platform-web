@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Input from "../Input";
 import Button from "../Button";
 import authService from "../../services/authService";
@@ -8,11 +8,6 @@ function LoginForm({ onForgotPassword, onStatusChange }) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({ email: "", password: "" });
-
-  useEffect(() => {
-    // Clear any existing auth data when visiting the login screen
-    authService.clearSession();
-  }, []);
 
   async function login() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

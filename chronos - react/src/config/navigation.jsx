@@ -15,9 +15,9 @@ export const MENU_CONFIG = {
         titulo: "Controle de Frequência",
         icone: <UserCheck size={20} />,
         itens: [
-          { nome: "Chamada do dia", rota: "/presenca" },
-          { nome: "Minhas Turmas", rota: "/turmas" },
-          { nome: "Minha Agenda", rota: "/agenda" },
+          { nome: "Chamada do dia", rota: "/presenca/1" },
+          // { nome: "Minhas Turmas", rota: "/turmas" },
+          // { nome: "Minha Agenda", rota: "/agenda" },
         ],
       },
     ],
@@ -41,7 +41,7 @@ export const MENU_CONFIG = {
         icone: <LayoutDashboard size={20} />,
         itens: [
           { nome: "Usuários", rota: "/usuarios" },
-          { nome: "Permissões", rota: "/permissoes" },
+          // { nome: "Permissões", rota: "/permissoes" },
         ],
       },
     ],
@@ -54,8 +54,8 @@ export const MENU_CONFIG = {
         titulo: "Dashboard's",
         icone: <LayoutDashboard size={20} />,
         itens: [
-          { nome: "Panorama Acadêmico", rota: "/panorama" },
-          { nome: "Engajamento das Atividades", rota: "/engajamento" },
+          { nome: "Panorama Acadêmico" },
+          { nome: "Engajamento das Atividades" },
         ],
       },
     ],

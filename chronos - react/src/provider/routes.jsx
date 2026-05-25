@@ -19,7 +19,11 @@ import sessionService from "../services/sessionService";
 
 function PrivateRoute({ element }) {
   const token = sessionService.getToken();
-  return token ? element : <Navigate to="/login" replace state={{ unauthorized: true }} />;
+  return token ? (
+    element
+  ) : (
+    <Navigate to="/login" replace state={{ unauthorized: true }} />
+  );
 }
 
 export const routes = createBrowserRouter([
@@ -44,7 +48,7 @@ export const routes = createBrowserRouter([
     element: <PrivateRoute element={<HomeDiretor />} />,
   },
   {
-    path: "/presenca",
+    path: "/presenca/:idAula",
     element: <PrivateRoute element={<Presenca />} />,
   },
   {
