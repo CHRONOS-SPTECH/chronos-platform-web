@@ -5,53 +5,63 @@ import { BookOpen } from "lucide-react";
 import api from "../../services/api";
 
 function CardPresenca({ alunos, dadosAula }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [alunosState, setAlunosState] = useState([]);
-  const [isSending, setIsSending] = useState(false);
+  const [modalAberto, setModalAberto] = useState(false);
+  const [listaAlunos, setListaAlunos] = useState([]);
+  const [carregando, setCarregando] = useState(false);
 
-  // Inicializa/atualiza estado local quando a prop muda
+  // Assim que o componente carrega, preparamos a lista de alunos
   useEffect(() => {
     if (!alunos) return;
-    const inicial = alunos.map((a) => ({ ...a, presente: !!a.presente }));
-    setAlunosState(inicial);
+
+    const listaInicial = alunos.map((aluno) => {
+      return {
+        ...aluno,
+        presente: aluno.presente === true,
+      };
+    });
+
+    setListaAlunos(listaInicial);
   }, [alunos]);
 
-  const onTogglePresenca = (index) => {
-    setAlunosState((prev) => {
-      const copy = [...prev];
-      copy[index] = { ...copy[index], presente: !copy[index].presente };
-      return copy;
-    });
+  // Função para marcar/desmarcar a presença do aluno
+  const alternarPresenca = (index) => {
+    const novaLista = [...listaAlunos];
+
+    novaLista[index].presente = !novaLista[index].presente;
+
+    setListaAlunos(novaLista);
   };
 
+  // Função que envia a chamada para o servidor
   const salvarChamada = async () => {
-    setIsSending(true);
+    setCarregando(true);
+
     try {
       if (!dadosAula || !dadosAula.id_aula) {
-        console.error("id_aula não disponível em dadosAula");
+        console.error("Não encontramos o ID da aula.");
         return;
       }
 
-      // Agrupa os dados conforme solicitado
-      const payload = alunosState.map((aluno) => ({
-        id_aula: dadosAula.id_aula,
-        id_pessoa: aluno.id_pessoa ?? aluno.id ?? null,
-        compareceu: !!aluno.presente,
-      }));
+      const dadosParaSalvar = listaAlunos.map((aluno) => {
+        return {
+          id_aula: dadosAula.id_aula,
+          id_pessoa: aluno.id_pessoa || aluno.id || null,
+          compareceu: aluno.presente,
+        };
+      });
 
-      console.log("Payload a ser enviado:", payload);
+      console.log("Dados enviados:", dadosParaSalvar);
 
-      // Envia em lote para o endpoint
-      await api.post("/chamadas-aula", payload);
+      // Faz a requisição para salvar no banco de dados
+      await api.post("/chamadas-aula", dadosParaSalvar);
 
-      // fechar modal e opcionalmente notificar
-      setIsModalOpen(false);
-      alert("Chamada enviada com sucesso.");
+      setModalAberto(false);
+      alert("Chamada enviada com sucesso!");
     } catch (error) {
       console.error("Erro ao enviar chamada:", error);
-      alert("Falha ao enviar chamada. Verifique o console.");
+      alert("Houve um erro ao enviar a chamada.");
     } finally {
-      setIsSending(false);
+      setCarregando(false);
     }
   };
 
@@ -74,12 +84,12 @@ function CardPresenca({ alunos, dadosAula }) {
       {/* TABELA DE ALUNOS */}
       <div className="bg-white border border-slate-100 rounded-3xl shadow-sm overflow-hidden">
         <TabelaAlunos
-          alunos={alunosState}
-          onTogglePresenca={onTogglePresenca}
+          alunos={listaAlunos}
+          onTogglePresenca={alternarPresenca}
         />
       </div>
 
-      {/* AÇÕES DE RODAPÉ */}
+      {/* BOTÕES DE AÇÃO */}
       <div className="flex justify-end gap-3 mt-6">
         <button className="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors">
           Cancelar
@@ -87,7 +97,7 @@ function CardPresenca({ alunos, dadosAula }) {
 
         <button
           className="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider text-white bg-[#1E7A3C] hover:bg-[#165a2d] transition-colors shadow-md shadow-green-100/50 active:scale-[0.98]"
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => setModalAberto(true)}
         >
           Salvar Chamada
         </button>
@@ -95,12 +105,12 @@ function CardPresenca({ alunos, dadosAula }) {
 
       {/* MODAL DE CONFIRMAÇÃO */}
       <ModalConfirmacao
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        alunos={alunosState}
-        onTogglePresenca={onTogglePresenca}
+        isOpen={modalAberto}
+        onClose={() => setModalAberto(false)}
+        alunos={listaAlunos}
+        onTogglePresenca={alternarPresenca}
         onConfirm={salvarChamada}
-        isSending={isSending}
+        isSending={carregando}
       />
     </section>
   );
