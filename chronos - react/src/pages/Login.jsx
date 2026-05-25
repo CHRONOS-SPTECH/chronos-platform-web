@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import LoginForm from "../components/login/LoginForm";
 import ForgotForm from "../components/login/ForgotForm";
 import Alert from "../components/alert-toast/AlertToast";
@@ -6,12 +7,16 @@ import logoChronos from "../assets/logoChronos.svg";
 import authService from "../services/authService";
 
 function Login() {
-  useEffect(() => {
-    // Clear any existing auth data whenever the login page is shown
-    authService.clearSession();
-  }, []);
+  const location = useLocation();
   const [view, setView] = useState("login");
   const [status, setStatus] = useState({ type: "", message: "" });
+
+  useEffect(() => {
+    authService.clearSession();
+    if (location.state?.unauthorized) {
+      setStatus({ type: "error", message: "Você precisa estar logado para acessar esta página." });
+    }
+  }, []);
 
   const atualizarStatus = (novoStatus) => {
     setStatus(novoStatus);

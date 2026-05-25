@@ -15,7 +15,12 @@ import Eventos from "../pages/secretaria/Eventos";
 import Turmas from "../pages/secretaria/Turmas";
 import Alunos from "../pages/secretaria/Alunos";
 
-import { elements } from "chart.js";
+import sessionService from "../services/sessionService";
+
+function PrivateRoute({ element }) {
+  const token = sessionService.getToken();
+  return token ? element : <Navigate to="/login" replace state={{ unauthorized: true }} />;
+}
 
 export const routes = createBrowserRouter([
   {
@@ -28,43 +33,43 @@ export const routes = createBrowserRouter([
   },
   {
     path: "/instrutor",
-    element: <HomeInstrutor />,
+    element: <PrivateRoute element={<HomeInstrutor />} />,
   },
   {
     path: "/secretario",
-    element: <HomeSecretario />,
+    element: <PrivateRoute element={<HomeSecretario />} />,
   },
   {
     path: "/administrador",
-    element: <HomeDiretor />,
+    element: <PrivateRoute element={<HomeDiretor />} />,
   },
   {
     path: "/presenca",
-    element: <Presenca />,
+    element: <PrivateRoute element={<Presenca />} />,
   },
   {
     path: "/perfis",
-    element: <Perfils />,
+    element: <PrivateRoute element={<Perfils />} />,
   },
   {
     path: "/turmas",
-    element: <Turmas />,
+    element: <PrivateRoute element={<Turmas />} />,
   },
   {
     path: "/alunos",
-    element: <Alunos />,
+    element: <PrivateRoute element={<Alunos />} />,
   },
   {
     path: "/agenda",
-    element: <div>Tela de Agenda</div>,
+    element: <PrivateRoute element={<div>Tela de Agenda</div>} />,
   },
   {
     path: "/eventos",
-    element: <Eventos />,
+    element: <PrivateRoute element={<Eventos />} />,
   },
   {
     path: "/usuarios",
-    element: <GestaoUsuarios />,
+    element: <PrivateRoute element={<GestaoUsuarios />} />,
   },
   {
     path: "*",
