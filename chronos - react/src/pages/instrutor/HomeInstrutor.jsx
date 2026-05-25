@@ -6,10 +6,13 @@ import Evento from "../../components/homeSecretario/Evento";
 import Header from "../../components/homeSecretario/Header";
 import Sidebar from "../../components/sidebar/SideBar";
 import Cronograma from "../../components/homeInstrutor/Cronograma";
+import { useNavigate } from "react-router-dom";
 
 function HomeInstrutor() {
-  const abrirTelaPresenca = () => {
-    console.log("Abrindo tela de Marcar Presença...");
+  const navigation = useNavigate();
+
+  const abrirTelaPresenca = (idAula) => {
+    navigation(`/presenca/${idAula}`);
   };
 
   const abrirTelaAgenda = () => {
@@ -43,7 +46,7 @@ function HomeInstrutor() {
                         subLabel: "Aula em andamento agora",
                         icon: Play,
                         isPrimary: true,
-                        onClick: abrirTelaPresenca,
+                        onClick: (idAula) => abrirTelaPresenca(1),
                       },
                       {
                         id: "agenda",

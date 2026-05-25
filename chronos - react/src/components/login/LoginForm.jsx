@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Input from "../Input";
 import Button from "../Button";
 import authService from "../../services/authService";
@@ -7,11 +7,6 @@ function LoginForm({ onForgotPassword, onStatusChange }) {
   const [email, setEmail] = useState("henrique@gmail.com");
   const [password, setPassword] = useState("senhaSegura123");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    // Clear any existing auth data when visiting the login screen
-    authService.clearSession();
-  }, []);
 
   async function login() {
     onStatusChange({ type: "", message: "" });

@@ -1,6 +1,13 @@
 import { UserCircle } from "lucide-react";
 
-function ModalConfirmacao({ isOpen, onClose, alunos, onTogglePresenca }) {
+function ModalConfirmacao({
+  isOpen,
+  onClose,
+  alunos,
+  onTogglePresenca,
+  onConfirm,
+  isSending = false,
+}) {
   if (!isOpen) return null;
 
   const getCorBarra = (porcentagem) => {
@@ -81,8 +88,19 @@ function ModalConfirmacao({ isOpen, onClose, alunos, onTogglePresenca }) {
           >
             Cancelar
           </button>
-          <button className="h-[40px] px-6 bg-[#0098DA] text-white font-bold rounded-lg shadow-sm">
-            Confirmar Chamada
+          <button
+            onClick={onConfirm}
+            disabled={isSending}
+            className={`h-[40px] px-6 text-white font-bold rounded-lg shadow-sm ${isSending ? "bg-[#007bb8] opacity-80 cursor-wait" : "bg-[#0098DA]"}`}
+          >
+            {isSending ? (
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <span>Enviando...</span>
+              </div>
+            ) : (
+              "Confirmar Chamada"
+            )}
           </button>
         </div>
       </div>

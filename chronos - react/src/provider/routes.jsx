@@ -39,7 +39,7 @@ export const routes = createBrowserRouter([
     element: <HomeDiretor />,
   },
   {
-    path: "/presenca",
+    path: "/presenca/:idAula",
     element: <Presenca />,
   },
   {
