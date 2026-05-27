@@ -10,10 +10,12 @@ import HomeDiretor from "../pages/HomeDiretor";
 
 import Presenca from "../pages/instrutor/Presenca";
 import GestaoUsuarios from "../pages/secretaria/GestaoUsuarios";
+import DashboardAcademica from "../pages/instrutor/DashboardAcademica";
 
 import Eventos from "../pages/secretaria/Eventos";
 import Turmas from "../pages/secretaria/Turmas";
 import Alunos from "../pages/secretaria/Alunos";
+
 
 import sessionService from "../services/sessionService";
 
@@ -78,5 +80,9 @@ export const routes = createBrowserRouter([
   {
     path: "*",
     element: <Navigate to="/login" replace />,
+  },
+  {
+    path: "/dashboard-academica",
+    element: <PrivateRoute element={<DashboardAcademica />} />,
   },
 ]);

@@ -4,6 +4,7 @@ import LoginForm from "../components/login/LoginForm";
 import ForgotForm from "../components/login/ForgotForm";
 import Alert from "../components/alert-toast/AlertToast";
 import logoChronos from "../assets/logoChronos.svg";
+import authService from "../services/authService";
 
 function Login() {
   const location = useLocation();
