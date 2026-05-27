@@ -5,6 +5,7 @@ function TabelaAlunos({ alunos, onTogglePresenca }) {
   return (
     <div className="max-h-[360px] overflow-y-auto border border-gray-200 rounded-lg custom-scrollbar">
       <table className="w-full border-separate border-spacing-0">
+        {/* Cabeçalho da Tabela */}
         <thead className="sticky top-0 z-10 bg-white">
           <tr className="text-left text-sm font-semibold text-gray-600">
             <th className="py-3 px-4 border-b border-gray-200 w-12">
@@ -16,7 +17,7 @@ function TabelaAlunos({ alunos, onTogglePresenca }) {
             <th className="py-3 px-4 border-b border-gray-200">
               Nome do Aluno
             </th>
-            <th className="py-3 px-4 border-b border-gray-200">CPF</th>
+            <th className="py-3 px-4 border-b border-gray-200">Email</th>
             <th className="py-3 px-4 border-b border-gray-200">Presença</th>
             <th className="py-3 px-4 border-b border-gray-200">Progresso</th>
             <th className="py-3 px-4 border-b border-gray-200 text-center">
@@ -26,49 +27,66 @@ function TabelaAlunos({ alunos, onTogglePresenca }) {
           </tr>
         </thead>
 
+        {/* Corpo da Tabela */}
         <tbody className="bg-white">
-          {alunos.map((aluno, index) => (
-            <tr key={index} className="hover:bg-gray-50 transition-colors">
-              {/* FOTO ADICIONADA AQUI */}
-              <td className="py-4 px-4 border-b border-gray-100">
-                <UserCircle
-                  size={32}
-                  className="text-green-500 bg-green-100 rounded-full"
-                />
-              </td>
-              <td className="py-4 px-4 text-sm font-medium text-gray-800 border-b border-gray-100">
-                {aluno.nome}
-              </td>
-              <td className="py-4 px-4 text-sm text-gray-500 border-b border-gray-100">
-                {aluno.cpf}
-              </td>
-              <td className="py-4 px-4 text-sm font-semibold text-gray-700 border-b border-gray-100">
-                {aluno.presenca}%
-              </td>
-              <td className="py-4 px-4 border-b border-gray-100">
-                <div className="w-24 bg-gray-200 rounded-full h-2">
-                  <div
-                    className={`h-2 rounded-full ${aluno.presenca >= 75 ? "bg-green-500" : "bg-yellow-500"}`}
-                    style={{ width: `${aluno.presenca}%` }}
-                  ></div>
-                </div>
-              </td>
-              <td className="py-4 px-4 border-b border-gray-100 text-center">
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    checked={aluno.presente} // Conectado ao estado
-                    onChange={() => onTogglePresenca(index)} // Função de mudança
+          {alunos.map((aluno, idx) => {
+            const pct = aluno.percentual_presenca ?? 0;
+            const isBomProgresso = pct >= 75;
+
+            return (
+              <tr
+                key={aluno.id_pessoa || idx}
+                className="hover:bg-gray-50 transition-colors"
+              >
+                {/* Avatar */}
+                <td className="py-4 px-4 border-b border-gray-100">
+                  <UserCircle
+                    size={32}
+                    className="text-green-500 bg-green-100 rounded-full"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#00871D] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00871D]"></div>
-                </label>
-              </td>
-              <td className="py-4 px-4 border-b border-gray-100 text-sm text-[#00871D] font-medium cursor-pointer hover:underline">
-                Ver Detalhes
-              </td>
-            </tr>
-          ))}
+                </td>
+
+                {/* Info Pessoal */}
+                <td className="py-4 px-4 text-sm font-medium text-gray-800 border-b border-gray-100">
+                  {aluno.nome}
+                </td>
+                <td className="py-4 px-4 text-sm text-gray-500 border-b border-gray-100">
+                  {aluno.email}
+                </td>
+
+                {/* Métricas de Frequência */}
+                <td className="py-4 px-4 text-sm font-semibold text-gray-700 border-b border-gray-100">
+                  {pct}%
+                </td>
+                <td className="py-4 px-4 border-b border-gray-100">
+                  <div className="w-24 bg-gray-200 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full ${isBomProgresso ? "bg-green-500" : "bg-yellow-500"}`}
+                      style={{ width: `${pct}%` }}
+                    ></div>
+                  </div>
+                </td>
+
+                {/* Toggle de Presença */}
+                <td className="py-4 px-4 border-b border-gray-100 text-center">
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={aluno.presente || false}
+                      onChange={() => onTogglePresenca(idx)}
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#00871D] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#00871D]"></div>
+                  </label>
+                </td>
+
+                {/* Link de Ações */}
+                <td className="py-4 px-4 border-b border-gray-100 text-sm text-[#00871D] font-medium cursor-pointer hover:underline">
+                  Ver Detalhes
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

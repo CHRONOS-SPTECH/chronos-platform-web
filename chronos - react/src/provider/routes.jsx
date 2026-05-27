@@ -48,7 +48,7 @@ export const routes = createBrowserRouter([
     element: <PrivateRoute element={<HomeDiretor />} />,
   },
   {
-    path: "/presenca/:idAula",
+    path: "/presenca/:idTurma/:idAula",
     element: <PrivateRoute element={<Presenca />} />,
   },
   {
