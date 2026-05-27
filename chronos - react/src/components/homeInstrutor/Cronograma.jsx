@@ -1,61 +1,52 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Check, Play, Clock } from "@phosphor-icons/react";
 import api from "../../services/api";
+import { getHojeIso } from "../../utils/dateUtils";
 
 function Cronograma() {
+  const navigate = useNavigate();
   const [aulas, setAulas] = useState([]);
   const [dataTexto, setDataTexto] = useState("");
 
+  // Busca inicial dos dados do cronograma
   useEffect(() => {
-    const fetchAulas = async () => {
+    const carregarAulas = async () => {
       try {
-        // 1. Obtém os dados do usuário logado no sessionStorage
-        const usuarioStorage = sessionStorage.getItem("usuario");
-        if (!usuarioStorage) return;
+        const dados = sessionStorage.getItem("usuario");
+        if (!dados) return;
 
-        const usuarioObj = JSON.parse(usuarioStorage);
-        const instrutorId = usuarioObj.id_usuario;
+        const user = JSON.parse(dados);
+        const hoje = getHojeIso();
 
-        // 2. Cria a data atual (Hoje) formatada para a API (YYYY-MM-DD)
-        const hoje = new Date();
-        const ano = hoje.getFullYear();
-        const mes = String(hoje.getMonth() + 1).padStart(2, "0");
-        const dia = String(hoje.getDate()).padStart(2, "0");
-        const dataFormatadaApi = `${ano}-${mes}-${dia}`;
-
-        // 3. Formata a data por extenso para exibir no cabeçalho (Ex: "Sexta-feira, 22 de Maio")
-        const formatoTexto = hoje.toLocaleDateString("pt-BR", {
+        // Formata a data atual por extenso para o cabeçalho
+        const texto = new Date().toLocaleDateString("pt-BR", {
           weekday: "long",
           day: "numeric",
           month: "long",
         });
-        // Deixa a primeira letra maiúscula (ex: "Sexta-feira")
-        setDataTexto(
-          formatoTexto.charAt(0).toUpperCase() + formatoTexto.slice(1),
-        );
+        setDataTexto(texto.charAt(0).toUpperCase() + texto.slice(1));
 
-        // 4. Faz a requisição usando os dados dinâmicos
-        const response = await api.get(
-          `/aulas/dia?data=${dataFormatadaApi}&instrutorId=${instrutorId}`,
+        const res = await api.get(
+          `/aulas/dia?data=${hoje}&instrutorId=${user.id_usuario}`,
         );
-
-        console.log("Aulas do dia:", response.data);
-        setAulas(response.data);
-      } catch (error) {
-        console.error("Erro ao buscar aulas:", error);
+        setAulas(res.data);
+      } catch (err) {
+        console.error("Erro ao buscar aulas:", err);
       }
     };
 
-    fetchAulas();
+    carregarAulas();
   }, []);
 
   return (
     <div className="flex flex-col w-full animate-fade-in">
+      {/* Título da Seção */}
       <p className="text-xs font-black tracking-[0.2em] text-slate-400 uppercase mb-3 ml-1">
         Cronograma do Dia
       </p>
 
-      {/* Header Estilo Tabela Verde */}
+      {/* Card Header (Data e Contador) */}
       <div className="bg-[#1E7A3C] text-white rounded-t-2xl px-6 py-4 flex items-center justify-between shadow-lg shadow-green-900/10">
         <div className="flex items-center gap-3">
           <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -68,61 +59,75 @@ function Cronograma() {
         </span>
       </div>
 
-      {/* Lista Estilo Tabela */}
+      {/* Corpo do Cronograma / Lista de Cards */}
       <div className="bg-white border-x border-b border-slate-100 rounded-b-2xl overflow-hidden shadow-sm">
         {aulas.length === 0 ? (
           <div className="text-center py-8 text-sm text-slate-400 font-medium">
             Nenhuma aula agendada para hoje.
           </div>
         ) : (
-          aulas.map((aula, idx) => (
-            <div
-              key={aula.id_aula}
-              className="flex items-center gap-4 px-6 py-4 border-b border-slate-50 last:border-none hover:bg-slate-50/50 transition-colors group"
-            >
-              {/* Indicador de Status Compacto */}
+          aulas.map((item, idx) => {
+            const { id_aula, id_turma, statusAula, hora_inicio } = item.aula;
+            const isConcluida = statusAula === "Concluída";
+            const isEmAndamento =
+              statusAula === "Agendada" || statusAula === "Em andamento";
+
+            return (
               <div
-                className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110
-                ${
-                  aula.status === "concluida"
-                    ? "bg-emerald-50 text-emerald-600"
-                    : aula.status === "andamento"
-                      ? "bg-blue-50 text-blue-600"
-                      : "bg-slate-50 text-slate-400"
-                }`}
+                key={id_aula}
+                onClick={() => navigate(`/presenca/${id_turma}/${id_aula}`)}
+                className="flex items-center gap-4 px-6 py-4 border-b border-slate-50 last:border-none hover:bg-slate-50 transition-colors group cursor-pointer"
               >
-                {aula.status === "concluida" ? (
-                  <Check size={16} weight="bold" />
-                ) : aula.status === "andamento" ? (
-                  <Play size={14} weight="fill" />
-                ) : (
-                  <span className="text-xs font-bold">{idx + 1}</span>
-                )}
-              </div>
-
-              <span className="flex-1 text-sm font-bold text-slate-700 tracking-tight">
-                {aula.nome_aula}
-              </span>
-
-              <div className="flex items-center gap-4">
-                <span className="text-[11px] font-semibold text-slate-400 flex items-center gap-1.5">
-                  <Clock size={14} /> {aula.hora_inicio}
-                </span>
-                <span
-                  className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md border
-                  ${
-                    aula.statusAula === "concluida"
-                      ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                      : aula.statusAula === "Agendada"
-                        ? "bg-blue-50 text-blue-600 border-blue-100 animate-pulse"
-                        : "bg-slate-50 text-slate-400 border-slate-100"
+                {/* Indicador de Status (Ícone lateral) */}
+                <div
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110 ${
+                    isConcluida
+                      ? "bg-emerald-50 text-emerald-600"
+                      : isEmAndamento
+                        ? "bg-blue-50 text-blue-600"
+                        : "bg-slate-50 text-slate-400"
                   }`}
                 >
-                  {aula.statusAula}
-                </span>
+                  {isConcluida ? (
+                    <Check size={16} weight="bold" />
+                  ) : isEmAndamento ? (
+                    <Play size={14} weight="fill" />
+                  ) : (
+                    <span className="text-xs font-bold">{idx + 1}</span>
+                  )}
+                </div>
+
+                {/* Textos Informativos (Matéria e Tema) */}
+                <div className="flex-1 flex flex-col">
+                  <span className="text-sm font-bold text-slate-700 tracking-tight group-hover:text-[#1E7A3C] transition-colors">
+                    {item.tema.titulo_tema}
+                  </span>
+                  <span className="text-xs text-slate-400 font-medium">
+                    {item.materia.nome} • Turma {id_turma}
+                  </span>
+                </div>
+
+                {/* Horário e Badge de Status */}
+                <div className="flex items-center gap-4">
+                  <span className="text-[11px] font-semibold text-slate-400 flex items-center gap-1.5">
+                    <Clock size={14} /> {hora_inicio.slice(0, 5)}
+                  </span>
+
+                  <span
+                    className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md border ${
+                      isConcluida
+                        ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                        : isEmAndamento
+                          ? "bg-blue-50 text-blue-600 border-blue-100 animate-pulse"
+                          : "bg-slate-50 text-slate-400 border-slate-100"
+                    }`}
+                  >
+                    {statusAula}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

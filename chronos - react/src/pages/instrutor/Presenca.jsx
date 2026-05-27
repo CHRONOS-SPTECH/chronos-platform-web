@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   ClipboardList,
   CalendarDays,
   Clock,
   GraduationCap,
+  ArrowLeft,
 } from "lucide-react";
 import Header from "../../components/homeSecretario/Header";
 import Sidebar from "../../components/sidebar/SideBar";
@@ -12,72 +13,81 @@ import CardPresenca from "../../components/presenca/CardPresenca";
 import api from "../../services/api";
 
 function Presenca() {
-  const { idAula: idDaAulaURL } = useParams();
+  const { idTurma, idAula } = useParams();
+  const navigate = useNavigate();
 
-  // Estados com nomes diretos e amigáveis
-  const [informacoesAula, setInformacoesAula] = useState(null);
-  const [listaAlunos, setListaAlunos] = useState([]);
+  const [usuario, setUsuario] = useState(null);
+  const [turma, setTurma] = useState(null);
+  const [aula, setAula] = useState(null);
+  const [alunos, setAlunos] = useState([]);
+  const [carregando, setCarregando] = useState(true);
 
-  // Esse efeito roda assim que a página abre para buscar os dados na API
+  // Carrega todas as informações necessárias da presença
   useEffect(() => {
-    const buscarDadosDoBanco = async () => {
+    const carregarDados = async () => {
       try {
-        const dadosUsuarioBruto = sessionStorage.getItem("usuario");
-        if (!dadosUsuarioBruto) return;
+        setCarregando(true);
 
-        const usuarioObjeto = JSON.parse(dadosUsuarioBruto);
-        const idInstrutor = usuarioObjeto.id_usuario;
+        const dados = sessionStorage.getItem("usuario");
+        if (dados) setUsuario(JSON.parse(dados));
 
-        // 2. Definimos a data do dia que queremos buscar as aulas
-        const dataDeHoje = "2026-05-22";
+        const [resTurma, resAula, resAlunos] = await Promise.all([
+          api.get(`/turmas/${idTurma}`),
+          api.get(`/aulas/${idAula}/detalhada`),
+          api.get(`/turmas/${idTurma}/alunos`),
+        ]);
 
-        const resposta = await api.get(
-          `/aulas/dia?data=${dataDeHoje}&instrutorId=${idInstrutor}`,
-        );
-        const listaDeAulas = resposta.data;
-
-        const aulaEncontrada = listaDeAulas.find(
-          (aula) => aula.id_aula == idDaAulaURL,
-        );
-
-        if (aulaEncontrada) {
-          setInformacoesAula(aulaEncontrada);
-          setListaAlunos(aulaEncontrada.alunos || []);
-        } else {
-          console.error("Não encontramos essa aula no cronograma do dia.");
-        }
-      } catch (erro) {
-        console.error(
-          "Tivemos um problema ao carregar os dados da presença:",
-          erro,
-        );
+        setTurma(resTurma.data);
+        setAula(resAula.data);
+        setAlunos(resAlunos.data);
+      } catch (err) {
+        console.error("Erro ao carregar dados da presença:", err);
+      } finally {
+        setCarregando(false);
       }
     };
 
-    if (idDaAulaURL) {
-      buscarDadosDoBanco();
-    }
-  }, [idDaAulaURL]);
+    if (idTurma && idAula) carregarDados();
+  }, [idTurma, idAula]);
+
+  if (carregando) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-[#F8FAFC]">
+        <div className="animate-spin rounded-full h-10 w-10 border-4 border-[#1E7A3C] border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans">
-      {/* MENU LATERAL */}
       <Sidebar tipoUsuario="instrutor" />
 
-      {/* PAINEL PRINCIPAL */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* TOPO DA PÁGINA */}
         <Header
           titulo="Registro de Presença"
           icone={ClipboardList}
-          usuario={{ nome: "Henrique", cargo: "Instrutor" }}
+          usuario={{ nome: usuario?.nome || "Instrutor", cargo: "Instrutor" }}
         />
 
         <main className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
-          {/* BARRA DE DETALHES DA TURMA */}
-          <div className="px-8 py-5 border-b border-slate-100 bg-white shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in duration-300">
+          {/* Ações de Navegação */}
+          <div className="px-8 pt-4">
+            <button
+              onClick={() => navigate("/instrutor")}
+              className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-600 transition-colors group"
+            >
+              <ArrowLeft
+                size={16}
+                className="group-hover:-translate-x-0.5 transition-transform"
+              />
+              Voltar para o Início
+            </button>
+          </div>
+
+          {/* Barra de Resumo do Contexto da Aula */}
+          <div className="px-8 py-5 border-b border-slate-100 bg-white shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in duration-300 mt-2">
             <div className="flex flex-wrap items-center gap-6">
-              {/* Nome da Turma e da Matéria */}
+              {/* Turma e Matéria */}
               <div className="flex items-center gap-3 bg-slate-50 border border-slate-100 px-4 py-2.5 rounded-2xl">
                 <div className="p-1.5 bg-green-50 text-[#1E7A3C] rounded-lg">
                   <GraduationCap size={18} />
@@ -87,13 +97,13 @@ function Presenca() {
                     Turma / Matéria
                   </span>
                   <span className="text-xs font-black text-slate-700 mt-0.5">
-                    {informacoesAula?.turma?.nome_turma || "Sem Turma"} -{" "}
-                    {informacoesAula?.nome_aula}
+                    {turma?.nome_turma || "Sem Turma"} -{" "}
+                    {aula?.materia?.nome || "Sem Matéria"}
                   </span>
                 </div>
               </div>
 
-              {/* Data que a turma começou */}
+              {/* Data de Início */}
               <div className="flex items-center gap-3">
                 <CalendarDays size={18} className="text-slate-400" />
                 <div className="flex flex-col">
@@ -101,14 +111,16 @@ function Presenca() {
                     Iniciada em
                   </span>
                   <span className="text-xs font-bold text-slate-600 mt-0.5">
-                    {informacoesAula?.turma?.data_inicio
-                      ? new Date(
-                          informacoesAula.turma.data_inicio,
-                        ).toLocaleDateString("pt-BR", {
-                          month: "long",
-                          year: "numeric",
-                        })
-                      : "Maio / 2026"}
+                    {turma?.data_inicio
+                      ? new Date(turma.data_inicio).toLocaleDateString(
+                          "pt-BR",
+                          {
+                            day: "2-digit",
+                            month: "long",
+                            year: "numeric",
+                          },
+                        )
+                      : "N/A"}
                   </span>
                 </div>
               </div>
@@ -123,31 +135,31 @@ function Presenca() {
                     Horário da Aula
                   </span>
                   <span className="text-xs font-bold text-slate-600 mt-0.5">
-                    {informacoesAula
-                      ? `${informacoesAula.hora_inicio.slice(0, 5)}h - ${informacoesAula.hora_fim.slice(0, 5)}h`
+                    {aula?.aula
+                      ? `${aula.aula.hora_inicio.slice(0, 5)}h - ${aula.aula.hora_fim.slice(0, 5)}h`
                       : "00:00 - 00:00"}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Status da Aula */}
+            {/* Status do Registro */}
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full text-xs font-black uppercase tracking-wider">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                {informacoesAula?.statusAula || "Aula em Andamento"}
+                {aula?.aula?.statusAula || "Agendada"}
               </span>
             </div>
           </div>
 
-          {/* ÁREA CENTRAL - LISTA DE ALUNOS */}
+          {/* Listagem de Alunos / Formulário de Chamada */}
           <div className="p-8 flex-1">
-            {listaAlunos.length === 0 ? (
+            {alunos.length === 0 ? (
               <div className="text-center py-12 text-sm text-slate-400 font-medium bg-white rounded-2xl border border-slate-100 shadow-sm">
-                Nenhum aluno matriculado nesta turma para o dia de hoje.
+                Nenhum aluno matriculado nesta turma.
               </div>
             ) : (
-              <CardPresenca alunos={listaAlunos} dadosAula={informacoesAula} />
+              <CardPresenca alunos={alunos} dadosAula={aula} />
             )}
           </div>
         </main>
