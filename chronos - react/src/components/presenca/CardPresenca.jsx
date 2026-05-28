@@ -1,65 +1,60 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import TabelaAlunos from "./TabelaAlunos";
 import ModalConfirmacao from "./ModalConfirmacao";
+import AlertToast from "../alert-toast/AlertToast";
 import { BookOpen } from "lucide-react";
 import api from "../../services/api";
 
 function CardPresenca({ alunos, dadosAula }) {
+  const navigate = useNavigate();
   const [modalAberto, setModalAberto] = useState(false);
-  const [listaAlunos, setListaAlunos] = useState([]);
+  const [lista, setLista] = useState([]);
   const [carregando, setCarregando] = useState(false);
+  const [mensagem, setMensagem] = useState("");
+  const [tipoMensagem, setTipoMensagem] = useState("success");
 
-  // Assim que o componente carrega, preparamos a lista de alunos
   useEffect(() => {
     if (!alunos) return;
 
-    const listaInicial = alunos.map((aluno) => {
-      return {
-        ...aluno,
-        presente: aluno.presente === true,
-      };
-    });
-
-    setListaAlunos(listaInicial);
+    const estadoInicial = alunos.map((aluno) => ({
+      ...aluno,
+      presente: aluno.presente ?? aluno.compareceu ?? false,
+      percentual_presenca: aluno.percentual_presenca ?? 0,
+    }));
+    setLista(estadoInicial);
   }, [alunos]);
 
-  // Função para marcar/desmarcar a presença do aluno
-  const alternarPresenca = (index) => {
-    const novaLista = [...listaAlunos];
-
-    novaLista[index].presente = !novaLista[index].presente;
-
-    setListaAlunos(novaLista);
+  const alternarPresenca = (idx) => {
+    const novaLista = [...lista];
+    const novoValor = !novaLista[idx].presente;
+    novaLista[idx].presente = novoValor;
+    setLista(novaLista);
   };
 
-  // Função que envia a chamada para o servidor
   const salvarChamada = async () => {
+    const idAula = dadosAula?.aula?.id_aula;
+    if (!idAula) return console.error("ID da aula não encontrado.");
+
     setCarregando(true);
-
     try {
-      if (!dadosAula || !dadosAula.id_aula) {
-        console.error("Não encontramos o ID da aula.");
-        return;
-      }
-
-      const dadosParaSalvar = listaAlunos.map((aluno) => {
-        return {
-          id_aula: dadosAula.id_aula,
-          id_pessoa: aluno.id_pessoa || aluno.id || null,
+      const dadosChamada = {
+        id_aula: idAula,
+        alunos: lista.map((aluno) => ({
+          id_pessoa: aluno.id_pessoa,
           compareceu: aluno.presente,
-        };
-      });
+        })),
+      };
 
-      console.log("Dados enviados:", dadosParaSalvar);
-
-      // Faz a requisição para salvar no banco de dados
-      await api.post("/chamadas-aula", dadosParaSalvar);
-
+      await api.post("/chamadas-aula/em-lote", dadosChamada);
       setModalAberto(false);
-      alert("Chamada enviada com sucesso!");
-    } catch (error) {
-      console.error("Erro ao enviar chamada:", error);
-      alert("Houve um erro ao enviar a chamada.");
+      setTipoMensagem("success");
+      setMensagem("Chamada enviada com sucesso!");
+      setTimeout(() => navigate("/instrutor"), 2500);
+    } catch (err) {
+      console.error("Erro ao enviar chamada:", err);
+      setTipoMensagem("error");
+      setMensagem("Houve um erro ao enviar a chamada.");
     } finally {
       setCarregando(false);
     }
@@ -67,34 +62,36 @@ function CardPresenca({ alunos, dadosAula }) {
 
   return (
     <section className="overflow-hidden h-auto animate-in fade-in duration-500">
+      <AlertToast type={tipoMensagem} message={mensagem} />
+      {/* Cabeçalho do Card */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3">
         <div className="flex items-center gap-2.5 text-slate-700">
           <BookOpen size={18} className="text-slate-400" />
           <h3 className="text-sm font-bold tracking-tight">
-            Aula {dadosAula?.id_aula || "N/A"}:{" "}
-            <span className="text-slate-500 font-medium">Filosofia Antiga</span>
+            Aula #{dadosAula?.aula?.id_aula || "N/A"}:{" "}
+            <span className="text-slate-500 font-medium">
+              {dadosAula?.tema?.titulo_tema || "Sem Título de Tema"}
+            </span>
           </h3>
         </div>
-
         <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider">
           Lista de Frequência Diária
         </span>
       </div>
 
-      {/* TABELA DE ALUNOS */}
+      {/* Tabela de Alunos */}
       <div className="bg-white border border-slate-100 rounded-3xl shadow-sm overflow-hidden">
-        <TabelaAlunos
-          alunos={listaAlunos}
-          onTogglePresenca={alternarPresenca}
-        />
+        <TabelaAlunos alunos={lista} onTogglePresenca={alternarPresenca} />
       </div>
 
-      {/* BOTÕES DE AÇÃO */}
+      {/* Botões de Ação */}
       <div className="flex justify-end gap-3 mt-6">
-        <button className="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors">
+        <button
+          className="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors"
+          onClick={() => navigate("/instrutor")}
+        >
           Cancelar
         </button>
-
         <button
           className="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider text-white bg-[#1E7A3C] hover:bg-[#165a2d] transition-colors shadow-md shadow-green-100/50 active:scale-[0.98]"
           onClick={() => setModalAberto(true)}
@@ -103,14 +100,14 @@ function CardPresenca({ alunos, dadosAula }) {
         </button>
       </div>
 
-      {/* MODAL DE CONFIRMAÇÃO */}
+      {/* Modal de Confirmação Final */}
       <ModalConfirmacao
-        isOpen={modalAberto}
-        onClose={() => setModalAberto(false)}
-        alunos={listaAlunos}
+        aberto={modalAberto}
+        fecharModal={() => setModalAberto(false)}
+        alunos={lista}
         onTogglePresenca={alternarPresenca}
-        onConfirm={salvarChamada}
-        isSending={carregando}
+        confirmarChamada={salvarChamada}
+        carregando={carregando}
       />
     </section>
   );
