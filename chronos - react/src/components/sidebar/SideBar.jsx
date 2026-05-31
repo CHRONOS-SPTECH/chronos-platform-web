@@ -8,6 +8,8 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { MENU_CONFIG } from "../../config/navigation";
+import api from "../../services/api";
+import { getHojeIso } from "../../utils/dateUtils";
 
 export default function Sidebar({ tipoUsuario = "instrutor" }) {
   const navigate = useNavigate();
@@ -16,8 +18,43 @@ export default function Sidebar({ tipoUsuario = "instrutor" }) {
 
   const [abertos, setAbertos] = useState({ 0: true });
 
+  const abrirItemMenu = async (item) => {
+    if (item.action === "chamadaDoDia") {
+      try {
+        const dados = sessionStorage.getItem("usuario");
+        if (!dados) return navigate("/instrutor");
+
+        const usuario = JSON.parse(dados);
+        const hoje = getHojeIso();
+        const res = await api.get(
+          `/aulas/dia?data=${hoje}&instrutorId=${usuario.id_usuario}`,
+        );
+
+        const aulasHoje = res.data || [];
+        const aulaEmAberto = aulasHoje.find(
+          (itemAula) =>
+            !Boolean(itemAula?.chamadaFeita ?? itemAula?.aula?.chamadaFeita),
+        );
+        const aulaParaAbrir = aulaEmAberto || aulasHoje[0];
+
+        if (aulaParaAbrir?.aula?.id_turma && aulaParaAbrir?.aula?.id_aula) {
+          navigate(
+            `/presenca/${aulaParaAbrir.aula.id_turma}/${aulaParaAbrir.aula.id_aula}`,
+          );
+          return;
+        }
+      } catch (err) {
+        console.error("Erro ao abrir a chamada do dia:", err);
+      }
+    }
+
+    if (item.rota) {
+      navigate(item.rota);
+    }
+  };
+
   return (
-    <aside className="w-[280px] h-screen bg-[#00871D] text-white flex flex-col shadow-xl shrink-0">
+    <aside className="w-70 h-screen bg-[#00871D] text-white flex flex-col shadow-xl shrink-0">
       {/* Brand / Logo */}
       <div className="px-6 py-8">
         <div className="flex items-center gap-3">
@@ -69,7 +106,7 @@ export default function Sidebar({ tipoUsuario = "instrutor" }) {
                 {secao.itens.map((item, j) => (
                   <div
                     key={j}
-                    onClick={() => navigate(item.rota)}
+                    onClick={() => abrirItemMenu(item)}
                     className={`py-3 px-6 text-sm font-medium cursor-pointer transition-all rounded-r-lg ${
                       location.pathname === item.rota
                         ? "text-white bg-white/20"

@@ -15,7 +15,7 @@ export const MENU_CONFIG = {
         titulo: "Controle de Frequência",
         icone: <UserCheck size={20} />,
         itens: [
-          { nome: "Chamada do dia", rota: "/presenca/1" },
+          { nome: "Chamada do dia", action: "chamadaDoDia" },
           // { nome: "Minhas Turmas", rota: "/turmas" },
           // { nome: "Minha Agenda", rota: "/agenda" },
         ],

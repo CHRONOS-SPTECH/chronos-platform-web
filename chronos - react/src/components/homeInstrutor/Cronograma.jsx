@@ -67,8 +67,11 @@ function Cronograma() {
           </div>
         ) : (
           aulas.map((item, idx) => {
-            const { id_aula, id_turma, statusAula, hora_inicio } = item.aula;
-            const isConcluida = statusAula === "Concluída";
+            const aula = item?.aula ?? {};
+            const { id_aula, id_turma, statusAula, hora_inicio } = aula;
+            const isConcluida = Boolean(
+              item?.chamadaFeita ?? aula?.chamadaFeita,
+            );
             const isEmAndamento =
               statusAula === "Agendada" || statusAula === "Em andamento";
 
@@ -122,7 +125,7 @@ function Cronograma() {
                           : "bg-slate-50 text-slate-400 border-slate-100"
                     }`}
                   >
-                    {statusAula}
+                    {item.chamadaFeita === true ? "Concluída" : statusAula}
                   </span>
                 </div>
               </div>

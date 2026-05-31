@@ -9,6 +9,7 @@ import api from "../../services/api";
 function CardPresenca({ alunos, dadosAula }) {
   const navigate = useNavigate();
   const [modalAberto, setModalAberto] = useState(false);
+  const chamadaJaFeita = Boolean(dadosAula?.chamadaFeita);
   const [lista, setLista] = useState([]);
   const [carregando, setCarregando] = useState(false);
   const [mensagem, setMensagem] = useState("");
@@ -81,24 +82,30 @@ function CardPresenca({ alunos, dadosAula }) {
 
       {/* Tabela de Alunos */}
       <div className="bg-white border border-slate-100 rounded-3xl shadow-sm overflow-hidden">
-        <TabelaAlunos alunos={lista} onTogglePresenca={alternarPresenca} />
+        <TabelaAlunos
+          alunos={lista}
+          onTogglePresenca={alternarPresenca}
+          visualizarChamada={chamadaJaFeita}
+        />
       </div>
 
       {/* Botões de Ação */}
-      <div className="flex justify-end gap-3 mt-6">
-        <button
-          className="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors"
-          onClick={() => navigate("/instrutor")}
-        >
-          Cancelar
-        </button>
-        <button
-          className="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider text-white bg-[#1E7A3C] hover:bg-[#165a2d] transition-colors shadow-md shadow-green-100/50 active:scale-[0.98]"
-          onClick={() => setModalAberto(true)}
-        >
-          Salvar Chamada
-        </button>
-      </div>
+      {!chamadaJaFeita && (
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            className="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors"
+            onClick={() => navigate("/instrutor")}
+          >
+            Cancelar
+          </button>
+          <button
+            className="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider text-white bg-[#1E7A3C] hover:bg-[#165a2d] transition-colors shadow-md shadow-green-100/50 active:scale-[0.98]"
+            onClick={() => setModalAberto(true)}
+          >
+            Salvar Chamada
+          </button>
+        </div>
+      )}
 
       {/* Modal de Confirmação Final */}
       <ModalConfirmacao

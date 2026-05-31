@@ -31,15 +31,33 @@ function Presenca() {
         const dados = sessionStorage.getItem("usuario");
         if (dados) setUsuario(JSON.parse(dados));
 
-        const [resTurma, resAula, resAlunos] = await Promise.all([
+        const [resTurma, resAula, resAlunos, resChamadas] = await Promise.all([
           api.get(`/turmas/${idTurma}`),
           api.get(`/aulas/${idAula}/detalhada`),
           api.get(`/turmas/${idTurma}/alunos`),
+          api.get(`/chamadas-aula/aula/${idAula}`),
         ]);
 
-        setTurma(resTurma.data);
-        setAula(resAula.data);
-        setAlunos(resAlunos.data);
+        const turmaData = resTurma.data;
+        const aulaData = resAula.data;
+        const alunosData = resAlunos.data || [];
+        const presencasData = resChamadas.data || [];
+
+        const alunosComPresenca = (alunosData || []).map((aluno) => {
+          const registro = (presencasData || []).find(
+            (item) => Number(item.id_pessoa) === Number(aluno.id_pessoa),
+          );
+
+          return {
+            ...aluno,
+            presente: Boolean(registro?.compareceu),
+            compareceu: Boolean(registro?.compareceu),
+          };
+        });
+
+        setTurma(turmaData);
+        setAula(aulaData);
+        setAlunos(alunosComPresenca);
       } catch (err) {
         console.error("Erro ao carregar dados da presença:", err);
       } finally {
@@ -147,7 +165,8 @@ function Presenca() {
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full text-xs font-black uppercase tracking-wider">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                {aula?.aula?.statusAula || "Agendada"}
+
+                {aula?.chamadaFeita ? "Concluída" : aula?.aula?.statusAula}
               </span>
             </div>
           </div>
