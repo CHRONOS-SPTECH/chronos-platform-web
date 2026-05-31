@@ -3,7 +3,11 @@ import {
   BarChart,
   Bar,
   XAxis,
+  YAxis,
   Tooltip,
+  CartesianGrid,
+  Cell,
+  LabelList,
 } from "recharts";
 
 const data = [
@@ -14,26 +18,43 @@ const data = [
   { nivel: "Nível 5", alunos: 45 },
 ];
 
-function StudentsChart() {
+const colors = ["#669966", "#74A874", "#82B782", "#90C690", "#9FD59F"];
+
+export default function StudentsChart() {
   return (
-    <div className="chart-card">
-      <h3>ALUNOS POR NÍVEL</h3>
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={data}>
+        <CartesianGrid
+          strokeDasharray="3 3"
+          vertical={false}
+          stroke="#e5e7eb"
+        />
 
-      <ResponsiveContainer width="100%" height={340}>
-        <BarChart data={data}>
-          <XAxis dataKey="nivel" />
+        <XAxis
+          dataKey="nivel"
+          tick={{ fontSize: 11 }}
+          axisLine={false}
+          tickLine={false}
+        />
 
-          <Tooltip />
+        <YAxis hide />
 
-          <Bar
+        <Tooltip />
+
+        <Bar dataKey="alunos" radius={[4, 4, 0, 0]}>
+          <LabelList
             dataKey="alunos"
-            fill="#6ea76e"
-            radius={[10, 10, 0, 0]}
+            position="inside"
+            fill="#fff"
+            fontSize={11}
+            fontWeight={700}
           />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+
+          {data.map((_, index) => (
+            <Cell key={index} fill={colors[index]} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
   );
 }
-
-export default StudentsChart;

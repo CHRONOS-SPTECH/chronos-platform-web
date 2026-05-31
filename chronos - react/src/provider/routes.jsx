@@ -16,12 +16,11 @@ import Eventos from "../pages/secretaria/Eventos";
 import Turmas from "../pages/secretaria/Turmas";
 import Alunos from "../pages/secretaria/Alunos";
 
-
 import sessionService from "../services/sessionService";
 
 function PrivateRoute({ element }) {
   // const token = sessionService.getToken();
-   const token = true;
+  const token = true;
   return token ? (
     element
   ) : (
@@ -79,11 +78,11 @@ export const routes = createBrowserRouter([
     element: <PrivateRoute element={<GestaoUsuarios />} />,
   },
   {
-    path: "*",
-    element: <Navigate to="/login" replace />,
-  },
-  {
     path: "/dashboard-academica",
     element: <PrivateRoute element={<DashboardAcademica />} />,
+  },
+  {
+    path: "*",
+    element: <Navigate to="/login" replace />,
   },
 ]);
