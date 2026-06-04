@@ -1,37 +1,180 @@
+import { useEffect, useMemo, useState } from "react";
 import { BookOpen, Plus } from "lucide-react";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
 import ModulosControle from "../../components/turmas/ModuloControle";
 import CardTurma from "../../components/turmas/CardTurma";
+import { formatarDataBr } from "../../utils/DateUtils";
+import turmaService from "../../services/turmaService";
 
-const turmasMock = [
-  {
-    id: 1,
-    nome: "Filosofia para Viver - T3",
-    status: "Em Andamento",
-    dataInicio: "20/01/2026",
-    dataFim: "20/01/2027",
-    progresso: 38,
-  },
-  {
-    id: 2,
-    nome: "Filosofia para Viver - T2",
-    status: "Em Andamento",
-    dataInicio: "31/05/2025",
-    dataFim: "20/05/2026",
-    progresso: 65,
-  },
-  {
-    id: 3,
-    nome: "Filosofia para Viver - T1",
-    status: "Formado",
-    dataInicio: "12/01/2025",
-    dataFim: "20/12/2025",
-    progresso: 100,
-  },
-];
+const getApiField = (obj, snake, camel) => obj?.[snake] ?? obj?.[camel];
+const getTurmaId = (turma) =>
+  getApiField(turma, "id_turma", "idTurma") ?? turma?.id;
+
+const extrairMensagemErro = (error, padrao) => {
+  const status = error?.response?.status;
+  if (status === 403) {
+    const detalhe =
+      error?.response?.data?.message ||
+      error?.response?.data?.erro ||
+      error?.response?.data?.error;
+
+    return detalhe
+      ? `${padrao} Acesso negado (403). Seu usuário está autenticado, mas não tem permissão para esta ação. ${detalhe}`
+      : `${padrao} Acesso negado (403). Seu usuário está autenticado, mas não tem permissão para esta ação.`;
+  }
+
+  const mensagem =
+    error?.response?.data?.message ||
+    error?.response?.data?.erro ||
+    error?.response?.data?.error ||
+    error?.message;
+
+  return mensagem ? `${padrao} ${mensagem}` : padrao;
+};
+
+const calcularProgresso = (dataInicio, dataFim, statusLabel) => {
+  const status = (statusLabel || "").toLowerCase();
+  if (status.includes("conclu") || status.includes("formad")) return 100;
+
+  if (!dataInicio || !dataFim) return 0;
+  const inicio = new Date(dataInicio);
+  const fim = new Date(dataFim);
+  const hoje = new Date();
+
+  if (Number.isNaN(inicio.getTime()) || Number.isNaN(fim.getTime())) return 0;
+  if (hoje <= inicio) return 0;
+  if (hoje >= fim) return 100;
+
+  const total = fim.getTime() - inicio.getTime();
+  const atual = hoje.getTime() - inicio.getTime();
+  return Math.max(0, Math.min(100, Math.round((atual / total) * 100)));
+};
+
+const mapApiTurmaToUi = (turma) => {
+  const statusApi = getApiField(turma, "status_turma", "statusTurma");
+  const statusLabel = turmaService.normalizarStatusParaLabel(statusApi);
+  const dataInicioApi = getApiField(turma, "data_inicio", "dataInicio");
+  const dataFimApi = getApiField(turma, "data_encerramento", "dataEncerramento");
+
+  return {
+    id: getApiField(turma, "id_turma", "idTurma"),
+    nome: getApiField(turma, "nome_turma", "nomeTurma"),
+    status: statusLabel,
+    dataInicio: formatarDataBr(dataInicioApi),
+    dataFim: formatarDataBr(dataFimApi),
+    progresso: calcularProgresso(dataInicioApi, dataFimApi, statusLabel),
+    raw: turma,
+  };
+};
+
+const montarDadosTurmaDoPrompt = (dadosIniciais = null) => {
+  const nome = window.prompt(
+    "Nome da turma:",
+    dadosIniciais?.nome_turma || "",
+  );
+  if (!nome) return null;
+
+  const dataInicio = window.prompt(
+    "Data de início (YYYY-MM-DD):",
+    dadosIniciais?.data_inicio || "",
+  );
+  if (!dataInicio) return null;
+
+  const dataEncerramento = window.prompt(
+    "Data de encerramento (YYYY-MM-DD) - opcional:",
+    dadosIniciais?.data_encerramento || "",
+  );
+
+  const status = window.prompt(
+    "Status (Não Iniciada, Em Andamento, Concluída):",
+    turmaService.normalizarStatusParaLabel(dadosIniciais?.status_turma),
+  );
+
+  return {
+    nome_turma: nome,
+    data_inicio: dataInicio,
+    data_encerramento: dataEncerramento || null,
+    status_turma: status,
+  };
+};
 
 export default function Turmas() {
+  const [turmas, setTurmas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState("");
+
+  const carregarTurmas = async () => {
+    try {
+      setLoading(true);
+      setErro("");
+      const dados = await turmaService.listarTurmas();
+      setTurmas(Array.isArray(dados) ? dados : []);
+    } catch (error) {
+      console.error("Erro ao carregar turmas:", error);
+      setErro("Não foi possível carregar as turmas.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    carregarTurmas();
+  }, []);
+
+  const turmasUi = useMemo(() => turmas.map(mapApiTurmaToUi), [turmas]);
+
+  const onNovaTurma = async () => {
+    const dadosTurma = montarDadosTurmaDoPrompt();
+    if (!dadosTurma) return;
+
+    try {
+      const turmaCriada = await turmaService.criarTurma(dadosTurma);
+      const novaLista = [...turmas, turmaCriada];
+      setTurmas(novaLista);
+      setErro("");
+    } catch (error) {
+      console.error("Erro ao criar turma:", error);
+      setErro(extrairMensagemErro(error, "Erro ao criar turma."));
+    }
+  };
+
+  const onEditarTurma = async (turma) => {
+    const dadosTurma = montarDadosTurmaDoPrompt(turma.raw);
+    if (!dadosTurma) return;
+
+    try {
+      const turmaAtualizada = await turmaService.atualizarTurma(turma.id, dadosTurma);
+      const listaAtualizada = turmas.map((item) =>
+        getTurmaId(item) === turma.id ? turmaAtualizada : item,
+      );
+      setTurmas(listaAtualizada);
+      setErro("");
+    } catch (error) {
+      console.error("Erro ao atualizar turma:", error);
+      setErro(extrairMensagemErro(error, "Erro ao atualizar turma."));
+    }
+  };
+
+  const onExcluirTurma = async (turma) => {
+    const confirmou = window.confirm(
+      `Deseja excluir a turma \"${turma.nome}\"?`,
+    );
+    if (!confirmou) return;
+
+    try {
+      await turmaService.excluirTurma(turma.id);
+      const listaFiltrada = turmas.filter(
+        (item) => getTurmaId(item) !== turma.id,
+      );
+      setTurmas(listaFiltrada);
+      setErro("");
+    } catch (error) {
+      console.error("Erro ao excluir turma:", error);
+      setErro(extrairMensagemErro(error, "Erro ao excluir turma."));
+    }
+  };
+
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans antialiased">
       <Sidebar tipoUsuario="secretario" />
@@ -49,7 +192,10 @@ export default function Turmas() {
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-100 pb-6">
               <ModulosControle moduloAtivo="Turmas" />
 
-              <button className="flex items-center gap-2 bg-[#1E7A3C] hover:bg-[#165a2d] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-2xl transition-all shadow-md shadow-green-100/50 active:scale-[0.98]">
+              <button
+                onClick={onNovaTurma}
+                className="flex items-center gap-2 bg-[#1E7A3C] hover:bg-[#165a2d] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-2xl transition-all shadow-md shadow-green-100/50 active:scale-[0.98]"
+              >
                 <Plus size={16} />
                 Nova Turma
               </button>
@@ -62,13 +208,28 @@ export default function Turmas() {
                   Turmas Ativas e Concluídas
                 </h2>
                 <span className="text-xs font-bold text-slate-400">
-                  {turmasMock.length} turmas listadas
+                  {turmasUi.length} turmas listadas
                 </span>
               </div>
 
+              {loading && (
+                <p className="text-sm text-slate-500">Carregando turmas...</p>
+              )}
+
+              {!loading && erro && (
+                <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {erro}
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {turmasMock.map((turma) => (
-                  <CardTurma key={turma.id} turma={turma} />
+                {turmasUi.map((turma) => (
+                  <CardTurma
+                    key={turma.id}
+                    turma={turma}
+                    onEditar={onEditarTurma}
+                    onExcluir={onExcluirTurma}
+                  />
                 ))}
               </div>
             </div>

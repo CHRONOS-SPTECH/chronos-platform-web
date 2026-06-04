@@ -2,7 +2,7 @@ import axios from "axios";
 import sessionService from "./sessionService";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: "/api",
 });
 
 api.interceptors.request.use((config) => {

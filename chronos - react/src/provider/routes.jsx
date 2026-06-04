@@ -19,8 +19,7 @@ import Alunos from "../pages/secretaria/Alunos";
 import sessionService from "../services/sessionService";
 
 function PrivateRoute({ element }) {
-  // const token = sessionService.getToken();
-  const token = true;
+  const token = sessionService.getToken();
   return token ? (
     element
   ) : (
