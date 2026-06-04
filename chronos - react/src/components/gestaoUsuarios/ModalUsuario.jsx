@@ -48,7 +48,6 @@ export default function ModalUsuario({ isOpen, onClose, onSuccess }) {
             genero: novoUsuario.genero,
             cpf: Math.random().toString().slice(2, 13), // Simulação de CPF único para teste
             bolsista: false,
-            tipo_vinculo_id: 1,
             data_nascimento: novoUsuario.nascimento,
           }
         : null,
