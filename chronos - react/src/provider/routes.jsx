@@ -16,6 +16,9 @@ import Eventos from "../pages/secretaria/Eventos";
 import Turmas from "../pages/secretaria/Turmas";
 import Alunos from "../pages/secretaria/Alunos";
 
+import CronogramaAulas from "../pages/secretaria/CronogramaAulas";
+import GestaoAulas from "../pages/secretaria/GestaoAulas";
+
 import sessionService from "../services/sessionService";
 
 function PrivateRoute({ element }) {
@@ -69,6 +72,10 @@ export const routes = createBrowserRouter([
     element: <PrivateRoute element={<div>Tela de Agenda</div>} />,
   },
   {
+    path: "/cronograma",
+    element: <PrivateRoute element={<CronogramaAulas />} />,
+  },
+  {
     path: "/eventos",
     element: <PrivateRoute element={<Eventos />} />,
   },
@@ -79,6 +86,10 @@ export const routes = createBrowserRouter([
   {
     path: "/dashboard-academica",
     element: <PrivateRoute element={<DashboardAcademica />} />,
+  },
+  {
+    path: "/gestao-aulas",
+    element: <PrivateRoute element={<GestaoAulas />} />,
   },
   {
     path: "*",

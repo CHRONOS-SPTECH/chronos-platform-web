@@ -1,0 +1,281 @@
+import React, { useState, useEffect } from "react";
+import { Calendar, Inbox, ChevronLeft, ChevronRight } from "lucide-react";
+
+import api from "../../services/api";
+import Sidebar from "../../components/sidebar/SideBar";
+import Header from "../../components/homeSecretario/Header";
+import BancoPendencias from "../../components/cronograma/BancoPendencias";
+import CalendarioGrade from "../../components/cronograma/CalendarioGrade";
+import Alert from "../../components/alert-toast/AlertToast";
+
+import {
+  calcularDatasDaSemana,
+  verificarConflitoProfessor,
+  obterTextoSemanaDoMes,
+} from "../../utils/CronogramaUtils";
+
+export default function CronogramaView() {
+  const [semana, setSemana] = useState(16);
+  const [turma, setTurma] = useState("");
+  const [turmas, setTurmas] = useState([]);
+  const [aulas, setAulas] = useState([]);
+  const [menuAberto, setMenuAberto] = useState(false);
+  const [datas, setDatas] = useState([]);
+  const [alerta, setAlerta] = useState({ type: "", message: "" });
+
+  useEffect(() => {
+    api
+      .get("/turmas")
+      .then((res) => {
+        setTurmas(res.data);
+        if (res.data.length > 0) {
+          setTurma(res.data[0].id_turma.toString());
+        }
+      })
+      .catch((err) => console.error("Erro ao buscar turmas:", err));
+  }, []);
+
+  const carregarAulas = () => {
+    api
+      .get("/aulas/detalhadas")
+      .then((res) => setAulas(res.data))
+      .catch((err) => console.error("Erro ao buscar aulas detalhadas:", err));
+  };
+
+  useEffect(() => {
+    carregarAulas();
+  }, []);
+
+  useEffect(() => {
+    setDatas(calcularDatasDaSemana(semana, 2026));
+  }, [semana]);
+
+  const mostrarAlerta = (type, message) => {
+    setAlerta({ type, message });
+    setTimeout(() => setAlerta({ type: "", message: "" }), 3000);
+  };
+
+  const pendendasFormatadas = aulas
+    .filter((item) => !item.aula.data_aula)
+    .map((item) => ({
+      id: item.aula.id_aula.toString(),
+      prof: item.instrutor.nome,
+      id_instrutor: item.aula.id_instrutor,
+      tema: item.tema.titulo_tema,
+      color: "emerald",
+    }));
+
+  const horarios = Array.from(
+    new Set(
+      aulas
+        .filter((item) => item.aula.hora_inicio)
+        .map((item) => item.aula.hora_inicio.substring(0, 5)),
+    ),
+  ).sort();
+
+  const obterAlocacoes = () => {
+    const mapa = {};
+    if (datas.length === 0) return mapa;
+
+    const datasStrings = datas.map((d) => d.toISOString().split("T")[0]);
+
+    aulas.forEach((item) => {
+      const { data_aula, hora_inicio, id_turma, id_aula, id_instrutor } =
+        item.aula;
+
+      if (data_aula && hora_inicio && id_turma.toString() === turma) {
+        const dataPura = data_aula.split("T")[0];
+        const indexDia = datasStrings.indexOf(dataPura);
+
+        if (indexDia !== -1) {
+          const diaNum = indexDia + 1;
+          const hora = hora_inicio.substring(0, 5);
+          const chave = `${turma}_${semana}_${diaNum}_${hora}`;
+
+          mapa[chave] = {
+            id_aula,
+            id_instrutor,
+            prof: item.instrutor.nome,
+            tema: item.tema.titulo_tema,
+            color: item.chamadaFeita ? "emerald" : "indigo",
+          };
+        }
+      }
+    });
+    return mapa;
+  };
+
+  const salvarAlteracoes = (mudancas) => {
+    api
+      .patch("/aulas/remanejar", mudancas)
+      .then(() => {
+        carregarAulas();
+        mostrarAlerta("success", "Alteração salva com sucesso!");
+      })
+      .catch((err) => {
+        mostrarAlerta(
+          "error",
+          err.response?.data?.message || "Erro ao salvar alteração.",
+        );
+        carregarAulas();
+      });
+  };
+
+  const aoDesalocar = (chave) => {
+    const aulaAlocada = obterAlocacoes()[chave];
+    if (!aulaAlocada) return;
+
+    salvarAlteracoes([
+      { idAula: aulaAlocada.id_aula, dataAula: null, horaInicio: null },
+    ]);
+  };
+
+  const aoSoltarCard = (e, diaNum, hora, chaveDestino) => {
+    const idArrastado = Number(e.dataTransfer.getData("text/plain"));
+    const dataAlvo = datas[diaNum - 1].toISOString().split("T")[0];
+    const horaFormatada = `${hora}:00`;
+
+    const aulaArrastada = aulas.find((a) => a.aula.id_aula === idArrastado);
+    if (!aulaArrastada) return;
+
+    if (
+      verificarConflitoProfessor(
+        aulas,
+        aulaArrastada.aula.id_instrutor,
+        dataAlvo,
+        horaFormatada,
+        idArrastado,
+      )
+    ) {
+      mostrarAlerta(
+        "error",
+        `Conflito: O Prof. ${aulaArrastada.instrutor.nome} já tem aula nesse horário!`,
+      );
+      return;
+    }
+
+    const mudancas = [];
+    const ocupanteAtual = obterAlocacoes()[chaveDestino];
+
+    if (ocupanteAtual && ocupanteAtual.id_aula !== idArrastado) {
+      mudancas.push({
+        idAula: ocupanteAtual.id_aula,
+        dataAula: null,
+        horaInicio: null,
+      });
+    }
+
+    mudancas.push({
+      idAula: idArrastado,
+      dataAula: dataAlvo,
+      horaInicio: horaFormatada,
+    });
+
+    salvarAlteracoes(mudancas);
+  };
+
+  // USO AQUI: Desestrutura direto do retorno modificado do utilitário
+  const { semanaTexto, mesAnoTexto } = obterTextoSemanaDoMes(datas);
+
+  return (
+    <div className="flex h-screen bg-gray-100 overflow-hidden font-sans">
+      <Alert type={alerta.type} message={alerta.message} />
+
+      <Sidebar tipoUsuario="secretario" />
+
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        <Header titulo="Cronograma de Aulas" icone={Calendar} />
+
+        <div className="flex-1 flex overflow-hidden relative bg-slate-50">
+          <BancoPendencias
+            estaAberto={menuAberto}
+            aoFechar={() => setMenuAberto(false)}
+            aulasPendentes={pendendasFormatadas}
+            aoAdicionarAulaRapica={carregarAulas}
+            aoDeletarAulaPendente={carregarAulas}
+          />
+
+          <main
+            className="flex-1 flex flex-col overflow-hidden z-10"
+            onClick={() => menuAberto && setMenuAberto(false)}
+          >
+            <header className="bg-white p-4 border-b shadow-sm flex justify-between items-center shrink-0">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMenuAberto(!menuAberto);
+                  }}
+                  className="bg-slate-900 text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 border-0 cursor-pointer shadow-sm"
+                >
+                  <Inbox size={14} className="text-green-400" />
+                  <span>
+                    Banco de Pendências ({pendendasFormatadas.length})
+                  </span>
+                </button>
+
+                <select
+                  value={turma}
+                  onChange={(e) => setTurma(e.target.value)}
+                  className="bg-slate-100 border border-gray-200 text-slate-700 px-3 py-2 rounded-xl font-bold text-xs outline-none cursor-pointer hover:bg-slate-200 transition-all"
+                >
+                  {turmas.map((t) => (
+                    <option key={t.id_turma} value={t.id_turma.toString()}>
+                      {t.nome_turma} ({t.status_turma})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Layout corrigido para exibir Mês e Ordem da semana empilhados */}
+              <div className="flex items-center gap-4 bg-slate-50 border border-gray-200 p-1.5 rounded-2xl shadow-inner">
+                <button
+                  onClick={() => semana > 1 && setSemana(semana - 1)}
+                  className="w-8 h-8 flex items-center justify-center bg-transparent border-0 cursor-pointer text-gray-600 hover:bg-white rounded-xl transition-all"
+                >
+                  <ChevronLeft size={14} />
+                </button>
+
+                <div className="flex flex-col items-center min-w-[200px]">
+                  {/* Mês em Destaque */}
+                  <span className="text-sm font-black text-slate-800 tracking-tight leading-none capitalize">
+                    {mesAnoTexto || "Carregando..."}
+                  </span>
+                  {/* Ordem da semana correspondente embaixo */}
+                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">
+                    {semanaTexto}
+                  </span>
+                </div>
+
+                <button
+                  onClick={() => semana < 52 && setSemana(semana + 1)}
+                  className="w-8 h-8 flex items-center justify-center bg-transparent border-0 cursor-pointer text-gray-600 hover:bg-white rounded-xl transition-all"
+                >
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </header>
+
+            <div className="flex-1 overflow-auto p-6 custom-scroll">
+              {horarios.length > 0 ? (
+                <CalendarioGrade
+                  datasDaSemana={datas}
+                  listaHorarios={horarios}
+                  alocacoesDoBanco={obterAlocacoes()}
+                  turmaSelecionada={turma}
+                  semanaAtual={semana}
+                  aoSoltarCard={aoSoltarCard}
+                  aoDesalocar={aoDesalocar}
+                />
+              ) : (
+                <div className="text-center p-12 text-gray-400 bg-white rounded-2xl border border-dashed text-sm font-medium border-gray-300">
+                  Nenhuma aula agendada para mapear os horários dessa grade.
+                </div>
+              )}
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+}
