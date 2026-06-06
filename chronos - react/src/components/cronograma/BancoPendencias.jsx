@@ -8,24 +8,20 @@ export default function BancoPendencias({
   aoAdicionarAulaRapica,
   aoDeletarAulaPendente,
 }) {
-  // Estados simples para controlar os campos do formulário
   const [tema, setTema] = useState("");
   const [professor, setProfessor] = useState("Sêneca");
 
-  const aoEnviarFormulario = (evento) => {
-    evento.preventDefault();
-    // Se o usuário não digitar nada, não faz nada
+  const criarAula = (e) => {
+    e.preventDefault();
     if (!tema.trim()) return;
 
-    // Avisa a View principal para adicionar a aula na lista
     aoAdicionarAulaRapica(tema, professor);
-    setTema(""); // Limpa o campo de texto
+    setTema("");
   };
 
-  const aoComecarArrastarPendente = (evento, aulaPendente) => {
-    // Guarda o ID da aula e a origem para o sistema de arrastar e soltar
-    evento.dataTransfer.setData("text/plain", aulaPendente.id);
-    evento.dataTransfer.setData("origem", "lista_pendencias");
+  const comecarArrastar = (e, aula) => {
+    e.dataTransfer.setData("text/plain", aula.id);
+    e.dataTransfer.setData("origem", "lista_pendencias");
   };
 
   return (
@@ -34,7 +30,6 @@ export default function BancoPendencias({
         estaAberto ? "translate-x-0" : "-translate-x-full"
       } transition-transform duration-300 ease-in-out`}
     >
-      {/* Cabeçalho do Painel Lateral */}
       <div className="p-4 bg-slate-900 text-white flex justify-between items-center">
         <div>
           <h2 className="text-sm font-black tracking-wider text-green-400 uppercase">
@@ -52,23 +47,22 @@ export default function BancoPendencias({
         </button>
       </div>
 
-      {/* Formulário de Criação Rápida */}
       <div className="p-4 border-b bg-slate-50">
         <p className="text-[11px] font-bold text-slate-500 uppercase mb-2 flex items-center gap-1">
           <PlusCircle size={12} className="text-green-600" /> Criar Aula Rápida
         </p>
-        <form onSubmit={aoEnviarFormulario} className="space-y-2">
+        <form onSubmit={criarAula} className="space-y-2">
           <input
             type="text"
             placeholder="Nome do tema/matéria..."
             value={tema}
-            onChange={(evento) => setTema(evento.target.value)}
+            onChange={(e) => setTema(e.target.value)}
             className="w-full text-xs px-3 py-2 border rounded-lg focus:outline-none focus:border-green-600 shadow-sm bg-white text-slate-700"
           />
           <div className="grid grid-cols-2 gap-2">
             <select
               value={professor}
-              onChange={(evento) => setProfessor(evento.target.value)}
+              onChange={(e) => setProfessor(e.target.value)}
               className="text-xs px-2 py-2 border rounded-lg bg-white text-slate-700 focus:outline-none focus:border-green-600 shadow-sm outline-none"
             >
               <option value="Sêneca">Prof. Sêneca</option>
@@ -86,20 +80,17 @@ export default function BancoPendencias({
         </form>
       </div>
 
-      {/* Lista de Cards Pendentes (Arrastáveis) */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 custom-scroll">
         {aulasPendentes.map((aula) => (
           <div
             key={aula.id}
             id={aula.id}
             draggable
-            onDragStart={(evento) => aoComecarArrastarPendente(evento, aula)}
-            className={`bg-white border-l-4 border-${aula.color}-500 p-3 rounded-xl shadow-sm border border-slate-200 cursor-grab active:cursor-grabbing hover:shadow-md transition-all text-left`}
+            onDragStart={(e) => comecarArrastar(e, aula)}
+            className={`bg-white border-l-4 border-emerald-500 p-3 rounded-xl shadow-sm border border-slate-200 cursor-grab active:cursor-grabbing hover:shadow-md transition-all text-left`}
           >
             <div className="flex justify-between items-start">
-              <span
-                className={`text-[9px] font-black text-${aula.color}-700 bg-${aula.color}-50 px-2 py-0.5 rounded uppercase`}
-              >
+              <span className="text-[9px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded uppercase">
                 Prof. {aula.prof}
               </span>
               <button

@@ -1,6 +1,4 @@
-// src/utils/CronogramaUtils.js
-
-// 1. Calcula os 7 dias completos da semana (Segunda a Domingo)
+// Retorna os 7 dias da semana (Segunda a Domingo)
 export function calcularDatasDaSemana(semana, ano) {
   const dataSimples = new Date(ano, 0, 1 + (semana - 1) * 7);
   const diaDaSemana = dataSimples.getDay();
@@ -13,7 +11,6 @@ export function calcularDatasDaSemana(semana, ano) {
   }
 
   let dias = [];
-  // loop alterado para 7 para cobrir sábado (6) e domingo (7)
   for (let i = 0; i < 7; i++) {
     let dataCalculada = new Date(inicioSemana);
     dataCalculada.setDate(inicioSemana.getDate() + i);
@@ -22,11 +19,13 @@ export function calcularDatasDaSemana(semana, ano) {
   return dias;
 }
 
-// 2. Transforma o número da semana (1-52) em texto humano (Ex: 3ª Semana de Março)
+// Retorna um objeto com o texto da semana e o mês/ano separados
 export function obterTextoSemanaDoMes(datasDaSemana) {
-  if (!datasDaSemana || datasDaSemana.length === 0) return "";
+  if (!datasDaSemana || datasDaSemana.length === 0) {
+    return { semanaTexto: "", mesAnoTexto: "" };
+  }
 
-  const dataReferencia = datasDaSemana[0]; // Usa a segunda-feira como base
+  const dataReferencia = datasDaSemana[0];
   const diaDoMes = dataReferencia.getDate();
   const numeroMes = dataReferencia.getMonth();
   const ano = dataReferencia.getFullYear();
@@ -46,13 +45,15 @@ export function obterTextoSemanaDoMes(datasDaSemana) {
     "Dezembro",
   ];
 
-  // Calcula matematicamente a ordem da semana dentro daquele mês específico (1ª a 5ª)
   const numeroSemanaDoMes = Math.ceil(diaDoMes / 7);
 
-  return `${numeroSemanaDoMes}ª Semana de ${meses[numeroMes]} de ${ano}`;
+  return {
+    semanaTexto: `${numeroSemanaDoMes}ª Semana`,
+    mesAnoTexto: `${meses[numeroMes]} de ${ano}`,
+  };
 }
 
-// 3. Valida se o professor já está ocupado em outra turma no mesmo dia e horário
+// Verifica se o professor já tem aula na mesma data e horário em outra turma
 export function verificarConflitoProfessor(
   listaDeAulas,
   idInstrutor,
