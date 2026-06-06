@@ -22,8 +22,7 @@ import GestaoAulas from "../pages/secretaria/GestaoAulas";
 import sessionService from "../services/sessionService";
 
 function PrivateRoute({ element }) {
-  // const token = session;Service.getToken();
-  const token = true;
+  const token = sessionService.getToken();
   return token ? (
     element
   ) : (

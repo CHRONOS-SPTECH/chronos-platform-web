@@ -2,8 +2,36 @@ import axios from "axios";
 import sessionService from "./sessionService";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: "/api",
 });
+
+let redirecionandoParaLogin = false;
+
+const extrairMensagemErro = (error) => {
+  return (
+    error?.response?.data?.message ||
+    error?.response?.data?.erro ||
+    error?.response?.data?.error ||
+    error?.message ||
+    ""
+  );
+};
+
+const ehTokenExpirado = (error) => {
+  const status = error?.response?.status;
+  const mensagem = String(extrairMensagemErro(error)).toLowerCase();
+  const endpoint = error?.config?.url || "";
+
+  if (endpoint.includes("/auth/login")) return false;
+
+  return (
+    status === 401 ||
+    status === 403 ||
+    mensagem.includes("expiredjwtexception") ||
+    mensagem.includes("jwt expired") ||
+    mensagem.includes("token expirado")
+  );
+};
 
 api.interceptors.request.use((config) => {
   const token = sessionService.getToken();
@@ -12,5 +40,21 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (ehTokenExpirado(error) && !redirecionandoParaLogin) {
+      redirecionandoParaLogin = true;
+      sessionService.clearSession();
+
+      if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 export default api;

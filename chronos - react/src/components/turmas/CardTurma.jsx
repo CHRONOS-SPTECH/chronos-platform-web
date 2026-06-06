@@ -1,7 +1,8 @@
 import { BookOpen, Calendar, Eye, Pencil, Trash2 } from "lucide-react";
 
 function CardTurma({ turma, onVer, onEditar, onExcluir }) {
-  const isFormado = turma.status === "Formado";
+  const status = (turma.status || "").toLowerCase();
+  const isFormado = status.includes("formad") || status.includes("conclu");
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 hover:shadow-lg hover:shadow-gray-200/50 transition-all p-5 flex flex-col gap-4 group">
