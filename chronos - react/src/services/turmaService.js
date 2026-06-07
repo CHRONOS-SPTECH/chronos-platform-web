@@ -6,6 +6,13 @@ const STATUS_LABELS_VALIDOS = [
 	"Concluída",
 ];
 
+// Mapa inverso: enum backend para label
+const STATUS_ENUM_TO_LABEL = {
+	NAO_INICIADA: "Não Iniciada",
+	EM_ANDAMENTO: "Em Andamento",
+	CONCLUIDA: "Concluída",
+};
+
 const STATUS_LABEL_CANONICA = {
 	naoiniciada: "Não Iniciada",
 	emandamento: "Em Andamento",
@@ -36,10 +43,13 @@ const normalizarDataParaApi = (data) => {
 	return valor;
 };
 
-// padroniza para os labels aceitos pelo backend
+// Padroniza para os labels aceitos pelo frontend
 const normalizarStatusParaLabel = (status) => {
 	if (!status) return "Não Iniciada";
 	if (STATUS_LABELS_VALIDOS.includes(status)) return status;
+
+	// Se for enum do backend, converter para label
+	if (STATUS_ENUM_TO_LABEL[status]) return STATUS_ENUM_TO_LABEL[status];
 
 	const chave = normalizarChaveStatus(status);
 	if (STATUS_LABEL_CANONICA[chave]) return STATUS_LABEL_CANONICA[chave];
