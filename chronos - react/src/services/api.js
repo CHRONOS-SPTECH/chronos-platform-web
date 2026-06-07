@@ -26,10 +26,11 @@ const ehTokenExpirado = (error) => {
 
   return (
     status === 401 ||
-    status === 403 ||
     mensagem.includes("expiredjwtexception") ||
     mensagem.includes("jwt expired") ||
-    mensagem.includes("token expirado")
+    mensagem.includes("token expirado") ||
+    mensagem.includes("token inválido") ||
+    mensagem.includes("invalid token")
   );
 };
 
