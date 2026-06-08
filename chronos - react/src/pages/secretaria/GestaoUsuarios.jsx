@@ -28,7 +28,7 @@ function GestaoUsuarios() {
 
   return (
     <div className="flex h-screen bg-[#F1F5F9] overflow-hidden">
-      <Sidebar tipoUsuario="secretario" />
+      <Sidebar />
       <div className="flex-1 flex flex-col h-screen">
         <Header titulo="Gestão de Usuários" icone={Users} />
 

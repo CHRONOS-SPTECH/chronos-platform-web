@@ -55,7 +55,11 @@ const mapApiTurmaToUi = (turma) => {
   const statusApi = getApiField(turma, "status_turma", "statusTurma");
   const statusLabel = turmaService.normalizarStatusParaLabel(statusApi);
   const dataInicioApi = getApiField(turma, "data_inicio", "dataInicio");
-  const dataFimApi = getApiField(turma, "data_encerramento", "dataEncerramento");
+  const dataFimApi = getApiField(
+    turma,
+    "data_encerramento",
+    "dataEncerramento",
+  );
 
   return {
     id: getApiField(turma, "id_turma", "idTurma"),
@@ -69,10 +73,7 @@ const mapApiTurmaToUi = (turma) => {
 };
 
 const montarDadosTurmaDoPrompt = (dadosIniciais = null) => {
-  const nome = window.prompt(
-    "Nome da turma:",
-    dadosIniciais?.nome_turma || "",
-  );
+  const nome = window.prompt("Nome da turma:", dadosIniciais?.nome_turma || "");
   if (!nome) return null;
 
   const dataInicio = window.prompt(
@@ -144,7 +145,10 @@ export default function Turmas() {
     if (!dadosTurma) return;
 
     try {
-      const turmaAtualizada = await turmaService.atualizarTurma(turma.id, dadosTurma);
+      const turmaAtualizada = await turmaService.atualizarTurma(
+        turma.id,
+        dadosTurma,
+      );
       const listaAtualizada = turmas.map((item) =>
         getTurmaId(item) === turma.id ? turmaAtualizada : item,
       );
@@ -177,7 +181,7 @@ export default function Turmas() {
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans antialiased">
-      <Sidebar tipoUsuario="secretario" />
+      <Sidebar />
 
       <div className="flex-1 flex flex-col min-w-0">
         <Header

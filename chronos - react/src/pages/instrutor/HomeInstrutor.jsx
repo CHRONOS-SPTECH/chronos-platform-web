@@ -19,25 +19,21 @@ function HomeInstrutor() {
     const aulaEmAberto = aulasHoje.find(
       (item) => !Boolean(item?.chamadaFeita ?? item?.aula?.chamadaFeita),
     );
-
     return aulaEmAberto || aulasHoje[0] || null;
   };
 
   useEffect(() => {
     const carregarAulas = async () => {
       try {
-        const dados = sessionStorage.getItem("usuario");
-        if (!dados) return;
+        const dados = JSON.parse(sessionStorage.getItem("usuario"));
+        if (!dados?.usuario) return;
 
-        const user = JSON.parse(dados);
         const hoje = getHojeIso();
-
         const res = await api.get(
-          `/aulas/dia?data=${hoje}&instrutorId=${user.id_usuario}`,
+          `/aulas/dia?data=${hoje}&instrutorId=${dados.usuario.id_usuario}`,
         );
 
-        const aulasHoje = res.data || [];
-        setAula(selecionarAulaParaPresenca(aulasHoje));
+        setAula(selecionarAulaParaPresenca(res.data || []));
       } catch (err) {
         console.error("Erro ao buscar aulas:", err);
       }
@@ -48,20 +44,15 @@ function HomeInstrutor() {
 
   const iniciarPresenca = async () => {
     try {
-      const dados = sessionStorage.getItem("usuario");
-      if (!dados) {
-        alert("Nenhuma aula em andamento encontrada para hoje.");
-        return;
-      }
+      const dados = JSON.parse(sessionStorage.getItem("usuario"));
+      if (!dados?.usuario) return;
 
-      const user = JSON.parse(dados);
       const hoje = getHojeIso();
       const res = await api.get(
-        `/aulas/dia?data=${hoje}&instrutorId=${user.id_usuario}`,
+        `/aulas/dia?data=${hoje}&instrutorId=${dados.usuario.id_usuario}`,
       );
 
-      const aulasHoje = res.data || [];
-      const aulaParaAbrir = selecionarAulaParaPresenca(aulasHoje);
+      const aulaParaAbrir = selecionarAulaParaPresenca(res.data || []);
 
       if (!aulaParaAbrir?.aula?.id_turma || !aulaParaAbrir?.aula?.id_aula) {
         alert("Nenhuma aula em andamento encontrada para hoje.");
@@ -79,7 +70,8 @@ function HomeInstrutor() {
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans">
-      <Sidebar tipoUsuario="instrutor" />
+      {/* Sidebar limpa e auto-adaptável */}
+      <Sidebar />
 
       <div className="flex-1 flex flex-col min-w-0">
         <Header titulo="Home" icone={Home} />
@@ -103,7 +95,7 @@ function HomeInstrutor() {
                             : "",
                         icon: Play,
                         isPrimary: true,
-                        onClick: () => iniciarPresenca(),
+                        onClick: iniciarPresenca,
                       },
                       {
                         id: "agenda",
@@ -120,7 +112,6 @@ function HomeInstrutor() {
                     ]}
                   />
                 </div>
-
                 <div>
                   <Cronograma />
                 </div>

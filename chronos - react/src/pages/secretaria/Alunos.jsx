@@ -22,10 +22,14 @@ const VINCULO_LABEL_POR_ID = {
   4: "Membro Forca Viva",
 };
 
-const IDS_VINCULO_ALUNO = new Set(Object.keys(VINCULO_LABEL_POR_ID).map(Number));
+const IDS_VINCULO_ALUNO = new Set(
+  Object.keys(VINCULO_LABEL_POR_ID).map(Number),
+);
 
 const getPessoaId = (obj) =>
-  Number(getApiField(obj, "id_pessoa", "idPessoa", "pessoa_id", "pessoaId", "id"));
+  Number(
+    getApiField(obj, "id_pessoa", "idPessoa", "pessoa_id", "pessoaId", "id"),
+  );
 
 const mapUsuariosParaIdsPessoa = (usuarios) => {
   if (!Array.isArray(usuarios)) return new Set();
@@ -44,13 +48,23 @@ const ehAluno = (pessoa, idsPessoaUsuarioArg) => {
   const idPessoa = getPessoaId(pessoa);
   if (idsPessoaUsuario.has(idPessoa)) return false;
 
-  const idVinculo = Number(getApiField(pessoa, "tipo_vinculo_id", "tipoVinculoId"));
+  const idVinculo = Number(
+    getApiField(pessoa, "tipo_vinculo_id", "tipoVinculoId"),
+  );
   const possuiVinculoAluno = IDS_VINCULO_ALUNO.has(idVinculo);
 
   const possuiPerfilAcesso =
     Array.isArray(getApiField(pessoa, "perfis_id", "perfisId")) ||
     Array.isArray(getApiField(pessoa, "perfis")) ||
-    Boolean(getApiField(pessoa, "usuario_id", "usuarioId", "email_login", "emailLogin"));
+    Boolean(
+      getApiField(
+        pessoa,
+        "usuario_id",
+        "usuarioId",
+        "email_login",
+        "emailLogin",
+      ),
+    );
 
   return possuiVinculoAluno && !possuiPerfilAcesso;
 };
@@ -66,7 +80,9 @@ const extrairMensagemErro = (error, padrao) => {
 };
 
 const mapAlunoApiParaUi = (aluno) => {
-  const idVinculo = Number(getApiField(aluno, "tipo_vinculo_id", "tipoVinculoId"));
+  const idVinculo = Number(
+    getApiField(aluno, "tipo_vinculo_id", "tipoVinculoId"),
+  );
   const nomeVinculo =
     getApiField(aluno, "nome_vinculo", "nomeVinculo") ||
     VINCULO_LABEL_POR_ID[idVinculo] ||
@@ -77,10 +93,18 @@ const mapAlunoApiParaUi = (aluno) => {
     nome: getApiField(aluno, "nome") || "Nao informado",
     email: getApiField(aluno, "email") || "Nao informado",
     cpf: formatarCPF(getApiField(aluno, "cpf") || ""),
-    dataNascimento: formatarDataBr(getApiField(aluno, "data_nascimento", "dataNascimento")),
+    dataNascimento: formatarDataBr(
+      getApiField(aluno, "data_nascimento", "dataNascimento"),
+    ),
     vinculo: nomeVinculo,
     dataMembro: formatarDataBr(
-      getApiField(aluno, "data_membro", "dataMembro", "data_ingresso", "dataIngresso"),
+      getApiField(
+        aluno,
+        "data_membro",
+        "dataMembro",
+        "data_ingresso",
+        "dataIngresso",
+      ),
     ),
     voluntario: Boolean(getApiField(aluno, "bolsista", "voluntario")),
   };
@@ -102,7 +126,10 @@ export default function Alunos() {
   const [salvandoAluno, setSalvandoAluno] = useState(false);
   const [alunoEmEdicao, setAlunoEmEdicao] = useState(null);
 
-  const normalizarEmail = (valor) => String(valor || "").trim().toLowerCase();
+  const normalizarEmail = (valor) =>
+    String(valor || "")
+      .trim()
+      .toLowerCase();
 
   const emailJaCadastrado = (email, idPessoaIgnorado = null) => {
     const emailNormalizado = normalizarEmail(email);
@@ -127,14 +154,18 @@ export default function Alunos() {
         api.get("/usuarios"),
       ]);
 
-      const usuarios = Array.isArray(dadosUsuarios?.data) ? dadosUsuarios.data : [];
+      const usuarios = Array.isArray(dadosUsuarios?.data)
+        ? dadosUsuarios.data
+        : [];
       const idsPessoaUsuario = mapUsuariosParaIdsPessoa(usuarios);
       const lista = Array.isArray(dadosPessoas) ? dadosPessoas : [];
       setPessoasCadastradas(lista);
       setAlunos(lista.filter((pessoa) => ehAluno(pessoa, idsPessoaUsuario)));
     } catch (error) {
       console.error("Erro ao carregar alunos:", error);
-      setErro(extrairMensagemErro(error, "Nao foi possivel carregar os alunos."));
+      setErro(
+        extrairMensagemErro(error, "Nao foi possivel carregar os alunos."),
+      );
     } finally {
       setLoading(false);
     }
@@ -161,9 +192,13 @@ export default function Alunos() {
     genero: getApiField(aluno, "genero") || "",
     cpf: getApiField(aluno, "cpf") || "",
     bolsista: Boolean(getApiField(aluno, "bolsista", "voluntario")),
-    url_foto_perfil: getApiField(aluno, "url_foto_perfil", "urlFotoPerfil") || "",
-    tipo_vinculo_id: Number(getApiField(aluno, "tipo_vinculo_id", "tipoVinculoId") || 2),
-    data_nascimento: getApiField(aluno, "data_nascimento", "dataNascimento") || "",
+    url_foto_perfil:
+      getApiField(aluno, "url_foto_perfil", "urlFotoPerfil") || "",
+    tipo_vinculo_id: Number(
+      getApiField(aluno, "tipo_vinculo_id", "tipoVinculoId") || 2,
+    ),
+    data_nascimento:
+      getApiField(aluno, "data_nascimento", "dataNascimento") || "",
     data_ingresso: getApiField(aluno, "data_ingresso", "dataIngresso") || "",
     data_membro: getApiField(aluno, "data_membro", "dataMembro") || "",
     data_saida: getApiField(aluno, "data_saida", "dataSaida") || "",
@@ -175,18 +210,28 @@ export default function Alunos() {
       const { endereco, ...dadosPessoa } = dadosAluno;
 
       if (alunoEmEdicao) {
-        const idAluno = getApiField(alunoEmEdicao, "id_pessoa", "idPessoa", "id");
+        const idAluno = getApiField(
+          alunoEmEdicao,
+          "id_pessoa",
+          "idPessoa",
+          "id",
+        );
         if (emailJaCadastrado(dadosPessoa.email, idAluno)) {
           window.alert("Este e-mail ja esta cadastrado para outra pessoa.");
           return;
         }
 
-        const alunoAtualizado = await alunoService.atualizarAluno(idAluno, dadosPessoa);
+        const alunoAtualizado = await alunoService.atualizarAluno(
+          idAluno,
+          dadosPessoa,
+        );
 
         setPessoasCadastradas((anterior) =>
           anterior.map((pessoa) => {
             const idPessoa = getApiField(pessoa, "id_pessoa", "idPessoa", "id");
-            return Number(idPessoa) === Number(idAluno) ? alunoAtualizado : pessoa;
+            return Number(idPessoa) === Number(idAluno)
+              ? alunoAtualizado
+              : pessoa;
           }),
         );
 
@@ -194,12 +239,15 @@ export default function Alunos() {
           anterior
             .map((item) => {
               const idItem = getApiField(item, "id_pessoa", "idPessoa", "id");
-              return Number(idItem) === Number(idAluno) ? alunoAtualizado : item;
+              return Number(idItem) === Number(idAluno)
+                ? alunoAtualizado
+                : item;
             })
             .filter((pessoa) => ehAluno(pessoa)),
         );
 
-        const nomeAtualizado = getApiField(alunoAtualizado, "nome") || dadosPessoa.nome || "";
+        const nomeAtualizado =
+          getApiField(alunoAtualizado, "nome") || dadosPessoa.nome || "";
         window.alert(`Aluno ${nomeAtualizado} atualizado com sucesso`);
       } else {
         if (emailJaCadastrado(dadosPessoa.email)) {
@@ -209,7 +257,9 @@ export default function Alunos() {
 
         const alunoCriado = await alunoService.cadastrarAluno(dadosPessoa);
         setPessoasCadastradas((anterior) => [alunoCriado, ...anterior]);
-        setAlunos((anterior) => [alunoCriado, ...anterior].filter((pessoa) => ehAluno(pessoa)));
+        setAlunos((anterior) =>
+          [alunoCriado, ...anterior].filter((pessoa) => ehAluno(pessoa)),
+        );
       }
 
       setModalAlunoAberto(false);
@@ -253,7 +303,7 @@ export default function Alunos() {
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans antialiased">
-      <Sidebar tipoUsuario="secretario" />
+      <Sidebar />
 
       <div className="flex-1 flex flex-col min-w-0">
         <Header
@@ -329,63 +379,63 @@ export default function Alunos() {
                       const alunoUi = mapAlunoApiParaUi(aluno);
 
                       return (
-                      <tr
-                        key={alunoUi.id}
-                        className="hover:bg-slate-50/50 transition-colors group"
-                      >
-                        <td className="p-4">
-                          <div className="flex flex-col">
-                            <span className="font-bold text-sm text-slate-800 group-hover:text-[#1E7A3C] transition-colors">
-                              {alunoUi.nome}
-                            </span>
-                            <span className="text-xs text-slate-400 font-medium mt-0.5">
-                              {alunoUi.email}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="p-4 text-xs font-semibold text-slate-600">
-                          {alunoUi.cpf}
-                        </td>
-                        <td className="p-4 text-xs font-semibold text-slate-600">
-                          {alunoUi.dataNascimento}
-                        </td>
-                        <td className="p-4">
-                          <span
-                            className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border ${BADGE_VINCOLO[alunoUi.vinculo] || "bg-slate-50 text-slate-600 border-slate-200"}`}
-                          >
-                            {alunoUi.vinculo}
-                          </span>
-                        </td>
-                        <td className="p-4 text-xs font-semibold text-slate-600">
-                          {alunoUi.dataMembro}
-                        </td>
-                        <td className="p-4">
-                          <div className="flex justify-center">
+                        <tr
+                          key={alunoUi.id}
+                          className="hover:bg-slate-50/50 transition-colors group"
+                        >
+                          <td className="p-4">
+                            <div className="flex flex-col">
+                              <span className="font-bold text-sm text-slate-800 group-hover:text-[#1E7A3C] transition-colors">
+                                {alunoUi.nome}
+                              </span>
+                              <span className="text-xs text-slate-400 font-medium mt-0.5">
+                                {alunoUi.email}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="p-4 text-xs font-semibold text-slate-600">
+                            {alunoUi.cpf}
+                          </td>
+                          <td className="p-4 text-xs font-semibold text-slate-600">
+                            {alunoUi.dataNascimento}
+                          </td>
+                          <td className="p-4">
                             <span
-                              className={`w-2.5 h-2.5 rounded-full ${alunoUi.voluntario ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" : "bg-slate-300"}`}
-                            />
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex gap-1.5 justify-end">
-                            <button className="p-2 border border-slate-100 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all shadow-sm">
-                              <Eye size={14} />
-                            </button>
-                            <button
-                              onClick={() => onEditarAluno(aluno)}
-                              className="p-2 border border-slate-100 text-slate-400 hover:text-[#1E7A3C] hover:bg-green-50/50 rounded-xl transition-all shadow-sm"
+                              className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border ${BADGE_VINCOLO[alunoUi.vinculo] || "bg-slate-50 text-slate-600 border-slate-200"}`}
                             >
-                              <Pencil size={14} />
-                            </button>
-                            <button
-                              onClick={() => onExcluirAluno(aluno)}
-                              className="p-2 border border-slate-100 text-slate-400 hover:text-red-600 hover:bg-red-50/50 rounded-xl transition-all shadow-sm"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
+                              {alunoUi.vinculo}
+                            </span>
+                          </td>
+                          <td className="p-4 text-xs font-semibold text-slate-600">
+                            {alunoUi.dataMembro}
+                          </td>
+                          <td className="p-4">
+                            <div className="flex justify-center">
+                              <span
+                                className={`w-2.5 h-2.5 rounded-full ${alunoUi.voluntario ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" : "bg-slate-300"}`}
+                              />
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex gap-1.5 justify-end">
+                              <button className="p-2 border border-slate-100 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all shadow-sm">
+                                <Eye size={14} />
+                              </button>
+                              <button
+                                onClick={() => onEditarAluno(aluno)}
+                                className="p-2 border border-slate-100 text-slate-400 hover:text-[#1E7A3C] hover:bg-green-50/50 rounded-xl transition-all shadow-sm"
+                              >
+                                <Pencil size={14} />
+                              </button>
+                              <button
+                                onClick={() => onExcluirAluno(aluno)}
+                                className="p-2 border border-slate-100 text-slate-400 hover:text-red-600 hover:bg-red-50/50 rounded-xl transition-all shadow-sm"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
                       );
                     })}
                   </tbody>
@@ -401,7 +451,9 @@ export default function Alunos() {
         onClose={fecharModalAluno}
         onSalvar={onSalvarAluno}
         carregando={salvandoAluno}
-        valoresPadrao={alunoEmEdicao ? mapAlunoApiParaForm(alunoEmEdicao) : undefined}
+        valoresPadrao={
+          alunoEmEdicao ? mapAlunoApiParaForm(alunoEmEdicao) : undefined
+        }
       />
     </div>
   );

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import LoginForm from "../components/login/LoginForm";
 import ForgotForm from "../components/login/ForgotForm";
 import Alert from "../components/alert-toast/AlertToast";
@@ -8,6 +8,7 @@ import authService from "../services/authService";
 
 function Login() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [view, setView] = useState("login");
   const [status, setStatus] = useState({ type: "", message: "" });
 
@@ -18,6 +19,7 @@ function Login() {
         type: "error",
         message: "Você precisa estar logado para acessar esta página.",
       });
+      navigate(location.pathname, { replace: true, state: {} });
     }
   }, []);
 

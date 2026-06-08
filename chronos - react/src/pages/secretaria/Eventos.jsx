@@ -83,7 +83,7 @@ export default function Eventos() {
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans antialiased">
-      <Sidebar tipoUsuario="secretario" />
+      <Sidebar />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header titulo="Gestão Acadêmica" icone={CalendarPlus} />

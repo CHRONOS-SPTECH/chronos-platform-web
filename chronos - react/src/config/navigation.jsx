@@ -1,10 +1,4 @@
-import {
-  Users,
-  BookOpen,
-  CalendarDays,
-  UserCheck,
-  LayoutDashboard,
-} from "lucide-react";
+import { Users, UserCheck, LayoutDashboard } from "lucide-react";
 
 export const MENU_CONFIG = {
   instrutor: {
@@ -14,11 +8,7 @@ export const MENU_CONFIG = {
         label: "Acadêmico",
         titulo: "Controle de Frequência",
         icone: <UserCheck size={20} />,
-        itens: [
-          { nome: "Chamada do dia", action: "chamadaDoDia" },
-          // { nome: "Minhas Turmas", rota: "/turmas" },
-          // { nome: "Minha Agenda", rota: "/agenda" },
-        ],
+        itens: [{ nome: "Chamada do dia", action: "chamadaDoDia" }],
       },
     ],
   },
@@ -36,12 +26,12 @@ export const MENU_CONFIG = {
         ],
       },
       {
-        label: "Gestão de Usuários",
-        titulo: "Controle de Acesso",
+        label: "Gestão Ano letivo",
+        titulo: "Controle de Aulas",
         icone: <LayoutDashboard size={20} />,
         itens: [
-          { nome: "Usuários", rota: "/usuarios" },
-          // { nome: "Permissões", rota: "/permissoes" },
+          { nome: "Cronograma de Aulas", rota: "/cronograma" },
+          { nome: "Gestão de Aulas", rota: "/gestao-aulas" },
         ],
       },
     ],
@@ -57,6 +47,12 @@ export const MENU_CONFIG = {
           { nome: "Panorama Acadêmico" },
           { nome: "Engajamento das Atividades" },
         ],
+      },
+      {
+        label: "Gestão de Usuários",
+        titulo: "Controle de Acesso",
+        icone: <LayoutDashboard size={20} />,
+        itens: [{ nome: "Usuários", rota: "/usuarios" }],
       },
     ],
   },
