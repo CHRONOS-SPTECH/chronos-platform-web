@@ -1,4 +1,3 @@
-// Retorna os 7 dias da semana (Segunda a Domingo)
 export function calcularDatasDaSemana(semana, ano) {
   const dataSimples = new Date(ano, 0, 1 + (semana - 1) * 7);
   const diaDaSemana = dataSimples.getDay();
@@ -19,7 +18,6 @@ export function calcularDatasDaSemana(semana, ano) {
   return dias;
 }
 
-// Retorna um objeto com o texto da semana e o mês/ano separados
 export function obterTextoSemanaDoMes(datasDaSemana) {
   if (!datasDaSemana || datasDaSemana.length === 0) {
     return { semanaTexto: "", mesAnoTexto: "" };
@@ -53,7 +51,6 @@ export function obterTextoSemanaDoMes(datasDaSemana) {
   };
 }
 
-// Verifica se o professor já tem aula na mesma data e horário em outra turma
 export function verificarConflitoProfessor(
   listaDeAulas,
   idInstrutor,
@@ -65,12 +62,24 @@ export function verificarConflitoProfessor(
     if (!item.aula.data_aula || !item.aula.hora_inicio) return false;
 
     const dataAulaFormatada = item.aula.data_aula.split("T")[0];
+    const horaAulaFormatada = item.aula.hora_inicio.substring(0, 5);
+    const horaAlvoFormatada = horaInicio.substring(0, 5);
 
     return (
       dataAulaFormatada === dataFormatada &&
-      item.aula.hora_inicio === horaInicio &&
+      horaAulaFormatada === horaAlvoFormatada &&
       item.aula.id_instrutor === idInstrutor &&
       item.aula.id_aula !== idAulaAtual
     );
   });
+}
+
+export function obterSemanaAtualDoAno() {
+  const hoje = new Date();
+  const primeiroDiaDoAno = new Date(hoje.getFullYear(), 0, 1);
+  const diasPassados = Math.floor(
+    (hoje - primeiroDiaDoAno) / (24 * 60 * 60 * 1000),
+  );
+
+  return Math.ceil((diasPassados + primeiroDiaDoAno.getDay() + 1) / 7);
 }

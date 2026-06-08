@@ -22,7 +22,7 @@ function HomeSecretario() {
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden font-sans">
       {/* Sidebar */}
-      <Sidebar tipoUsuario="secretario" />
+      <Sidebar />
 
       {/* Conteúdo principal */}
       <div className="flex-1 flex flex-col h-screen">

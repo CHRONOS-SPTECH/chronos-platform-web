@@ -1,25 +1,18 @@
+const PROFILE_KEY = "perfilSelecionado";
+
 const setSession = (data) => {
   if (!data) return;
   if (data.token) sessionStorage.setItem("token", data.token);
   if (data.token_type) sessionStorage.setItem("token_type", data.token_type);
-  if (data.usuario) {
-    try {
-      sessionStorage.setItem("usuario", JSON.stringify(data.usuario));
-    } catch (e) {
-      console.error("Erro ao salvar usuário na sessão:", e);
-    }
-  }
+
+  sessionStorage.setItem("usuario", JSON.stringify(data));
 };
 
 const clearSession = () => {
-  sessionStorage.removeItem("token");
-  sessionStorage.removeItem("token_type");
-  sessionStorage.removeItem("usuario");
+  sessionStorage.clear();
 };
 
-const getToken = () => {
-  return sessionStorage.getItem("token");
-};
+const getToken = () => sessionStorage.getItem("token");
 
 const getUser = () => {
   const u = sessionStorage.getItem("usuario");
@@ -31,11 +24,20 @@ const getUser = () => {
   }
 };
 
+const setSelectedProfile = (tipo) => {
+  if (!tipo) return sessionStorage.removeItem(PROFILE_KEY);
+  sessionStorage.setItem(PROFILE_KEY, String(tipo));
+};
+
+const getSelectedProfile = () => sessionStorage.getItem(PROFILE_KEY);
+
 const sessionService = {
   setSession,
   clearSession,
   getToken,
   getUser,
+  setSelectedProfile,
+  getSelectedProfile,
 };
 
 export default sessionService;

@@ -1,33 +1,51 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import {
-  Home,
-  LogOut,
-  ChevronDown,
-  ChevronRight,
-  LayoutGrid,
-} from "lucide-react";
+import { Home, ChevronDown, ChevronRight, LayoutGrid } from "lucide-react";
 import { MENU_CONFIG } from "../../config/navigation";
 import api from "../../services/api";
+import sessionService from "../../services/sessionService";
 import { getHojeIso } from "../../utils/dateUtils";
 
-export default function Sidebar({ tipoUsuario = "instrutor" }) {
+const getTipoUsuarioFromSession = (dadosSessao) => {
+  if (!dadosSessao || !Array.isArray(dadosSessao.perfis)) return null;
+
+  const perfisUsuario = dadosSessao.perfis.map((p) =>
+    String(p.nome_perfil)
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim(),
+  );
+
+  if (perfisUsuario.includes("administrador")) return "Administrador";
+  if (perfisUsuario.includes("secretario")) return "secretario";
+  return "instrutor";
+};
+
+export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const config = MENU_CONFIG[tipoUsuario];
+
+  const dadosSessao = JSON.parse(sessionStorage.getItem("usuario"));
+  const tipoUsuarioSessao = getTipoUsuarioFromSession(dadosSessao);
+  const selectedProfile = sessionService.getSelectedProfile();
+
+  const activeTipoUsuario = selectedProfile || tipoUsuarioSessao || "instrutor";
+  const config = MENU_CONFIG[activeTipoUsuario] || MENU_CONFIG["instrutor"];
 
   const [abertos, setAbertos] = useState({ 0: true });
 
   const abrirItemMenu = async (item) => {
     if (item.action === "chamadaDoDia") {
       try {
-        const dados = sessionStorage.getItem("usuario");
-        if (!dados) return navigate("/instrutor");
+        if (!dadosSessao?.usuario) {
+          alert("Sessão inválida. Faça login novamente.");
+          return navigate("/instrutor");
+        }
 
-        const usuario = JSON.parse(dados);
         const hoje = getHojeIso();
         const res = await api.get(
-          `/aulas/dia?data=${hoje}&instrutorId=${usuario.id_usuario}`,
+          `/aulas/dia?data=${hoje}&instrutorId=${dadosSessao.usuario.id_usuario}`,
         );
 
         const aulasHoje = res.data || [];
@@ -43,19 +61,23 @@ export default function Sidebar({ tipoUsuario = "instrutor" }) {
           );
           return;
         }
+
+        alert("Nenhuma aula agendada para hoje.");
+        return;
       } catch (err) {
         console.error("Erro ao abrir a chamada do dia:", err);
+        alert(
+          "Não foi possível carregar a chamada do dia. Verifique sua conexão ou faça login novamente.",
+        );
+        return;
       }
     }
 
-    if (item.rota) {
-      navigate(item.rota);
-    }
+    if (item.rota) navigate(item.rota);
   };
 
   return (
     <aside className="w-70 h-screen bg-[#00871D] text-white flex flex-col shadow-xl shrink-0">
-      {/* Brand / Logo */}
       <div className="px-6 py-8">
         <div className="flex items-center gap-3">
           <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
@@ -67,7 +89,6 @@ export default function Sidebar({ tipoUsuario = "instrutor" }) {
         </div>
       </div>
 
-      {/* Nav - Agora começa diretamente abaixo do Header do menu */}
       <nav className="flex-1 px-4 overflow-y-auto custom-scrollbar">
         <button
           onClick={() => navigate(config.dashboardPath)}

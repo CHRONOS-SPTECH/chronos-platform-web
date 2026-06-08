@@ -21,12 +21,27 @@ export default function CalendarioGrade({
   ];
   const [quadradoAtivo, setQuadradoAtivo] = useState(null);
 
-  const cores = {
-    emerald:
-      "bg-emerald-600 hover:bg-emerald-700 border-emerald-500 text-white",
-    indigo: "bg-indigo-600 hover:bg-indigo-700 border-indigo-500 text-white",
-    rose: "bg-rose-600 hover:bg-rose-700 border-rose-500 text-white",
-    amber: "bg-amber-600 hover:bg-amber-700 border-amber-500 text-white",
+  const coresStatus = {
+    emerald: {
+      borda: "border-l-emerald-500",
+      tagProf: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      btnDesalocar: "text-emerald-600 hover:bg-emerald-50",
+    },
+    indigo: {
+      borda: "border-l-indigo-500",
+      tagProf: "bg-indigo-50 text-indigo-700 border-indigo-200",
+      btnDesalocar: "text-indigo-600 hover:bg-indigo-50",
+    },
+    rose: {
+      borda: "border-l-rose-500",
+      tagProf: "bg-rose-50 text-rose-700 border-rose-200",
+      btnDesalocar: "text-rose-600 hover:bg-rose-50",
+    },
+    amber: {
+      borda: "border-l-amber-500",
+      tagProf: "bg-amber-50 text-amber-700 border-amber-200",
+      btnDesalocar: "text-amber-600 hover:bg-amber-50",
+    },
   };
 
   const arrastarPorCima = (e, chave) => {
@@ -34,16 +49,43 @@ export default function CalendarioGrade({
     setQuadradoAtivo(chave);
   };
 
-  const soltarNoQuadrado = (e, diaNum, horario, chave) => {
+  const soltarNoQuadrado = (e, diaNum, horario, chaveCelular) => {
     e.preventDefault();
     setQuadradoAtivo(null);
-    aoSoltarCard(e, diaNum, horario, chave);
+    aoSoltarCard(e, diaNum, horario, chaveCelular);
   };
 
-  const comecarArrastar = (e, aula, chave) => {
+  const comecarArrastar = (e, aula, chaveReal) => {
     e.dataTransfer.setData("text/plain", aula.id_aula.toString());
-    e.dataTransfer.setData("chaveAntiga", chave);
+    e.dataTransfer.setData("chaveAntiga", chaveReal);
     e.dataTransfer.setData("origem", "calendario");
+  };
+
+  const buscarAulaNaCelula = (diaNum, horario) => {
+    if (turmaSelecionada !== "todos") {
+      const chavePadrao = `${turmaSelecionada}_${semanaAtual}_${diaNum}_${horario}`;
+      return {
+        aula: alocacoesDoBanco[chavePadrao],
+        chaveReal: chavePadrao,
+        idTurmaReal: turmaSelecionada,
+      };
+    }
+
+    const sufixoProcurado = `_${semanaAtual}_${diaNum}_${horario}`;
+    const chaveEncontrada = Object.keys(alocacoesDoBanco).find((key) =>
+      key.endsWith(sufixoProcurado),
+    );
+
+    let idTurmaReal = "";
+    if (chaveEncontrada) {
+      idTurmaReal = chaveEncontrada.split("_")[0];
+    }
+
+    return {
+      aula: chaveEncontrada ? alocacoesDoBanco[chaveEncontrada] : null,
+      chaveReal: chaveEncontrada || `todos_${semanaAtual}_${diaNum}_${horario}`,
+      idTurmaReal,
+    };
   };
 
   return (
@@ -53,7 +95,9 @@ export default function CalendarioGrade({
         {dias.map((nomeDia, index) => {
           const dataObj = datasDaSemana[index];
           const dataFormatada = dataObj
-            ? `${String(dataObj.getDate()).padStart(2, "0")}/${String(dataObj.getMonth() + 1).padStart(2, "0")}`
+            ? `${String(dataObj.getDate()).padStart(2, "0")}/${String(
+                dataObj.getMonth() + 1,
+              ).padStart(2, "0")}`
             : "--/--";
 
           return (
@@ -72,58 +116,81 @@ export default function CalendarioGrade({
         })}
       </div>
 
-      <div className="grid grid-cols-[100px_repeat(7,1fr)] bg-white">
+      <div className="grid grid-cols-[100px_repeat(7,1fr)] bg-white items-stretch">
         {listaHorarios.map((horario) => (
           <React.Fragment key={horario}>
-            <div className="h-24 flex flex-col items-center justify-center border-b border-r border-gray-200 bg-gray-50/40 font-mono text-xs text-gray-400 font-bold">
+            <div className="flex flex-col items-center justify-center border-b border-r border-gray-200 bg-gray-50/40 font-mono text-xs text-gray-400 font-bold p-2 min-h-[112px]">
               {horario}
             </div>
 
             {[1, 2, 3, 4, 5, 6, 7].map((diaNum) => {
-              const chave = `${turmaSelecionada}_${semanaAtual}_${diaNum}_${horario}`;
-              const aula = alocacoesDoBanco[chave];
-              const estaAtivo = quadradoAtivo === chave;
-              const estiloCard = aula
-                ? cores[aula.color] || "bg-slate-600 text-white"
-                : "";
+              const { aula, chaveReal, idTurmaReal } = buscarAulaNaCelula(
+                diaNum,
+                horario,
+              );
+              const chaveMockDrop = `${turmaSelecionada}_${semanaAtual}_${diaNum}_${horario}`;
+              const estaAtivo = quadradoAtivo === chaveMockDrop;
+
+              const estiloConfig = aula
+                ? coresStatus[aula.color] || {
+                    borda: "border-l-slate-400",
+                    tagProf: "bg-slate-50 text-slate-700 border-slate-200",
+                    btnDesalocar: "text-slate-600 hover:bg-slate-50",
+                  }
+                : null;
 
               return (
                 <div
                   key={diaNum}
-                  onDragOver={(e) => arrastarPorCima(e, chave)}
+                  onDragOver={(e) => arrastarPorCima(e, chaveMockDrop)}
                   onDragLeave={() => setQuadradoAtivo(null)}
-                  onDrop={(e) => soltarNoQuadrado(e, diaNum, horario, chave)}
-                  style={{ minHeight: "96px" }}
-                  className={`p-2 border-b border-r border-gray-200/70 transition-all duration-150 relative ${
+                  onDrop={(e) =>
+                    soltarNoQuadrado(e, diaNum, horario, chaveReal)
+                  }
+                  className={`p-2 border-b border-r border-gray-200/70 transition-all duration-150 flex flex-col min-h-[112px] justify-between ${
                     estaAtivo
-                      ? "bg-green-50/80 border-2 border-dashed border-green-500 z-10"
+                      ? "bg-green-50/60 border-2 border-dashed border-green-400 z-10"
                       : "bg-white"
                   }`}
                 >
                   {aula ? (
                     <div
                       draggable
-                      onDragStart={(e) => comecarArrastar(e, aula, chave)}
-                      className={`${estiloCard} p-3 rounded-xl shadow-sm border h-full w-full cursor-move flex flex-col justify-between transition-all text-left`}
+                      onDragStart={(e) => comecarArrastar(e, aula, chaveReal)}
+                      className={`bg-white border-y border-r border-l-[5px] ${estiloConfig.borda} border-gray-200 p-2.5 rounded-xl shadow-sm flex-1 w-full cursor-move flex flex-col justify-between transition-all group hover:shadow-md text-left overflow-hidden`}
                     >
-                      <div>
-                        <p className="text-[8px] font-black uppercase tracking-wider bg-white/20 px-1.5 py-0.5 rounded w-max">
-                          Prof. {aula.prof}
-                        </p>
-                        <p className="text-xs font-bold leading-snug mt-2 break-words">
+                      <div className="flex flex-col gap-1 w-full">
+                        <div className="flex gap-1 flex-wrap items-center">
+                          <span
+                            className={`text-[9px] font-bold uppercase tracking-wide border px-1.5 py-0.5 rounded truncate max-w-full ${estiloConfig.tagProf}`}
+                          >
+                            {aula.prof}
+                          </span>
+                          {turmaSelecionada === "todos" && idTurmaReal && (
+                            <span className="text-[9px] font-bold bg-slate-100 text-slate-600 border border-slate-200 px-1.5 py-0.5 rounded">
+                              Turma {aula.turma}
+                            </span>
+                          )}
+                        </div>
+
+                        <p
+                          className="text-xs font-bold text-slate-800 leading-snug mt-1.5 break-all sm:break-words"
+                          title={aula.tema}
+                        >
                           {aula.tema}
                         </p>
                       </div>
 
-                      <div className="flex justify-end text-[9px] mt-1 opacity-75 hover:opacity-100 transition-all">
+                      <div className="flex justify-end mt-2 pt-1 border-t border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            aoDesalocar(chave);
+                            aoDesalocar(chaveReal);
                           }}
-                          className="hover:text-red-100 flex items-center gap-1 cursor-pointer border-0 bg-transparent text-white font-semibold"
+                          className={`flex items-center gap-1 cursor-pointer border-0 bg-transparent font-bold text-[10px] py-1 px-1.5 rounded-md transition-colors ${estiloConfig.btnDesalocar}`}
                         >
-                          <Reply size={10} /> Desalocar
+                          <Reply size={11} className="transform rotate-180" />
+                          <span>Desalocar</span>
                         </button>
                       </div>
                     </div>

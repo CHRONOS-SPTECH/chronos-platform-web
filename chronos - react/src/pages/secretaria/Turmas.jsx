@@ -56,7 +56,11 @@ const mapApiTurmaToUi = (turma) => {
   const statusApi = getApiField(turma, "status_turma", "statusTurma");
   const statusLabel = turmaService.normalizarStatusParaLabel(statusApi);
   const dataInicioApi = getApiField(turma, "data_inicio", "dataInicio");
-  const dataFimApi = getApiField(turma, "data_encerramento", "dataEncerramento");
+  const dataFimApi = getApiField(
+    turma,
+    "data_encerramento",
+    "dataEncerramento",
+  );
 
   return {
     id: getApiField(turma, "id_turma", "idTurma"),
@@ -87,7 +91,9 @@ export default function Turmas() {
       console.error("Erro ao carregar turmas:", error);
       console.error("Status:", error?.response?.status);
       console.error("Mensagem:", error?.response?.data);
-      setErro(extrairMensagemErro(error, "Não foi possível carregar as turmas."));
+      setErro(
+        extrairMensagemErro(error, "Não foi possível carregar as turmas."),
+      );
     } finally {
       setLoading(false);
     }
@@ -118,10 +124,10 @@ export default function Turmas() {
         const turmaId = turmaEmEdicao?.id_turma || turmaEmEdicao?.id;
         const turmaAtualizada = await turmaService.atualizarTurma(
           turmaId,
-          dadosTurma
+          dadosTurma,
         );
         const listaAtualizada = turmas.map((item) =>
-          getTurmaId(item) === turmaId ? turmaAtualizada : item
+          getTurmaId(item) === turmaId ? turmaAtualizada : item,
         );
         setTurmas(listaAtualizada);
       } else {
@@ -160,7 +166,7 @@ export default function Turmas() {
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans antialiased">
-      <Sidebar tipoUsuario="secretario" />
+      <Sidebar />
 
       <div className="flex-1 flex flex-col min-w-0">
         <Header

@@ -12,12 +12,15 @@ import {
   calcularDatasDaSemana,
   verificarConflitoProfessor,
   obterTextoSemanaDoMes,
+  obterSemanaAtualDoAno,
 } from "../../utils/CronogramaUtils";
 
 export default function CronogramaView() {
-  const [semana, setSemana] = useState(16);
-  const [turma, setTurma] = useState("");
+  const [semana, setSemana] = useState(obterSemanaAtualDoAno());
+  const [turma, setTurma] = useState("todos");
   const [turmas, setTurmas] = useState([]);
+  const [professores, setProfessores] = useState([]);
+  const [temas, setTemas] = useState([]);
   const [aulas, setAulas] = useState([]);
   const [menuAberto, setMenuAberto] = useState(false);
   const [datas, setDatas] = useState([]);
@@ -26,13 +29,25 @@ export default function CronogramaView() {
   useEffect(() => {
     api
       .get("/turmas")
-      .then((res) => {
-        setTurmas(res.data);
-        if (res.data.length > 0) {
-          setTurma(res.data[0].id_turma.toString());
-        }
-      })
+      .then((res) => setTurmas(res.data))
       .catch((err) => console.error("Erro ao buscar turmas:", err));
+  }, []);
+
+  useEffect(() => {
+    api
+      .get("/pessoas")
+      .then((res) => {
+        const forcaViva = res.data.filter((p) => p.tipo_vinculo_id === 4);
+        setProfessores(forcaViva);
+      })
+      .catch((err) => console.error("Erro ao carregar professores:", err));
+  }, []);
+
+  useEffect(() => {
+    api
+      .get("/temas-aula")
+      .then((res) => setTemas(res.data))
+      .catch((err) => console.error("Erro ao carregar temas de aula:", err));
   }, []);
 
   const carregarAulas = () => {
@@ -55,13 +70,57 @@ export default function CronogramaView() {
     setTimeout(() => setAlerta({ type: "", message: "" }), 3000);
   };
 
+  const aoAdicionarAulaRapida = (dadosForm) => {
+    const requestAula = {
+      data_aula: null,
+      hora_inicio: null,
+      hora_fim: null,
+      statusAula: "Agendada",
+      id_turma: dadosForm.id_turma,
+      id_tema: dadosForm.id_tema,
+      id_instrutor: dadosForm.id_instrutor,
+    };
+
+    api
+      .post("/aulas", requestAula)
+      .then(() => {
+        carregarAulas();
+        mostrarAlerta("success", "Aula pendente adicionada com sucesso!");
+      })
+      .catch((err) => {
+        console.error("Erro ao criar aula rápida:", err);
+        mostrarAlerta("error", "Erro ao criar aula rápida.");
+      });
+  };
+
+  const aoDeletarAulaPendente = (idAula) => {
+    api
+      .delete(`/aulas/${idAula}`)
+      .then(() => {
+        carregarAulas();
+        mostrarAlerta("success", "Aula excluída com sucesso.");
+      })
+      .catch((err) => {
+        console.error(err);
+        mostrarAlerta("error", "Erro ao deletar aula.");
+      });
+  };
+
   const pendendasFormatadas = aulas
-    .filter((item) => !item.aula.data_aula)
+    .filter((item) => {
+      const ehPendente = !item.aula.data_aula;
+
+      const atendeFiltroTurma =
+        turma === "todos" || item.aula.id_turma.toString() === turma;
+
+      return ehPendente && atendeFiltroTurma;
+    })
     .map((item) => ({
       id: item.aula.id_aula.toString(),
       prof: item.instrutor.nome,
       id_instrutor: item.aula.id_instrutor,
       tema: item.tema.titulo_tema,
+      turma: item.turma.nome_turma,
       color: "emerald",
     }));
 
@@ -83,21 +142,29 @@ export default function CronogramaView() {
       const { data_aula, hora_inicio, id_turma, id_aula, id_instrutor } =
         item.aula;
 
-      if (data_aula && hora_inicio && id_turma.toString() === turma) {
+      const atendeFiltroTurma =
+        turma === "todos" || id_turma.toString() === turma;
+
+      if (data_aula && hora_inicio && atendeFiltroTurma) {
         const dataPura = data_aula.split("T")[0];
         const indexDia = datasStrings.indexOf(dataPura);
 
         if (indexDia !== -1) {
           const diaNum = indexDia + 1;
           const hora = hora_inicio.substring(0, 5);
-          const chave = `${turma}_${semana}_${diaNum}_${hora}`;
+
+          const chave =
+            turma === "todos"
+              ? `todos_${semana}_${diaNum}_${hora}`
+              : `${turma}_${semana}_${diaNum}_${hora}`;
 
           mapa[chave] = {
             id_aula,
             id_instrutor,
             prof: item.instrutor.nome,
             tema: item.tema.titulo_tema,
-            color: item.chamadaFeita ? "emerald" : "indigo",
+            color: item.chamadaFeFeita ? "emerald" : "indigo",
+            turma: item.turma.nome_turma,
           };
         }
       }
@@ -174,14 +241,13 @@ export default function CronogramaView() {
     salvarAlteracoes(mudancas);
   };
 
-  // USO AQUI: Desestrutura direto do retorno modificado do utilitário
   const { semanaTexto, mesAnoTexto } = obterTextoSemanaDoMes(datas);
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden font-sans">
       <Alert type={alerta.type} message={alerta.message} />
 
-      <Sidebar tipoUsuario="secretario" />
+      <Sidebar />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         <Header titulo="Cronograma de Aulas" icone={Calendar} />
@@ -191,8 +257,12 @@ export default function CronogramaView() {
             estaAberto={menuAberto}
             aoFechar={() => setMenuAberto(false)}
             aulasPendentes={pendendasFormatadas}
-            aoAdicionarAulaRapica={carregarAulas}
-            aoDeletarAulaPendente={carregarAulas}
+            aoAdicionarAulaRapida={aoAdicionarAulaRapida}
+            aoDeletarAulaPendente={aoDeletarAulaPendente}
+            turmas={turmas}
+            turmaSelecionada={turma}
+            professores={professores}
+            temas={temas}
           />
 
           <main
@@ -219,6 +289,7 @@ export default function CronogramaView() {
                   onChange={(e) => setTurma(e.target.value)}
                   className="bg-slate-100 border border-gray-200 text-slate-700 px-3 py-2 rounded-xl font-bold text-xs outline-none cursor-pointer hover:bg-slate-200 transition-all"
                 >
+                  <option value="todos">Todos</option>
                   {turmas.map((t) => (
                     <option key={t.id_turma} value={t.id_turma.toString()}>
                       {t.nome_turma} ({t.status_turma})
@@ -227,7 +298,6 @@ export default function CronogramaView() {
                 </select>
               </div>
 
-              {/* Layout corrigido para exibir Mês e Ordem da semana empilhados */}
               <div className="flex items-center gap-4 bg-slate-50 border border-gray-200 p-1.5 rounded-2xl shadow-inner">
                 <button
                   onClick={() => semana > 1 && setSemana(semana - 1)}
@@ -237,11 +307,9 @@ export default function CronogramaView() {
                 </button>
 
                 <div className="flex flex-col items-center min-w-[200px]">
-                  {/* Mês em Destaque */}
                   <span className="text-sm font-black text-slate-800 tracking-tight leading-none capitalize">
                     {mesAnoTexto || "Carregando..."}
                   </span>
-                  {/* Ordem da semana correspondente embaixo */}
                   <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">
                     {semanaTexto}
                   </span>

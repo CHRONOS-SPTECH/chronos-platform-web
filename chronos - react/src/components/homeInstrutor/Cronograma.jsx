@@ -17,6 +17,10 @@ function Cronograma() {
         if (!dados) return;
 
         const user = JSON.parse(dados);
+        const instrutorId = user?.usuario?.id_usuario;
+        console.log("ID do instrutor:", instrutorId);
+        if (!instrutorId) return;
+
         const hoje = getHojeIso();
 
         // Formata a data atual por extenso para o cabeçalho
@@ -28,7 +32,7 @@ function Cronograma() {
         setDataTexto(texto.charAt(0).toUpperCase() + texto.slice(1));
 
         const res = await api.get(
-          `/aulas/dia?data=${hoje}&instrutorId=${user.id_usuario}`,
+          `/aulas/dia?data=${hoje}&instrutorId=${instrutorId}`,
         );
         setAulas(res.data);
       } catch (err) {

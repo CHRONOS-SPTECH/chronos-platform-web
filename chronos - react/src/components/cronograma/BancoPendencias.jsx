@@ -1,22 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, PlusCircle, Trash2 } from "lucide-react";
 
 export default function BancoPendencias({
   estaAberto,
   aoFechar,
   aulasPendentes,
-  aoAdicionarAulaRapica,
+  aoAdicionarAulaRapida,
   aoDeletarAulaPendente,
+  turmas,
+  turmaSelecionada,
+  professores,
+  temas,
 }) {
-  const [tema, setTema] = useState("");
-  const [professor, setProfessor] = useState("Sêneca");
+  const [temaSelecionado, setTemaSelecionado] = useState("");
+  const [professor, setProfessor] = useState("");
+  const [turmaForm, setTurmaForm] = useState("");
+
+  useEffect(() => {
+    if (turmas && turmas.length > 0 && !turmaForm) {
+      setTurmaForm(turmas[0].id_turma.toString());
+    }
+  }, [turmas, turmaForm]);
+
+  useEffect(() => {
+    if (professores && professores.length > 0 && !professor) {
+      setProfessor(professores[0].id_pessoa.toString());
+    }
+  }, [professores, professor]);
+
+  useEffect(() => {
+    if (temas && temas.length > 0 && !temaSelecionado) {
+      setTemaSelecionado(temas[0].id_tema.toString());
+    }
+  }, [temas, temaSelecionado]);
 
   const criarAula = (e) => {
     e.preventDefault();
-    if (!tema.trim()) return;
+    if (!temaSelecionado || !professor) return;
 
-    aoAdicionarAulaRapica(tema, professor);
-    setTema("");
+    const idTurmaFinal =
+      turmaSelecionada === "todos"
+        ? Number(turmaForm)
+        : Number(turmaSelecionada);
+
+    aoAdicionarAulaRapida({
+      id_turma: idTurmaFinal,
+      id_tema: Number(temaSelecionado),
+      id_instrutor: Number(professor),
+    });
   };
 
   const comecarArrastar = (e, aula) => {
@@ -52,23 +83,52 @@ export default function BancoPendencias({
           <PlusCircle size={12} className="text-green-600" /> Criar Aula Rápida
         </p>
         <form onSubmit={criarAula} className="space-y-2">
-          <input
-            type="text"
-            placeholder="Nome do tema/matéria..."
-            value={tema}
-            onChange={(e) => setTema(e.target.value)}
-            className="w-full text-xs px-3 py-2 border rounded-lg focus:outline-none focus:border-green-600 shadow-sm bg-white text-slate-700"
-          />
+          <select
+            value={temaSelecionado}
+            onChange={(e) => setTemaSelecionado(e.target.value)}
+            className="w-full text-xs px-3 py-2 border rounded-lg bg-white text-slate-700 focus:outline-none focus:border-green-600 shadow-sm outline-none"
+          >
+            {temas.length === 0 && (
+              <option value="">Carregando temas...</option>
+            )}
+            {temas.map((t) => (
+              <option key={t.id_tema} value={t.id_tema.toString()}>
+                {t.titulo_tema}
+              </option>
+            ))}
+          </select>
+
+          {turmaSelecionada === "todos" ? (
+            <select
+              value={turmaForm}
+              onChange={(e) => setTurmaForm(e.target.value)}
+              className="w-full text-xs px-2 py-2 border rounded-lg bg-white text-slate-700 focus:outline-none focus:border-green-600 shadow-sm outline-none"
+            >
+              {turmas.map((t) => (
+                <option key={t.id_turma} value={t.id_turma.toString()}>
+                  Para: {t.nome_turma}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <div className="text-[10px] bg-slate-200/60 text-slate-600 font-bold px-2 py-1.5 rounded-lg border border-slate-300 pointer-events-none">
+              Turma Vinculada:{" "}
+              {turmas.find((t) => t.id_turma.toString() === turmaSelecionada)
+                ?.nome_turma || "Carregando..."}
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-2">
             <select
               value={professor}
               onChange={(e) => setProfessor(e.target.value)}
               className="text-xs px-2 py-2 border rounded-lg bg-white text-slate-700 focus:outline-none focus:border-green-600 shadow-sm outline-none"
             >
-              <option value="Sêneca">Prof. Sêneca</option>
-              <option value="Platão">Prof. Platão</option>
-              <option value="Sócrates">Prof. Sócrates</option>
-              <option value="Aristóteles">Prof. Aristóteles</option>
+              {professores.map((p) => (
+                <option key={p.id_pessoa} value={p.id_pessoa.toString()}>
+                  {p.nome}
+                </option>
+              ))}
             </select>
             <button
               type="submit"
@@ -87,11 +147,11 @@ export default function BancoPendencias({
             id={aula.id}
             draggable
             onDragStart={(e) => comecarArrastar(e, aula)}
-            className={`bg-white border-l-4 border-emerald-500 p-3 rounded-xl shadow-sm border border-slate-200 cursor-grab active:cursor-grabbing hover:shadow-md transition-all text-left`}
+            className="bg-white border-l-4 border-emerald-500 p-3 rounded-xl shadow-sm border border-slate-200 cursor-grab active:cursor-grabbing hover:shadow-md transition-all text-left"
           >
             <div className="flex justify-between items-start">
               <span className="text-[9px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded uppercase">
-                Prof. {aula.prof}
+                {aula.prof}
               </span>
               <button
                 onClick={() => aoDeletarAulaPendente(aula.id)}
@@ -103,6 +163,9 @@ export default function BancoPendencias({
             <p className="text-xs font-bold text-slate-700 mt-2 leading-tight">
               {aula.tema}
             </p>
+            <span className="text-[9px] block text-slate-400 mt-1 italic">
+              Turma: {aula.turma}
+            </span>
           </div>
         ))}
       </div>

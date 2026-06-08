@@ -24,14 +24,19 @@ const ehTokenExpirado = (error) => {
 
   if (endpoint.includes("/auth/login")) return false;
 
-  return (
-    status === 401 ||
-    mensagem.includes("expiredjwtexception") ||
-    mensagem.includes("jwt expired") ||
-    mensagem.includes("token expirado") ||
-    mensagem.includes("token inválido") ||
-    mensagem.includes("invalid token")
-  );
+  const tokenErrors = [
+    "expiredjwtexception",
+    "jwt expired",
+    "token expirado",
+    "token inválido",
+    "token invalido",
+    "invalid token",
+    "bearer",
+  ];
+
+  const mensagemDeToken = tokenErrors.some((texto) => mensagem.includes(texto));
+
+  return mensagemDeToken && (status === 401 || status === 403);
 };
 
 api.interceptors.request.use((config) => {
@@ -49,7 +54,10 @@ api.interceptors.response.use(
       redirecionandoParaLogin = true;
       sessionService.clearSession();
 
-      if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+      if (
+        typeof window !== "undefined" &&
+        window.location.pathname !== "/login"
+      ) {
         window.location.href = "/login";
       }
     }
