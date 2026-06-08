@@ -4,6 +4,7 @@ import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
 import ModulosControle from "../../components/turmas/ModuloControle";
 import CardTurma from "../../components/turmas/CardTurma";
+import ModalTurma from "../../components/turmas/ModalTurma";
 import { formatarDataBr } from "../../utils/DateUtils";
 import turmaService from "../../services/turmaService";
 
@@ -72,38 +73,13 @@ const mapApiTurmaToUi = (turma) => {
   };
 };
 
-const montarDadosTurmaDoPrompt = (dadosIniciais = null) => {
-  const nome = window.prompt("Nome da turma:", dadosIniciais?.nome_turma || "");
-  if (!nome) return null;
-
-  const dataInicio = window.prompt(
-    "Data de início (YYYY-MM-DD):",
-    dadosIniciais?.data_inicio || "",
-  );
-  if (!dataInicio) return null;
-
-  const dataEncerramento = window.prompt(
-    "Data de encerramento (YYYY-MM-DD) - opcional:",
-    dadosIniciais?.data_encerramento || "",
-  );
-
-  const status = window.prompt(
-    "Status (Não Iniciada, Em Andamento, Concluída):",
-    turmaService.normalizarStatusParaLabel(dadosIniciais?.status_turma),
-  );
-
-  return {
-    nome_turma: nome,
-    data_inicio: dataInicio,
-    data_encerramento: dataEncerramento || null,
-    status_turma: status,
-  };
-};
-
 export default function Turmas() {
   const [turmas, setTurmas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+  const [isModalAberto, setIsModalAberto] = useState(false);
+  const [turmaEmEdicao, setTurmaEmEdicao] = useState(null);
+  const [salvandoTurma, setSalvandoTurma] = useState(false);
 
   const carregarTurmas = async () => {
     try {
@@ -113,7 +89,11 @@ export default function Turmas() {
       setTurmas(Array.isArray(dados) ? dados : []);
     } catch (error) {
       console.error("Erro ao carregar turmas:", error);
-      setErro("Não foi possível carregar as turmas.");
+      console.error("Status:", error?.response?.status);
+      console.error("Mensagem:", error?.response?.data);
+      setErro(
+        extrairMensagemErro(error, "Não foi possível carregar as turmas."),
+      );
     } finally {
       setLoading(false);
     }
@@ -125,38 +105,43 @@ export default function Turmas() {
 
   const turmasUi = useMemo(() => turmas.map(mapApiTurmaToUi), [turmas]);
 
-  const onNovaTurma = async () => {
-    const dadosTurma = montarDadosTurmaDoPrompt();
-    if (!dadosTurma) return;
-
-    try {
-      const turmaCriada = await turmaService.criarTurma(dadosTurma);
-      const novaLista = [...turmas, turmaCriada];
-      setTurmas(novaLista);
-      setErro("");
-    } catch (error) {
-      console.error("Erro ao criar turma:", error);
-      setErro(extrairMensagemErro(error, "Erro ao criar turma."));
-    }
+  const onNovaTurma = () => {
+    setTurmaEmEdicao(null);
+    setIsModalAberto(true);
   };
 
-  const onEditarTurma = async (turma) => {
-    const dadosTurma = montarDadosTurmaDoPrompt(turma.raw);
-    if (!dadosTurma) return;
+  const onEditarTurma = (turma) => {
+    setTurmaEmEdicao(turma.raw);
+    setIsModalAberto(true);
+  };
 
+  const onSalvarTurma = async (dadosTurma) => {
     try {
-      const turmaAtualizada = await turmaService.atualizarTurma(
-        turma.id,
-        dadosTurma,
-      );
-      const listaAtualizada = turmas.map((item) =>
-        getTurmaId(item) === turma.id ? turmaAtualizada : item,
-      );
-      setTurmas(listaAtualizada);
+      setSalvandoTurma(true);
       setErro("");
+
+      if (turmaEmEdicao?.id_turma || turmaEmEdicao?.id) {
+        const turmaId = turmaEmEdicao?.id_turma || turmaEmEdicao?.id;
+        const turmaAtualizada = await turmaService.atualizarTurma(
+          turmaId,
+          dadosTurma,
+        );
+        const listaAtualizada = turmas.map((item) =>
+          getTurmaId(item) === turmaId ? turmaAtualizada : item,
+        );
+        setTurmas(listaAtualizada);
+      } else {
+        const turmaCriada = await turmaService.criarTurma(dadosTurma);
+        setTurmas([...turmas, turmaCriada]);
+      }
+
+      setIsModalAberto(false);
+      setTurmaEmEdicao(null);
     } catch (error) {
-      console.error("Erro ao atualizar turma:", error);
-      setErro(extrairMensagemErro(error, "Erro ao atualizar turma."));
+      console.error("Erro ao salvar turma:", error);
+      setErro(extrairMensagemErro(error, "Erro ao salvar turma."));
+    } finally {
+      setSalvandoTurma(false);
     }
   };
 
@@ -239,6 +224,14 @@ export default function Turmas() {
             </div>
           </div>
         </main>
+
+        <ModalTurma
+          isOpen={isModalAberto}
+          onClose={() => setIsModalAberto(false)}
+          onSalvar={onSalvarTurma}
+          carregando={salvandoTurma}
+          valoresPadrao={turmaEmEdicao}
+        />
       </div>
     </div>
   );
