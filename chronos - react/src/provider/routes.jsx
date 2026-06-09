@@ -18,6 +18,7 @@ import Alunos from "../pages/secretaria/Alunos";
 
 import CronogramaAulas from "../pages/secretaria/CronogramaAulas";
 import GestaoAulas from "../pages/secretaria/GestaoAulas";
+import AgendaInstrutorView from "../pages/instrutor/Agenda";
 
 import sessionService from "../services/sessionService";
 
@@ -90,6 +91,10 @@ export const routes = createBrowserRouter([
   {
     path: "/gestao-aulas",
     element: <PrivateRoute element={<GestaoAulas />} />,
+  },
+  {
+    path: "/minha-agenda",
+    element: <PrivateRoute element={<AgendaInstrutorView />} />,
   },
   {
     path: "*",

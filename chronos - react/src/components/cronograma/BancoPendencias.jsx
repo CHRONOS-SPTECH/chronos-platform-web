@@ -11,6 +11,7 @@ export default function BancoPendencias({
   turmaSelecionada,
   professores,
   temas,
+  setMenuAberto,
 }) {
   const [temaSelecionado, setTemaSelecionado] = useState("");
   const [professor, setProfessor] = useState("");
@@ -53,6 +54,11 @@ export default function BancoPendencias({
   const comecarArrastar = (e, aula) => {
     e.dataTransfer.setData("text/plain", aula.id);
     e.dataTransfer.setData("origem", "lista_pendencias");
+
+    // Fecha o banco imediatamente após o início do arraste para liberar a Segunda-feira
+    setTimeout(() => {
+      setMenuAberto(false);
+    }, 50);
   };
 
   return (

@@ -1,8 +1,5 @@
 import React from "react";
 
-// 1. Definimos a estrutura esperada para cada ação
-// item: { id, label, subLabel, icon: IconComponent, onClick, isPrimary }
-
 function Acoes({ acoes = [] }) {
   if (acoes.length === 0) return null;
 
@@ -17,7 +14,6 @@ function Acoes({ acoes = [] }) {
         {acoes.map((acao) => {
           const Icone = acao.icon;
 
-          // Se for o botão principal (Destaque verde)
           if (acao.isPrimary) {
             return (
               <button
@@ -33,7 +29,7 @@ function Acoes({ acoes = [] }) {
                     {acao.label}
                   </span>
                   {acao.subLabel && (
-                    <span className="text-green-200 text-xs mt-1 font-medium italic">
+                    <span className="text-green-200 text-xs mt-1 font-medium italic text-left">
                       {acao.subLabel}
                     </span>
                   )}
@@ -42,7 +38,6 @@ function Acoes({ acoes = [] }) {
             );
           }
 
-          // Se for um botão secundário (Branco/Cinza)
           return (
             <button
               key={acao.id}
@@ -52,7 +47,7 @@ function Acoes({ acoes = [] }) {
               <div className="p-3 bg-slate-50 group-hover:bg-green-50 text-slate-400 group-hover:text-[#1E7A3C] rounded-xl transition-all">
                 {Icone && <Icone size={20} weight="bold" />}
               </div>
-              <span className="text-sm font-bold text-slate-700 leading-none">
+              <span className="text-sm text-left font-bold text-slate-700 leading-none">
                 {acao.label}
               </span>
             </button>
