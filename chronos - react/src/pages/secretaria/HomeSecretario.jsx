@@ -5,67 +5,56 @@ import Evento from "../../components/homeSecretario/Evento";
 import Header from "../../components/homeSecretario/Header";
 import Sidebar from "../../components/sidebar/SideBar";
 import VisaoGeral from "../../components/homeSecretario/VisaoGeral";
+import DiarioRecente from "../../components/homeSecretario/DiarioRecente";
+import { useNavigate } from "react-router-dom";
 
 function HomeSecretario() {
-  const cadastrarAluno = () => {
-    console.log("Abrindo tela de cadastro de Novo Aluno...");
-  };
-
-  const matricularAluno = () => {
-    console.log("Abrindo tela de Matrícula em Turma...");
-  };
-
-  const criarEvento = () => {
-    console.log("Abrindo tela de Adicionar Evento...");
-  };
+  const navigate = useNavigate();
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden font-sans">
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Conteúdo principal */}
       <div className="flex-1 flex flex-col h-screen">
-        {/* Header fixo */}
         <Header titulo="Home" icone={Home} />
 
-        {/* Área com scroll */}
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 flex flex-col gap-6">
-            {/* Grid principal */}
             <div className="flex gap-6 items-start justify-between">
-              {/* Coluna da Esquerda (Ações e Visão Geral) */}
               <div className="flex-1 flex flex-col gap-6">
-                {/* Chamando o componente dinâmico manualmente por props */}
                 <Acoes
                   acoes={[
                     {
                       id: "novo-aluno",
                       label: "Novo Aluno",
-                      subLabel: "Cadastrar no sistema", // Opcional, se o layout aceitar
+                      subLabel: "Cadastrar no sistema",
                       icon: UserPlus,
-                      isPrimary: true, // Ocupa 2 colunas e tem destaque
-                      onClick: cadastrarAluno,
+                      isPrimary: true,
+                      onClick: () => navigate("/alunos"),
                     },
                     {
-                      id: "matricular",
-                      label: "Matricular em Turma",
+                      id: "nova-turma",
+                      label: "Criar Turma",
+                      subLabel: "Gerenciar turmas",
                       icon: Users,
-                      onClick: matricularAluno,
+                      onClick: () => navigate("/turmas"),
                     },
                     {
-                      id: "novo-evento",
-                      label: "Adicionar Evento",
+                      id: "cronograma",
+                      label: "Ver Cronograma",
+                      subLabel: "Acompanhar aulas",
                       icon: CalendarPlus,
-                      onClick: criarEvento,
+                      onClick: () => navigate("/cronograma"),
                     },
                   ]}
                 />
 
-                <VisaoGeral />
+                {/* <VisaoGeral /> */}
+
+                {/* Componente dinâmico que bate direto no @GetMapping("/detalhadadas") */}
+                <DiarioRecente />
               </div>
 
-              {/* Coluna da Direita (Eventos) */}
               <div className="w-[500px] shrink-0">
                 <Evento />
               </div>

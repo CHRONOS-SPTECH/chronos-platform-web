@@ -101,13 +101,17 @@ function HomeInstrutor() {
                         id: "agenda",
                         label: "Minha Agenda",
                         icon: Calendar,
-                        onClick: () => console.log("Agenda"),
+                        onClick: () => navigate("/minha-agenda"),
                       },
                       {
-                        id: "turmas",
-                        label: "Minhas Turmas",
+                        id: "em-desenvolvimento",
+                        label: "Em Desenvolvimento",
                         icon: Users,
-                        onClick: () => console.log("Turmas"),
+                        onClick: () =>
+                          alert(
+                            "Esta funcionalidade está em desenvolvimento e será disponibilizada em breve.",
+                          ),
+                        isDisabled: true,
                       },
                     ]}
                   />

@@ -8,7 +8,10 @@ export const MENU_CONFIG = {
         label: "Acadêmico",
         titulo: "Controle de Frequência",
         icone: <UserCheck size={20} />,
-        itens: [{ nome: "Chamada do dia", action: "chamadaDoDia" }],
+        itens: [
+          { nome: "Chamada do dia", action: "chamadaDoDia" },
+          { nome: "Minha Agenda", rota: "/minha-agenda" },
+        ],
       },
     ],
   },
@@ -22,7 +25,7 @@ export const MENU_CONFIG = {
         itens: [
           { nome: "Alunos", rota: "/alunos" },
           { nome: "Turmas", rota: "/turmas" },
-          { nome: "Eventos", rota: "/eventos" },
+          // { nome: "Eventos", rota: "/eventos" },
         ],
       },
       {

@@ -256,6 +256,7 @@ export default function CronogramaView() {
           <BancoPendencias
             estaAberto={menuAberto}
             aoFechar={() => setMenuAberto(false)}
+            setMenuAberto={setMenuAberto}
             aulasPendentes={pendendasFormatadas}
             aoAdicionarAulaRapida={aoAdicionarAulaRapida}
             aoDeletarAulaPendente={aoDeletarAulaPendente}
