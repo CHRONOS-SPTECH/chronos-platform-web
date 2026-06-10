@@ -1,13 +1,64 @@
+import { useEffect, useState } from "react";
 import { Home } from "lucide-react";
 import { Users, Info } from "@phosphor-icons/react";
 
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
-
 import AgeChart from "../../components/Charts/AgeChart";
-import StudentsChart from "../../components/Charts/StudentsChart";
+import { dashboardService } from "../../services/dashboardService";
 
 function DashboardAcademica() {
+  const [resumo, setResumo] = useState(null);
+  const [generoData, setGeneroData] = useState(null);
+  const [faixaEtaria, setFaixaEtaria] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      dashboardService.getResumo(),
+      dashboardService.getGenero(),
+      dashboardService.getFaixaEtaria(),
+    ])
+      .then(([resumoRes, generoRes, faixaRes]) => {
+        setResumo(resumoRes);
+        setGeneroData(generoRes);
+        setFaixaEtaria(faixaRes);
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  const getGeneroEstilo = (genero) => {
+    const g = genero.toLowerCase();
+    if (g.includes("mulh") || g.includes("femin"))
+      return "bg-green-100 text-green-700 border-green-200";
+    if (g.includes("hom") || g.includes("masc"))
+      return "bg-slate-100 text-slate-700 border-slate-200";
+    return "bg-cyan-100 text-cyan-700 border-cyan-200";
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-[#F8FAFC]">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-green-700"></div>
+      </div>
+    );
+  }
+
+  const totalPessoas = resumo?.comunidade_academica?.total_pessoas || 0;
+
+  const membros = resumo?.comunidade_academica?.membros || 0;
+  const provac = resumo?.comunidade_academica?.provacionistas || 0;
+  const externo = resumo?.comunidade_academica?.publico_externo || 0;
+
+  const membrosPerc = totalPessoas ? (membros / totalPessoas) * 100 : 0;
+  const provacPerc = totalPessoas ? (provac / totalPessoas) * 100 : 0;
+  const externoPerc = totalPessoas ? (externo / totalPessoas) * 100 : 0;
+
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans">
       <Sidebar />
@@ -16,254 +67,234 @@ function DashboardAcademica() {
         <Header titulo="Dashboard Acadêmica" icone={Home} />
 
         <main className="flex-1 overflow-y-auto custom-scrollbar">
-          <div className="max-w-400 mx-auto p-6 flex flex-col gap-5">
-            {/* ========================= */}
-            {/* CARDS SUPERIORES */}
-            {/* ========================= */}
-
+          <div className="max-w-[1400px] mx-auto p-6 flex flex-col gap-5">
+            {/* CARDS KPI SUPERIORES: Retorno ao DNA original, mas compacto */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-              {/* COMUNIDADE */}
-              <div className="bg-white rounded-2xl shadow border-l-4 border-green-600 p-5">
-                <h3 className="text-xs font-black uppercase text-slate-500">
-                  Comunidade Acadêmica
-                </h3>
-
-                <div className="flex items-end gap-2 mt-3">
-                  <span className="text-5xl font-black">1.042</span>
-
-                  <span className="text-slate-500 text-lg mb-1">Pessoas</span>
+              {/* CARD 1: COMUNIDADE ACADÊMICA */}
+              <div className="bg-white rounded-2xl shadow-sm border-l-4 border-green-600 p-4 flex flex-col justify-between min-h-[135px]">
+                <div>
+                  <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-400">
+                    Comunidade Acadêmica
+                  </h3>
+                  <div className="flex items-baseline gap-1.5 mt-1">
+                    <span className="text-4xl font-black text-slate-800 tracking-tight">
+                      {totalPessoas.toLocaleString("pt-BR")}
+                    </span>
+                    <span className="text-slate-400 font-medium text-xs">
+                      Pessoas
+                    </span>
+                  </div>
                 </div>
 
-                <div className="mt-4">
-                  <div className="flex justify-between text-xs font-bold text-slate-600 mb-2">
-                    <span>504</span>
-                    <span>300</span>
-                    <span>200</span>
+                {/* A barrinha original refinada e alinhada com os números */}
+                <div className="mt-3">
+                  <div className="flex justify-between text-[11px] font-extrabold text-slate-600 mb-1 px-0.5">
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-800" />
+                      {membros}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                      {provac}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-300" />
+                      {externo}
+                    </span>
                   </div>
 
-                  <div className="flex h-2 rounded-full overflow-hidden">
-                    <div className="bg-green-800 w-[48%]" />
-                    <div className="bg-green-500 w-[30%]" />
-                    <div className="bg-green-300 w-[22%]" />
+                  <div className="flex h-2 rounded-full overflow-hidden bg-slate-100">
+                    <div
+                      className="bg-green-800 h-full transition-all duration-500"
+                      style={{ width: `${membrosPerc}%` }}
+                    />
+                    <div
+                      className="bg-green-500 h-full transition-all duration-500"
+                      style={{ width: `${provacPerc}%` }}
+                    />
+                    <div
+                      className="bg-green-300 h-full transition-all duration-500"
+                      style={{ width: `${externoPerc}%` }}
+                    />
                   </div>
 
-                  <div className="flex justify-between mt-2 text-[10px] text-slate-500">
+                  <div className="flex justify-between mt-1 text-[9px] text-slate-400 font-semibold uppercase tracking-wider px-0.5">
                     <span>Membros</span>
-                    <span>Provacionistas</span>
-                    <span>Público Externo</span>
+                    <span>Provac.</span>
+                    <span>Externo</span>
                   </div>
                 </div>
               </div>
 
-              {/* PEDAGÓGICO */}
-              <div className="bg-white rounded-2xl shadow border-l-4 border-green-600 p-5">
-                <h3 className="text-xs font-black uppercase text-slate-500">
-                  Capacidade Pedagógica
-                </h3>
-
-                <div className="flex items-center gap-4 mt-5">
-                  <div className="flex -space-x-2">
-                    <div className="w-12 h-12 rounded-full bg-green-700 text-white flex items-center justify-center font-bold border-2 border-white">
-                      L
-                    </div>
-
-                    <div className="w-12 h-12 rounded-full bg-green-200 border-2 border-white" />
+              {/* CARD 2: CAPACIDADE PEDAGÓGICA */}
+              <div className="bg-white rounded-2xl shadow-sm border-l-4 border-green-600 p-4 flex items-center justify-between min-h-[135px]">
+                <div>
+                  <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-400">
+                    Capacidade Pedagógica
+                  </h3>
+                  <div className="mt-1">
+                    <h1 className="text-4xl font-black text-slate-800 tracking-tight">
+                      {resumo?.capacidade_pedagogica?.total_instrutores || 0}
+                    </h1>
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mt-0.5">
+                      Instrutores
+                    </p>
                   </div>
-
-                  <div>
-                    <h1 className="text-4xl font-black">18</h1>
-
-                    <p className="text-slate-500">Instrutores</p>
+                </div>
+                <div className="flex -space-x-2 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                  <div className="w-10 h-10 rounded-full bg-green-700 text-white flex items-center justify-center font-black text-base shadow-sm border-2 border-white">
+                    C
                   </div>
+                  <div className="w-10 h-10 rounded-full bg-green-200 border-2 border-white shadow-sm" />
                 </div>
               </div>
 
-              {/* ENGAJAMENTO */}
-              <div className="bg-green-700 text-white rounded-2xl shadow p-5">
-                <h3 className="text-xs font-black uppercase">
+              {/* CARD 3: ENGAJAMENTO VOLUNTÁRIO (Identidade Forte Original) */}
+              <div className="bg-green-700 text-white rounded-2xl shadow-sm p-4 flex flex-col justify-between min-h-[135px]">
+                <h3 className="text-[11px] font-black uppercase tracking-wider opacity-90">
                   Engajamento Voluntário
                 </h3>
 
-                <div className="flex justify-between items-end mt-4">
+                <div className="flex justify-between items-end mt-2">
                   <div>
-                    <h1 className="text-5xl font-black">501</h1>
-
-                    <p>Membros Ativos</p>
+                    <h1 className="text-4xl font-black tracking-tight">
+                      {resumo?.engajamento_voluntario?.membros_ativos || 0}
+                    </h1>
+                    <p className="text-xs opacity-90 font-medium">
+                      Membros Ativos
+                    </p>
                   </div>
 
                   <div className="text-right">
-                    <h1 className="text-4xl font-black">78%</h1>
-
-                    <p className="text-xs opacity-70">do quadro de membros</p>
+                    <h1 className="text-3xl font-black tracking-tight">
+                      {resumo?.engajamento_voluntario?.percentual_quadro || 0}%
+                    </h1>
+                    <p className="text-[10px] opacity-75 font-medium">
+                      do quadro de membros
+                    </p>
                   </div>
                 </div>
 
-                <div className="mt-4 h-2 rounded-full bg-green-900 overflow-hidden">
-                  <div className="h-full w-[78%] bg-white rounded-full" />
+                <div className="mt-2 h-1.5 rounded-full bg-green-900 overflow-hidden">
+                  <div
+                    className="h-full bg-white rounded-full transition-all duration-500"
+                    style={{
+                      width: `${resumo?.engajamento_voluntario?.percentual_quadro || 0}%`,
+                    }}
+                  />
                 </div>
               </div>
             </div>
 
-            {/* ========================= */}
-            {/* ÁREA INFERIOR */}
-            {/* ========================= */}
-
-            <div className="grid grid-cols-1 xl:grid-cols-[300px_1fr] gap-4">
-              {/* ESQUERDA */}
-
-              <div className="bg-white rounded-2xl shadow p-4">
-                <div className="border border-green-300 rounded-xl p-4">
-                  <h3 className="text-xs font-black uppercase text-green-700">
-                    Resumo Turmas
-                  </h3>
-
-                  <div className="mt-4 flex justify-between">
-                    <span>Em andamento</span>
-
-                    <span className="font-bold text-green-700">12</span>
-                  </div>
-
-                  <div className="mt-2 flex justify-between">
-                    <span>Não iniciadas</span>
-
-                    <span className="font-bold">04</span>
-                  </div>
-                </div>
-
-                <div className="border-t mt-5 pt-5">
-                  <h3 className="text-xs text-center font-black uppercase text-green-700 mb-3">
-                    Alunos por Nível
-                  </h3>
-
-                  <div className="h-[260px]">
-                    <StudentsChart />
-                  </div>
-                </div>
-              </div>
-
-              {/* DIREITA */}
-
-              <div className="bg-white rounded-2xl shadow overflow-hidden">
-                <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr]">
-                  {/* INCLUSÃO */}
-
-                  <div className="p-5 border-r border-slate-200 flex flex-col">
-                    <h2 className="text-2xl font-black">INCLUSÃO</h2>
-
-                    <p className="text-xs text-slate-400 mt-1">
+            {/* SEÇÃO PRINCIPAL FOCO TOTAL: INCLUSÃO & FAIXAS ETÁRIAS */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+              <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr]">
+                {/* COLUNA ESQUERDA: INCLUSÃO */}
+                <div className="p-5 border-b xl:border-b-0 xl:border-r border-slate-100 flex flex-col bg-slate-50/30 justify-between">
+                  <div>
+                    <h2 className="text-xl font-black text-slate-800 tracking-tight">
+                      INCLUSÃO
+                    </h2>
+                    <p className="text-xs text-slate-400 font-medium mt-0.5">
                       Distribuição por gênero
                     </p>
+                  </div>
 
-                    <div className="mt-8 space-y-8">
-                      {[
-                        {
-                          total: 562,
-                          nome: "Mulheres",
-                          perc: "54%",
-                          cor: "bg-green-100 text-green-700",
-                        },
-                        {
-                          total: 468,
-                          nome: "Homens",
-                          perc: "45%",
-                          cor: "bg-slate-100 text-slate-600",
-                        },
-                        {
-                          total: 12,
-                          nome: "Outros",
-                          perc: "1%",
-                          cor: "bg-cyan-100 text-cyan-700",
-                        },
-                      ].map((item) => (
+                  <div className="my-6 space-y-4 flex-1 flex flex-col justify-center">
+                    {generoData?.distribuicao_genero?.map((item) => {
+                      const estiloCor = getGeneroEstilo(item.genero);
+                      return (
                         <div
-                          key={item.nome}
-                          className="flex items-center gap-4"
+                          key={item.genero}
+                          className="flex items-center justify-between p-3 rounded-xl bg-white border border-slate-100 shadow-xs"
                         >
-                          <div
-                            className={`w-11 h-11 rounded-full flex items-center justify-center ${item.cor}`}
-                          >
-                            <Users size={18} />
-                          </div>
-
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h1 className="text-4xl font-black">
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-9 h-9 rounded-xl flex items-center justify-center border ${estiloCor}`}
+                            >
+                              <Users size={18} weight="bold" />
+                            </div>
+                            <div>
+                              <p className="uppercase text-[10px] text-slate-400 font-extrabold tracking-wider">
+                                {item.genero}
+                              </p>
+                              <h1 className="text-xl font-black text-slate-800 leading-none mt-0.5">
                                 {item.total}
                               </h1>
-
-                              <span
-                                className={`px-2 py-1 rounded-full text-[10px] font-bold ${item.cor}`}
-                              >
-                                {item.perc}
-                              </span>
                             </div>
-
-                            <p className="uppercase text-xs text-slate-400 font-bold">
-                              {item.nome}
-                            </p>
                           </div>
-                        </div>
-                      ))}
-                    </div>
 
-                    <div className="mt-auto border-t pt-5">
-                      <div className="flex gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-green-600 text-white flex items-center justify-center">
-                          <Info size={16} />
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[11px] font-bold border ${estiloCor}`}
+                          >
+                            {item.percentual}%
+                          </span>
                         </div>
+                      );
+                    })}
+                  </div>
 
-                        <div>
-                          <h4 className="font-black text-xs uppercase">
-                            Equilíbrio de Gênero
-                          </h4>
-
-                          <p className="text-[11px] text-slate-500 mt-1">
-                            A base apresenta predominância feminina de 54%.
-                          </p>
-                        </div>
+                  <div className="pt-4 border-t border-slate-100">
+                    <div className="flex gap-2.5 items-start p-3 bg-white rounded-xl border border-slate-100">
+                      <div className="w-7 h-7 rounded-lg bg-green-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                        <Info size={14} weight="bold" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-[11px] text-slate-700 uppercase tracking-wide">
+                          Equilíbrio de Gênero
+                        </h4>
+                        <p className="text-[11px] text-slate-500 font-medium mt-0.5 leading-tight">
+                          {generoData?.equilibrio_genero?.nota ||
+                            "Dados indisponíveis."}
+                        </p>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* FAIXAS */}
-
-                  <div className="p-5 flex flex-col">
-                    <h2 className="text-2xl font-black">FAIXAS ETÁRIAS</h2>
-
-                    <p className="text-xs text-slate-400 uppercase mt-1">
+                <div className="p-5 flex flex-col justify-between">
+                  <div>
+                    <h2 className="text-xl font-black text-slate-800 tracking-tight">
+                      FAIXAS ETÁRIAS
+                    </h2>
+                    <p className="text-xs text-slate-400 font-medium uppercase tracking-wider mt-0.5">
                       Volume de pessoas por idade e gênero
                     </p>
+                  </div>
 
-                    <div className="flex-1 min-h-[340px] mt-4">
-                      <AgeChart />
+                  <div className="flex-1 min-h-[300px] mt-4 mb-4">
+                    <AgeChart data={faixaEtaria?.faixas || []} />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-slate-100 pt-4">
+                    <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
+                      <p className="text-[9px] uppercase text-slate-400 font-bold tracking-wider">
+                        Idade mais comum
+                      </p>
+                      <h3 className="text-2xl font-black text-green-700 tracking-tight mt-0.5">
+                        {faixaEtaria?.resumo?.idade_mais_comum || "N/A"}
+                      </h3>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-3 border-t pt-4">
-                      <div className="bg-slate-50 rounded-xl p-4">
-                        <h3 className="text-4xl font-black text-green-700">
-                          25-34
-                        </h3>
+                    <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
+                      <p className="text-[9px] uppercase text-slate-400 font-bold tracking-wider">
+                        Média de anos
+                      </p>
+                      <h3 className="text-2xl font-black text-slate-800 tracking-tight mt-0.5">
+                        {faixaEtaria?.resumo?.media_anos || 0}{" "}
+                        <span className="text-xs text-slate-400 font-normal">
+                          anos
+                        </span>
+                      </h3>
+                    </div>
 
-                        <p className="text-[10px] uppercase text-slate-400 font-bold">
-                          Idade mais comum
-                        </p>
-                      </div>
-
-                      <div className="bg-slate-50 rounded-xl p-4">
-                        <h3 className="text-4xl font-black">38</h3>
-
-                        <p className="text-[10px] uppercase text-slate-400 font-bold">
-                          Média de anos
-                        </p>
-                      </div>
-
-                      <div className="bg-slate-50 rounded-xl p-4">
-                        <h3 className="text-4xl font-black">85</h3>
-
-                        <p className="text-[10px] uppercase text-slate-400 font-bold">
-                          Pessoas 65+
-                        </p>
-                      </div>
+                    <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
+                      <p className="text-[9px] uppercase text-slate-400 font-bold tracking-wider">
+                        Pessoas 65+
+                      </p>
+                      <h3 className="text-2xl font-black text-slate-800 tracking-tight mt-0.5">
+                        {faixaEtaria?.resumo?.total_acima_65 || 0}
+                      </h3>
                     </div>
                   </div>
                 </div>

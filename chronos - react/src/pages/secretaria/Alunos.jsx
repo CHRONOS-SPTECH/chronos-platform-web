@@ -69,10 +69,17 @@ export default function Alunos() {
     data_ingresso: aluno.data_ingresso || "",
     data_membro: aluno.data_membro || "",
     data_saida: aluno.data_saida || "",
+    id_endereco: aluno.endereco?.id || aluno.endereco?.id_endereco || null,
+    cep: aluno.endereco?.cep || "",
+    logradouro: aluno.endereco?.logradouro || "",
+    numero: aluno.endereco?.numero || "",
+    complemento: aluno.endereco?.complemento || "",
+    bairro: aluno.endereco?.bairro || "",
+    cidade: aluno.endereco?.cidade || "",
+    uf: aluno.endereco?.uf || "",
   });
 
   const alunosUi = useMemo(() => {
-    console.log("Mapeando alunos para UI:", alunos);
     return alunos.map((aluno) => ({
       id: aluno.id_pessoa,
       nome: aluno.nome || "Não informado",
@@ -85,10 +92,9 @@ export default function Alunos() {
     }));
   }, [alunos]);
 
-  const onSalvarAluno = async (dadosAluno) => {
+  const onSalvarAluno = async (dadosPessoa, dadosEndereco) => {
     try {
       setSalvandoAluno(true);
-      const { endereco, ...dadosPessoa } = dadosAluno;
       const idAluno = alunoEmEdicao?.id_pessoa || null;
 
       if (emailJaCadastrado(dadosPessoa.email, idAluno)) {
@@ -96,20 +102,53 @@ export default function Alunos() {
         return;
       }
 
+      let alunoFinal;
+
       if (alunoEmEdicao) {
+        // Atualiza os dados principais do Aluno
         const alunoAtualizado = await alunoService.atualizarAluno(
           idAluno,
           dadosPessoa,
         );
+        alunoFinal = { ...alunoEmEdicao, ...alunoAtualizado };
+
+        // Processa o endereço na Edição (Atualiza ou Cria um novo se não existia)
+        if (dadosEndereco) {
+          if (dadosEndereco.id) {
+            const enderecoAtu = await alunoService.atualizarEndereco(
+              dadosEndereco.id,
+              { ...dadosEndereco, id_pessoa: idAluno }, // Corrigido para id_pessoa
+            );
+            alunoFinal.endereco = enderecoAtu;
+          } else {
+            const enderecoCriado = await alunoService.cadastrarEndereco({
+              ...dadosEndereco,
+              id_pessoa: idAluno, // Corrigido para id_pessoa
+            });
+            alunoFinal.endereco = enderecoCriado;
+          }
+        }
+
         setAlunos((ant) =>
-          ant.map((item) =>
-            item.id_pessoa === idAluno ? { ...item, ...alunoAtualizado } : item,
-          ),
+          ant.map((item) => (item.id_pessoa === idAluno ? alunoFinal : item)),
         );
-        window.alert(`Aluno atualizado com sucesso!`);
+        window.alert("Aluno atualizado com sucesso!");
       } else {
+        // Cadastra o novo Aluno
         const alunoCriado = await alunoService.cadastrarAluno(dadosPessoa);
-        setAlunos((ant) => [alunoCriado, ...ant]);
+        alunoFinal = { ...alunoCriado };
+
+        // Se houver endereço preenchido, envia associando à Foreign Key correta (id_pessoa)
+        if (dadosEndereco) {
+          const enderecoCriado = await alunoService.cadastrarEndereco({
+            ...dadosEndereco,
+            id_pessoa: alunoCriado.id_pessoa, // Corrigido para id_pessoa
+          });
+          alunoFinal.endereco = enderecoCriado;
+        }
+
+        setAlunos((ant) => [alunoFinal, ...ant]);
+        window.alert("Aluno cadastrado com sucesso!");
       }
 
       fecharModalAluno();

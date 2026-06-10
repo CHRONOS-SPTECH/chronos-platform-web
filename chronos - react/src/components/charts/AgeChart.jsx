@@ -1,49 +1,46 @@
 import {
-  ResponsiveContainer,
   BarChart,
   Bar,
   XAxis,
   YAxis,
+  ResponsiveContainer,
   Tooltip,
-  CartesianGrid,
   Legend,
 } from "recharts";
 
-const data = [
-  { idade: "18-24", mulheres: 80, homens: 65 },
-  { idade: "25-34", mulheres: 150, homens: 120 },
-  { idade: "35-44", mulheres: 130, homens: 110 },
-  { idade: "45-54", mulheres: 90, homens: 85 },
-  { idade: "55-64", mulheres: 60, homens: 55 },
-  { idade: "65+", mulheres: 32, homens: 33 },
-];
-
-export default function AgeChart() {
+export default function AgeChart({ data = [] }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} layout="vertical">
-        <CartesianGrid stroke="#f1f5f9" horizontal={false} />
-
-        <XAxis type="number" />
-
-        <YAxis type="category" dataKey="idade" tick={{ fontSize: 11 }} />
-
-        <Tooltip />
-
-        <Legend />
-
+      <BarChart
+        data={data}
+        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+      >
+        <XAxis
+          dataKey="faixa"
+          fontSize={11}
+          stroke="#94A3B8"
+          tickLine={false}
+          axisLine={false}
+        />
+        <YAxis
+          fontSize={11}
+          stroke="#94A3B8"
+          tickLine={false}
+          axisLine={false}
+        />
+        <Tooltip cursor={{ fill: "#F8FAFC" }} />
+        <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
         <Bar
           dataKey="mulheres"
-          stackId="a"
-          fill="#5f9460"
-          radius={[4, 0, 0, 4]}
+          name="Mulheres"
+          fill="#16A34A"
+          radius={[4, 4, 0, 0]}
         />
-
         <Bar
           dataKey="homens"
-          stackId="a"
-          fill="#34c96d"
-          radius={[0, 4, 4, 0]}
+          name="Homens"
+          fill="#475569"
+          radius={[4, 4, 0, 0]}
         />
       </BarChart>
     </ResponsiveContainer>

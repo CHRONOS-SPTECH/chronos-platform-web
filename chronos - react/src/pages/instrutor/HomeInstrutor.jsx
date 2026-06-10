@@ -29,9 +29,17 @@ function HomeInstrutor() {
         if (!dados?.usuario) return;
 
         const hoje = getHojeIso();
+        console.log(
+          "Buscando aulas para hoje:",
+          hoje,
+          "e instrutorId:",
+          dados.usuario.id_usuario,
+        );
         const res = await api.get(
           `/aulas/dia?data=${hoje}&instrutorId=${dados.usuario.id_usuario}`,
         );
+
+        console.log("Aulas carregadas para hoje:", res.data);
 
         setAula(selecionarAulaParaPresenca(res.data || []));
       } catch (err) {

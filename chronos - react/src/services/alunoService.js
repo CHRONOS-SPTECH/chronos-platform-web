@@ -24,6 +24,19 @@ const alunoService = {
   excluirAluno: async (idAluno) => {
     await api.delete(`/pessoas/${idAluno}`);
   },
+
+  cadastrarEndereco: async (dadosEndereco) => {
+    const response = await api.post("/enderecos-pessoa", dadosEndereco);
+    return response.data;
+  },
+
+  atualizarEndereco: async (idEndereco, dadosEndereco) => {
+    const response = await api.put(
+      `/enderecos-pessoa/${idEndereco}`,
+      dadosEndereco,
+    );
+    return response.data;
+  },
 };
 
 export default alunoService;

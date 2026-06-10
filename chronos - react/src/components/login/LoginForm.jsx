@@ -4,8 +4,8 @@ import Button from "../Button";
 import authService from "../../services/authService";
 
 function LoginForm({ onForgotPassword, onStatusChange }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("henrique@gmail.com");
+  const [password, setPassword] = useState("senhaSegura123");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({ email: "", password: "" });
 
@@ -16,8 +16,8 @@ function LoginForm({ onForgotPassword, onStatusChange }) {
         email.trim() === ""
           ? "Campo obrigatório"
           : !emailRegex.test(email)
-          ? "Formato de e-mail inválido"
-          : "",
+            ? "Formato de e-mail inválido"
+            : "",
       password: password.trim() === "" ? "Campo obrigatório" : "",
     };
     setErrors(newErrors);
@@ -62,10 +62,15 @@ function LoginForm({ onForgotPassword, onStatusChange }) {
           type="email"
           placeholder="exemplo@dominio.com"
           value={email}
-          onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: "" })); }}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setErrors((prev) => ({ ...prev, email: "" }));
+          }}
           className={`w-full px-5 py-4 rounded-2xl bg-slate-50 border focus:bg-white focus:ring-4 focus:ring-green-50 outline-none transition-all ${errors.email ? "border-red-400" : "border-slate-200 focus:border-[#1E7A3C]"}`}
         />
-        {errors.email && <span className="text-xs text-red-500 ml-1">{errors.email}</span>}
+        {errors.email && (
+          <span className="text-xs text-red-500 ml-1">{errors.email}</span>
+        )}
       </div>
 
       <div className="flex flex-col gap-2">
@@ -85,10 +90,15 @@ function LoginForm({ onForgotPassword, onStatusChange }) {
           type="password"
           placeholder="••••••••"
           value={password}
-          onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: "" })); }}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            setErrors((prev) => ({ ...prev, password: "" }));
+          }}
           className={`w-full px-5 py-4 rounded-2xl bg-slate-50 border focus:bg-white focus:ring-4 focus:ring-green-50 outline-none transition-all ${errors.password ? "border-red-400" : "border-slate-200 focus:border-[#1E7A3C]"}`}
         />
-        {errors.password && <span className="text-xs text-red-500 ml-1">{errors.password}</span>}
+        {errors.password && (
+          <span className="text-xs text-red-500 ml-1">{errors.password}</span>
+        )}
       </div>
 
       <Button

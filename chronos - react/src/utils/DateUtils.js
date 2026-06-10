@@ -1,5 +1,9 @@
 export const getHojeIso = () => {
-  return new Date().toISOString().split("T")[0];
+  return new Date()
+    .toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })
+    .split("/")
+    .reverse()
+    .join("-");
 };
 
 export const formatarDataBr = (data) => {
