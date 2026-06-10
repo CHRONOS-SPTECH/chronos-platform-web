@@ -54,10 +54,15 @@ function DashboardAcademica() {
   const membros = resumo?.comunidade_academica?.membros || 0;
   const provac = resumo?.comunidade_academica?.provacionistas || 0;
   const externo = resumo?.comunidade_academica?.publico_externo || 0;
+  const ativos = resumo?.engajamento_voluntario?.membros_ativos || 0;
 
   const membrosPerc = totalPessoas ? (membros / totalPessoas) * 100 : 0;
   const provacPerc = totalPessoas ? (provac / totalPessoas) * 100 : 0;
   const externoPerc = totalPessoas ? (externo / totalPessoas) * 100 : 0;
+
+  const ativoComunidadePerc = totalPessoas
+    ? Math.round((ativos / totalPessoas) * 100)
+    : 0;
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans">
@@ -68,9 +73,7 @@ function DashboardAcademica() {
 
         <main className="flex-1 overflow-y-auto custom-scrollbar">
           <div className="max-w-[1400px] mx-auto p-6 flex flex-col gap-5">
-            {/* CARDS KPI SUPERIORES: Retorno ao DNA original, mas compacto */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-              {/* CARD 1: COMUNIDADE ACADÊMICA */}
               <div className="bg-white rounded-2xl shadow-sm border-l-4 border-green-600 p-4 flex flex-col justify-between min-h-[135px]">
                 <div>
                   <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-400">
@@ -86,7 +89,6 @@ function DashboardAcademica() {
                   </div>
                 </div>
 
-                {/* A barrinha original refinada e alinhada com os números */}
                 <div className="mt-3">
                   <div className="flex justify-between text-[11px] font-extrabold text-slate-600 mb-1 px-0.5">
                     <span className="flex items-center gap-1">
@@ -126,7 +128,6 @@ function DashboardAcademica() {
                 </div>
               </div>
 
-              {/* CARD 2: CAPACIDADE PEDAGÓGICA */}
               <div className="bg-white rounded-2xl shadow-sm border-l-4 border-green-600 p-4 flex items-center justify-between min-h-[135px]">
                 <div>
                   <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-400">
@@ -149,7 +150,6 @@ function DashboardAcademica() {
                 </div>
               </div>
 
-              {/* CARD 3: ENGAJAMENTO VOLUNTÁRIO (Identidade Forte Original) */}
               <div className="bg-green-700 text-white rounded-2xl shadow-sm p-4 flex flex-col justify-between min-h-[135px]">
                 <h3 className="text-[11px] font-black uppercase tracking-wider opacity-90">
                   Engajamento Voluntário
@@ -158,7 +158,7 @@ function DashboardAcademica() {
                 <div className="flex justify-between items-end mt-2">
                   <div>
                     <h1 className="text-4xl font-black tracking-tight">
-                      {resumo?.engajamento_voluntario?.membros_ativos || 0}
+                      {ativos}
                     </h1>
                     <p className="text-xs opacity-90 font-medium">
                       Membros Ativos
@@ -166,11 +166,11 @@ function DashboardAcademica() {
                   </div>
 
                   <div className="text-right">
-                    <h1 className="text-3xl font-black tracking-tight">
-                      {resumo?.engajamento_voluntario?.percentual_quadro || 0}%
+                    <h1 className="text-3xl font-black tracking-tight text-green-200">
+                      {ativoComunidadePerc}%
                     </h1>
-                    <p className="text-[10px] opacity-75 font-medium">
-                      do quadro de membros
+                    <p className="text-[9px] opacity-75 font-semibold uppercase tracking-wider">
+                      Da Comunidade
                     </p>
                   </div>
                 </div>
@@ -178,18 +178,14 @@ function DashboardAcademica() {
                 <div className="mt-2 h-1.5 rounded-full bg-green-900 overflow-hidden">
                   <div
                     className="h-full bg-white rounded-full transition-all duration-500"
-                    style={{
-                      width: `${resumo?.engajamento_voluntario?.percentual_quadro || 0}%`,
-                    }}
+                    style={{ width: `${ativoComunidadePerc}%` }}
                   />
                 </div>
               </div>
             </div>
 
-            {/* SEÇÃO PRINCIPAL FOCO TOTAL: INCLUSÃO & FAIXAS ETÁRIAS */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
               <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr]">
-                {/* COLUNA ESQUERDA: INCLUSÃO */}
                 <div className="p-5 border-b xl:border-b-0 xl:border-r border-slate-100 flex flex-col bg-slate-50/30 justify-between">
                   <div>
                     <h2 className="text-xl font-black text-slate-800 tracking-tight">
