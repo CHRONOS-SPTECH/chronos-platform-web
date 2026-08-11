@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 
 import api from "../../services/api";
+import sessionService from "../../services/sessionService";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
 import AgendaGrade from "../../components/agendaInstrutor/AgendaGrade";
@@ -27,17 +28,14 @@ export default function AgendaInstrutorView() {
 
   useEffect(() => {
     try {
-      const usuarioStorage = sessionStorage.getItem("usuario");
-      if (usuarioStorage) {
-        const parsedStore = JSON.parse(usuarioStorage);
-        const pessoa = parsedStore?.usuario?.pessoa;
+      const dadosSessao = sessionService.getSession();
+      const pessoa = dadosSessao?.usuario?.pessoa;
 
-        if (pessoa && pessoa.tipo_vinculo_id === 4) {
-          setInstrutorInfo({
-            id: pessoa.id_pessoa,
-            nome: pessoa.nome,
-          });
-        }
+      if (pessoa && pessoa.tipo_vinculo_id === 4) {
+        setInstrutorInfo({
+          id: pessoa.id_pessoa,
+          nome: pessoa.nome,
+        });
       }
     } catch (err) {
       console.error(err);

@@ -9,6 +9,7 @@ import {
 } from "@phosphor-icons/react";
 import Profile from "./Profile";
 import { useNavigate } from "react-router-dom";
+import sessionService from "../../services/sessionService";
 
 function Header({ titulo = "Dashboard", icone: Icone = House }) {
   const [perfilAberto, setPerfilAberto] = useState(false);
@@ -32,12 +33,10 @@ function Header({ titulo = "Dashboard", icone: Icone = House }) {
 
   const obterDadosSessao = () => {
     try {
-      const sessaoBase = sessionStorage.getItem("usuario");
-      const perfilSelecionado =
-        sessionStorage.getItem("perfilSelecionado") || "Membro";
+      const dadosSessao = sessionService.getSession();
+      const perfilSelecionado = sessionService.getSelectedProfile() || "Membro";
 
-      if (sessaoBase) {
-        const dadosSessao = JSON.parse(sessaoBase);
+      if (dadosSessao) {
         return {
           nome: dadosSessao.usuario?.pessoa?.nome || "Usuário",
           cargo: perfilSelecionado,
@@ -60,7 +59,8 @@ function Header({ titulo = "Dashboard", icone: Icone = House }) {
 
   const logout = () => {
     setPerfilAberto(false);
-    navigation("/");
+    sessionService.clearSession();
+    navigation("/login");
   };
 
   const handleConfiguracoes = () => console.log("Abrindo configurações");

@@ -11,6 +11,7 @@ import Header from "../../components/homeSecretario/Header";
 import Sidebar from "../../components/sidebar/SideBar";
 import CardPresenca from "../../components/presenca/CardPresenca";
 import api from "../../services/api";
+import sessionService from "../../services/sessionService";
 
 function Presenca() {
   const { idTurma, idAula } = useParams();
@@ -28,8 +29,8 @@ function Presenca() {
       try {
         setCarregando(true);
 
-        const dados = sessionStorage.getItem("usuario");
-        if (dados) setUsuario(JSON.parse(dados));
+        const dadosSessao = sessionService.getSession();
+        if (dadosSessao) setUsuario(dadosSessao);
 
         const [resTurma, resAula, resAlunos, resChamadas] = await Promise.all([
           api.get(`/turmas/${idTurma}`),

@@ -4,7 +4,7 @@ import { Home, ChevronDown, ChevronRight, LayoutGrid } from "lucide-react";
 import { MENU_CONFIG } from "../../config/navigation";
 import api from "../../services/api";
 import sessionService from "../../services/sessionService";
-import { getHojeIso } from "../../utils/dateUtils";
+import { getHojeIso } from "../../utils/DateUtils";
 
 const getTipoUsuarioFromSession = (dadosSessao) => {
   if (!dadosSessao || !Array.isArray(dadosSessao.perfis)) return null;
@@ -26,7 +26,7 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const dadosSessao = JSON.parse(sessionStorage.getItem("usuario"));
+  const dadosSessao = sessionService.getSession();
   const tipoUsuarioSessao = getTipoUsuarioFromSession(dadosSessao);
   const selectedProfile = sessionService.getSelectedProfile();
 

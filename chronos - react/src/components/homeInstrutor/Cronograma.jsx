@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, Play, Clock } from "@phosphor-icons/react";
 import api from "../../services/api";
-import { getHojeIso } from "../../utils/dateUtils";
+import sessionService from "../../services/sessionService";
+import { getHojeIso } from "../../utils/DateUtils";
 
 function Cronograma() {
   const navigate = useNavigate();
@@ -13,12 +14,10 @@ function Cronograma() {
   useEffect(() => {
     const carregarAulas = async () => {
       try {
-        const dados = sessionStorage.getItem("usuario");
-        if (!dados) return;
+        const dadosSessao = sessionService.getSession();
+        if (!dadosSessao) return;
 
-        const user = JSON.parse(dados);
-        const instrutorId = user?.usuario?.id_usuario;
-        console.log("ID do instrutor:", instrutorId);
+        const instrutorId = dadosSessao?.usuario?.id_usuario;
         if (!instrutorId) return;
 
         const hoje = getHojeIso();

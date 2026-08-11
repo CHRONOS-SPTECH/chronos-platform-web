@@ -9,7 +9,8 @@ import Header from "../../components/homeSecretario/Header";
 import Sidebar from "../../components/sidebar/SideBar";
 import Cronograma from "../../components/homeInstrutor/Cronograma";
 import api from "../../services/api";
-import { getHojeIso } from "../../utils/dateUtils";
+import sessionService from "../../services/sessionService";
+import { getHojeIso } from "../../utils/DateUtils";
 
 function HomeInstrutor() {
   const navigate = useNavigate();
@@ -25,21 +26,13 @@ function HomeInstrutor() {
   useEffect(() => {
     const carregarAulas = async () => {
       try {
-        const dados = JSON.parse(sessionStorage.getItem("usuario"));
+        const dados = sessionService.getSession();
         if (!dados?.usuario) return;
 
         const hoje = getHojeIso();
-        console.log(
-          "Buscando aulas para hoje:",
-          hoje,
-          "e instrutorId:",
-          dados.usuario.id_usuario,
-        );
         const res = await api.get(
           `/aulas/dia?data=${hoje}&instrutorId=${dados.usuario.id_usuario}`,
         );
-
-        console.log("Aulas carregadas para hoje:", res.data);
 
         setAula(selecionarAulaParaPresenca(res.data || []));
       } catch (err) {
@@ -52,7 +45,7 @@ function HomeInstrutor() {
 
   const iniciarPresenca = async () => {
     try {
-      const dados = JSON.parse(sessionStorage.getItem("usuario"));
+      const dados = sessionService.getSession();
       if (!dados?.usuario) return;
 
       const hoje = getHojeIso();

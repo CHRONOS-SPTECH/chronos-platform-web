@@ -29,6 +29,12 @@ export const MENU_CONFIG = {
         ],
       },
       {
+        label: "Dashboard",
+        titulo: "Dashboard's",
+        icone: <LayoutDashboard size={20} />,
+        itens: [{ nome: "Panorama Acadêmico", rota: "/dashboard-academica" }],
+      },
+      {
         label: "Gestão Ano letivo",
         titulo: "Controle de Aulas",
         icone: <LayoutDashboard size={20} />,
@@ -43,12 +49,22 @@ export const MENU_CONFIG = {
     dashboardPath: "/administrador",
     secoes: [
       {
-        label: "Operacional",
+        label: "Dashboard",
         titulo: "Dashboard's",
         icone: <LayoutDashboard size={20} />,
         itens: [
-          { nome: "Panorama Acadêmico" },
-          { nome: "Engajamento das Atividades" },
+          { nome: "Panorama Acadêmico", rota: "/dashboard-academica" },
+          // { nome: "Engajamento das Atividades", rota: "/engajamento-atividades" },
+        ],
+      },
+      {
+        label: "Operacional",
+        titulo: "Gestão Acadêmica",
+        icone: <Users size={20} />,
+        itens: [
+          { nome: "Alunos", rota: "/alunos" },
+          { nome: "Turmas", rota: "/turmas" },
+          // { nome: "Eventos", rota: "/eventos" },
         ],
       },
       {

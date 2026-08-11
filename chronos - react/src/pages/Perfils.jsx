@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import logoCronos from "../assets/logoChronos.svg";
 import Card from "../components/perfis/Card";
+import sessionService from "../services/sessionService";
 
 const CONFIG_CARDS = {
   administrador: {
@@ -27,7 +28,7 @@ function Perfils() {
   const [perfisDisponiveis, setPerfisDisponiveis] = useState([]);
 
   useEffect(() => {
-    const dadosSessao = JSON.parse(sessionStorage.getItem("usuario"));
+    const dadosSessao = sessionService.getSession();
 
     if (dadosSessao && Array.isArray(dadosSessao.perfis)) {
       const cardsFiltrados = [];
