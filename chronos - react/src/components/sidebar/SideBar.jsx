@@ -1,82 +1,9 @@
-import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import { Home, ChevronDown, ChevronRight, LayoutGrid } from "lucide-react";
-import { MENU_CONFIG } from "../../config/navigation";
-import aulaService from "../../services/aulaService";
-import sessionService from "../../services/sessionService";
-import { useToast } from "../alert-toast/ToastProvider";
-import { getHojeIso } from "../../utils/DateUtils";
-
-const getTipoUsuarioFromSession = (dadosSessao) => {
-  if (!dadosSessao || !Array.isArray(dadosSessao.perfis)) return null;
-
-  const perfisUsuario = dadosSessao.perfis.map((p) =>
-    String(p.nome_perfil)
-      .toLowerCase()
-      .normalize("NFKD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .trim(),
-  );
-
-  if (perfisUsuario.includes("administrador")) return "Administrador";
-  if (perfisUsuario.includes("secretario")) return "secretario";
-  return "instrutor";
-};
+import useSidebar from "../../hooks/useSidebar";
 
 export default function Sidebar() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const toast = useToast();
-
-  const dadosSessao = sessionService.getSession();
-  const tipoUsuarioSessao = getTipoUsuarioFromSession(dadosSessao);
-  const selectedProfile = sessionService.getSelectedProfile();
-
-  const activeTipoUsuario = selectedProfile || tipoUsuarioSessao || "instrutor";
-  const config = MENU_CONFIG[activeTipoUsuario] || MENU_CONFIG["instrutor"];
-
-  const [abertos, setAbertos] = useState({ 0: true });
-
-  const abrirItemMenu = async (item) => {
-    if (item.action === "chamadaDoDia") {
-      try {
-        if (!dadosSessao?.usuario) {
-          toast.error("Sessão inválida. Faça login novamente.");
-          return navigate("/instrutor");
-        }
-
-        const hoje = getHojeIso();
-        const aulasHoje =
-          (await aulaService.listarAulasDoDia(
-            dadosSessao.usuario.id_usuario,
-            hoje,
-          )) || [];
-        const aulaEmAberto = aulasHoje.find(
-          (itemAula) =>
-            !Boolean(itemAula?.chamadaFeita ?? itemAula?.aula?.chamadaFeita),
-        );
-        const aulaParaAbrir = aulaEmAberto || aulasHoje[0];
-
-        if (aulaParaAbrir?.aula?.id_turma && aulaParaAbrir?.aula?.id_aula) {
-          navigate(
-            `/presenca/${aulaParaAbrir.aula.id_turma}/${aulaParaAbrir.aula.id_aula}`,
-          );
-          return;
-        }
-
-        toast.error("Nenhuma aula agendada para hoje.");
-        return;
-      } catch (err) {
-        console.error("Erro ao abrir a chamada do dia:", err);
-        toast.error(
-          "Não foi possível carregar a chamada do dia. Verifique sua conexão ou faça login novamente.",
-        );
-        return;
-      }
-    }
-
-    if (item.rota) navigate(item.rota);
-  };
+  const { config, location, navigate, abertos, alternarSecao, abrirItemMenu } =
+    useSidebar();
 
   return (
     <aside className="w-70 h-screen bg-[#00871D] text-white flex flex-col shadow-xl shrink-0">
@@ -111,7 +38,7 @@ export default function Sidebar() {
             </p>
             <div
               className="flex items-center justify-between px-4 py-3.5 rounded-2xl cursor-pointer bg-white/10"
-              onClick={() => setAbertos({ ...abertos, [i]: !abertos[i] })}
+              onClick={() => alternarSecao(i)}
             >
               <div className="flex items-center gap-4">
                 <div className="text-white">{secao.icone}</div>

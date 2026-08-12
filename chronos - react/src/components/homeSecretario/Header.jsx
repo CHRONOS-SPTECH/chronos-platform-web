@@ -1,69 +1,18 @@
-import { useState, useEffect } from "react";
-import {
-  House,
-  Calendar,
-  SignOut,
-  Gear,
-  User,
-  UsersThree,
-} from "@phosphor-icons/react";
+import { House, Calendar, SignOut, UsersThree } from "@phosphor-icons/react";
 import Profile from "./Profile";
-import { useNavigate } from "react-router-dom";
-import sessionService from "../../services/sessionService";
+import useHeader from "../../hooks/useHeader";
 
 function Header({ titulo = "Dashboard", icone: Icone = House }) {
-  const [perfilAberto, setPerfilAberto] = useState(false);
-  const [dataAtual, setDataAtual] = useState("");
-  const navigation = useNavigate();
+  const {
+    perfilAberto,
+    setPerfilAberto,
+    dataAtual,
+    dadosSessao,
+    trocarPerfil,
+    logout,
+  } = useHeader();
 
-  useEffect(() => {
-    const hoje = new Date();
-    const formatador = new Intl.DateTimeFormat("pt-BR", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-
-    const dataFormatada = formatador.format(hoje);
-    setDataAtual(
-      dataFormatada.charAt(0).toUpperCase() + dataFormatada.slice(1),
-    );
-  }, []);
-
-  const obterDadosSessao = () => {
-    try {
-      const dadosSessao = sessionService.getSession();
-      const perfilSelecionado = sessionService.getSelectedProfile() || "Membro";
-
-      if (dadosSessao) {
-        return {
-          nome: dadosSessao.usuario?.pessoa?.nome || "Usuário",
-          cargo: perfilSelecionado,
-          avatar: dadosSessao.usuario?.pessoa?.url_foto_perfil || null,
-        };
-      }
-    } catch (error) {
-      console.error("Erro ao ler dados da sessão", error);
-    }
-
-    return { nome: "Usuário", cargo: "Membro", avatar: null };
-  };
-
-  const { nome, cargo, avatar } = obterDadosSessao();
-
-  const trocarPerfil = () => {
-    setPerfilAberto(false);
-    navigation("/perfis");
-  };
-
-  const logout = () => {
-    setPerfilAberto(false);
-    sessionService.clearSession();
-    navigation("/login");
-  };
-
-  const handleConfiguracoes = () => console.log("Abrindo configurações");
+  const { nome, cargo, avatar } = dadosSessao;
 
   return (
     <header className="w-full flex items-center justify-between px-8 bg-white/80 backdrop-blur-md border-b border-slate-100 h-[72px] sticky top-0 z-40">

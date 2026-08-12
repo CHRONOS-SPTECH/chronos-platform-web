@@ -6,55 +6,27 @@ import { useToast } from "../alert-toast/ToastProvider";
 import { BookOpen } from "lucide-react";
 import aulaService from "../../services/aulaService";
 
-function CardPresenca({ alunos, dadosAula }) {
+function CardPresenca({
+  alunos,
+  dadosAula,
+  onTogglePresenca,
+  onSalvarChamada,
+  carregando,
+}) {
   const navigate = useNavigate();
   const toast = useToast();
   const [modalAberto, setModalAberto] = useState(false);
   const chamadaJaFeita = Boolean(dadosAula?.chamadaFeita);
-  const [lista, setLista] = useState([]);
-  const [carregando, setCarregando] = useState(false);
-
-  useEffect(() => {
-    if (!alunos) return;
-
-    const estadoInicial = alunos.map((aluno) => ({
-      ...aluno,
-      presente: aluno.presente ?? aluno.compareceu ?? false,
-      percentual_presenca: aluno.percentual_presenca ?? 0,
-    }));
-    setLista(estadoInicial);
-  }, [alunos]);
-
-  const alternarPresenca = (idx) => {
-    const novaLista = [...lista];
-    const novoValor = !novaLista[idx].presente;
-    novaLista[idx].presente = novoValor;
-    setLista(novaLista);
-  };
 
   const salvarChamada = async () => {
-    const idAula = dadosAula?.aula?.id_aula;
-    if (!idAula) return console.error("ID da aula não encontrado.");
-
-    setCarregando(true);
     try {
-      const dadosChamada = {
-        id_aula: idAula,
-        alunos: lista.map((aluno) => ({
-          id_pessoa: aluno.id_pessoa,
-          compareceu: aluno.presente,
-        })),
-      };
-
-      await aulaService.salvarChamadaEmLote(dadosChamada);
+      await onSalvarChamada();
       setModalAberto(false);
       toast.success("Chamada enviada com sucesso!");
       setTimeout(() => navigate("/instrutor"), 2500);
     } catch (err) {
       console.error("Erro ao enviar chamada:", err);
       toast.error("Houve um erro ao enviar a chamada.");
-    } finally {
-      setCarregando(false);
     }
   };
 
@@ -79,8 +51,8 @@ function CardPresenca({ alunos, dadosAula }) {
       {/* Tabela de Alunos */}
       <div className="bg-white border border-slate-100 rounded-3xl shadow-sm overflow-hidden">
         <TabelaAlunos
-          alunos={lista}
-          onTogglePresenca={alternarPresenca}
+          alunos={alunos}
+          onTogglePresenca={onTogglePresenca}
           visualizarChamada={chamadaJaFeita}
         />
       </div>
@@ -107,8 +79,8 @@ function CardPresenca({ alunos, dadosAula }) {
       <ModalConfirmacao
         aberto={modalAberto}
         fecharModal={() => setModalAberto(false)}
-        alunos={lista}
-        onTogglePresenca={alternarPresenca}
+        alunos={alunos}
+        onTogglePresenca={onTogglePresenca}
         confirmarChamada={salvarChamada}
         carregando={carregando}
       />

@@ -13,7 +13,8 @@ import CardPresenca from "../../components/presenca/CardPresenca";
 import usePresenca from "../../hooks/usePresenca";
 
 function Presenca() {
-  const { idTurma, idAula } = useParams();
+  const { idTurma: identificadorTurma, idAula: identificadorAula } =
+    useParams();
   const navigate = useNavigate();
 
   const {
@@ -25,7 +26,10 @@ function Presenca() {
     error,
     alternarPresenca,
     salvarChamada,
-  } = usePresenca({ idTurma: idTurma, idAula: idAula });
+  } = usePresenca({
+    idTurma: identificadorTurma,
+    idAula: identificadorAula,
+  });
 
   if (carregando) {
     return (
@@ -137,7 +141,13 @@ function Presenca() {
                 Nenhum aluno matriculado nesta turma.
               </div>
             ) : (
-              <CardPresenca alunos={alunos} dadosAula={aula} />
+              <CardPresenca
+                alunos={alunos}
+                dadosAula={aula}
+                onTogglePresenca={alternarPresenca}
+                onSalvarChamada={salvarChamada}
+                carregando={carregando}
+              />
             )}
           </div>
         </main>

@@ -10,9 +10,9 @@ function ModalConfirmacao({
 }) {
   if (!aberto) return null;
 
-  const pegarCorDaBarra = (pct) => {
-    if (pct <= 30) return "bg-orange-500";
-    if (pct <= 50) return "bg-blue-500";
+  const obterCorDaBarra = (percentualPresenca) => {
+    if (percentualPresenca <= 30) return "bg-orange-500";
+    if (percentualPresenca <= 50) return "bg-blue-500";
     return "bg-green-700";
   };
 
@@ -36,11 +36,14 @@ function ModalConfirmacao({
             </thead>
 
             <tbody className="divide-y divide-gray-200">
-              {alunos.map((aluno, idx) => {
-                const pct = aluno.percentual_presenca ?? 0;
+              {alunos.map((aluno, indiceAluno) => {
+                const percentualPresenca = aluno.percentual_presenca ?? 0;
 
                 return (
-                  <tr key={aluno.id_pessoa || idx} className="hover:bg-gray-50">
+                  <tr
+                    key={aluno.id_pessoa || indiceAluno}
+                    className="hover:bg-gray-50"
+                  >
                     {/* Avatar */}
                     <td className="px-4 py-3">
                       <UserCircle
@@ -56,13 +59,15 @@ function ModalConfirmacao({
                     <td className="px-4 py-3">
                       <div className="flex flex-col gap-1 w-48">
                         <span className="text-xs text-gray-600">
-                          <strong className="text-black text-sm">{pct}%</strong>{" "}
+                          <strong className="text-black text-sm">
+                            {percentualPresenca}%
+                          </strong>{" "}
                           de Presença
                         </span>
                         <div className="w-full bg-gray-200 rounded-full h-1.5 border border-gray-300">
                           <div
-                            className={`h-1.5 rounded-full ${pegarCorDaBarra(pct)}`}
-                            style={{ width: `${pct}%` }}
+                            className={`h-1.5 rounded-full ${obterCorDaBarra(percentualPresenca)}`}
+                            style={{ width: `${percentualPresenca}%` }}
                           ></div>
                         </div>
                       </div>
@@ -75,7 +80,7 @@ function ModalConfirmacao({
                           type="checkbox"
                           className="sr-only peer"
                           checked={aluno.presente || false}
-                          onChange={() => onTogglePresenca(idx)}
+                          onChange={() => onTogglePresenca(indiceAluno)}
                         />
                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
                       </label>

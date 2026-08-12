@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import alunoService from "../services/alunoService";
 
 export default function useAlunos() {
@@ -7,10 +7,11 @@ export default function useAlunos() {
   const [error, setError] = useState("");
   const [salvando, setSalvando] = useState(false);
 
-  const carregarAlunos = async () => {
+  const carregarAlunos = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
+
       const dados = await alunoService.listarAlunos();
       setAlunos(Array.isArray(dados) ? dados : []);
     } catch (err) {
@@ -21,11 +22,11 @@ export default function useAlunos() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     carregarAlunos();
-  }, []);
+  }, [carregarAlunos]);
 
   const salvarAluno = async (
     dadosPessoa,
@@ -59,8 +60,10 @@ export default function useAlunos() {
           }
         }
 
-        setAlunos((ant) =>
-          ant.map((a) => (a.id_pessoa === id ? alunoFinal : a)),
+        setAlunos((listaAtualAlunos) =>
+          listaAtualAlunos.map((aluno) =>
+            aluno.id_pessoa === id ? alunoFinal : aluno,
+          ),
         );
         return alunoFinal;
       } else {
@@ -75,7 +78,7 @@ export default function useAlunos() {
           alunoFinal.endereco = enderecoCriado;
         }
 
-        setAlunos((ant) => [alunoFinal, ...ant]);
+        setAlunos((listaAtualAlunos) => [alunoFinal, ...listaAtualAlunos]);
         return alunoFinal;
       }
     } catch (err) {
@@ -89,7 +92,9 @@ export default function useAlunos() {
   const excluirAluno = async (idPessoa) => {
     try {
       await alunoService.excluirAluno(idPessoa);
-      setAlunos((ant) => ant.filter((item) => item.id_pessoa !== idPessoa));
+      setAlunos((listaAtualAlunos) =>
+        listaAtualAlunos.filter((item) => item.id_pessoa !== idPessoa),
+      );
     } catch (err) {
       console.error("Erro ao excluir aluno (hook):", err);
       throw err;

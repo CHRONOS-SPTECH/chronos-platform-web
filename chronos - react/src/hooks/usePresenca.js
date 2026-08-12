@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import sessionService from "../services/sessionService";
 import turmaService from "../services/turmaService";
 import aulaService from "../services/aulaService";
@@ -12,6 +12,21 @@ export default function usePresenca({ idTurma, idAula }) {
   const [carregando, setCarregando] = useState(true);
   const [error, setError] = useState("");
 
+  const mapearAlunosComPresenca = useCallback((listaAlunos, presencas) => {
+    return (listaAlunos || []).map((aluno) => {
+      const registroPresenca = (presencas || []).find(
+        (presenca) => Number(presenca.id_pessoa) === Number(aluno.id_pessoa),
+      );
+
+      return {
+        ...aluno,
+        presente: Boolean(registroPresenca?.compareceu),
+        compareceu: Boolean(registroPresenca?.compareceu),
+        percentual_presenca: aluno.percentual_presenca ?? 0,
+      };
+    });
+  }, []);
+
   useEffect(() => {
     const carregarDados = async () => {
       try {
@@ -21,7 +36,7 @@ export default function usePresenca({ idTurma, idAula }) {
         const dadosSessao = sessionService.getSession();
         if (dadosSessao) setUsuario(dadosSessao);
 
-        const [turmaData, aulaData, alunosData, presencasData] =
+        const [turmaCarregada, aulaCarregada, alunosDaTurma, presencasDaAula] =
           await Promise.all([
             turmaService.buscarTurmaPorId(idTurma),
             aulaService.buscarDetalhesAula(idAula),
@@ -29,22 +44,9 @@ export default function usePresenca({ idTurma, idAula }) {
             aulaService.buscarChamadaPorAula(idAula),
           ]);
 
-        const alunosComPresenca = (alunosData || []).map((aluno) => {
-          const registro = (presencasData || []).find(
-            (item) => Number(item.id_pessoa) === Number(aluno.id_pessoa),
-          );
-
-          return {
-            ...aluno,
-            presente: Boolean(registro?.compareceu),
-            compareceu: Boolean(registro?.compareceu),
-            percentual_presenca: aluno.percentual_presenca ?? 0,
-          };
-        });
-
-        setTurma(turmaData);
-        setAula(aulaData);
-        setAlunos(alunosComPresenca);
+        setTurma(turmaCarregada);
+        setAula(aulaCarregada);
+        setAlunos(mapearAlunosComPresenca(alunosDaTurma, presencasDaAula));
       } catch (err) {
         console.error("Erro ao carregar dados da presença (hook):", err);
         setError("Erro ao carregar dados da presença.");
@@ -53,31 +55,45 @@ export default function usePresenca({ idTurma, idAula }) {
       }
     };
 
-    if (idTurma && idAula) carregarDados();
-  }, [idTurma, idAula]);
+    if (idTurma && idAula) {
+      carregarDados();
+    }
+  }, [idTurma, idAula, mapearAlunosComPresenca]);
 
-  const alternarPresenca = (idx) => {
-    setAlunos((ant) => {
-      const nova = [...ant];
-      nova[idx] = { ...nova[idx], presente: !nova[idx].presente };
-      return nova;
+  const alternarPresenca = useCallback((indiceAluno) => {
+    setAlunos((alunosAnteriores) => {
+      if (!alunosAnteriores[indiceAluno]) return alunosAnteriores;
+
+      const listaAtualizada = [...alunosAnteriores];
+      const alunoAtual = listaAtualizada[indiceAluno];
+      const presente = !(alunoAtual.presente ?? alunoAtual.compareceu ?? false);
+
+      listaAtualizada[indiceAluno] = {
+        ...alunoAtual,
+        presente,
+        compareceu: presente,
+      };
+
+      return listaAtualizada;
     });
-  };
+  }, []);
 
-  const salvarChamada = async () => {
-    const idAulaInterna = aula?.aula?.id_aula;
-    if (!idAulaInterna) throw new Error("ID da aula não encontrado.");
+  const salvarChamada = useCallback(async () => {
+    const idAulaInterna = aula?.aula?.id_aula ?? aula?.id_aula;
+    if (!idAulaInterna) {
+      throw new Error("ID da aula não encontrado.");
+    }
 
     const dadosChamada = {
-      id_aula: idAulaInterna,
+      id_aula: Number(idAulaInterna),
       alunos: (alunos || []).map((aluno) => ({
         id_pessoa: aluno.id_pessoa,
-        compareceu: aluno.presente,
+        compareceu: Boolean(aluno.presente ?? aluno.compareceu ?? false),
       })),
     };
 
     await aulaService.salvarChamadaEmLote(dadosChamada);
-  };
+  }, [aula, alunos]);
 
   return {
     usuario,

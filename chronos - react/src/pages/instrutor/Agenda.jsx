@@ -1,74 +1,22 @@
-import React, { useState, useEffect } from "react";
-import {
-  Calendar,
-  Clock,
-  BookOpen,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import React from "react";
+import { Calendar, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 
-import sessionService from "../../services/sessionService";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
 import AgendaGrade from "../../components/agendaInstrutor/AgendaGrade";
-import aulaService from "../../services/aulaService";
-import { useToast } from "../../components/alert-toast/ToastProvider";
-
-import {
-  calcularDatasDaSemana,
-  obterTextoSemanaDoMes,
-  obterSemanaAtualDoAno,
-} from "../../utils/CronogramaUtils";
+import useAgendaInstrutor from "../../hooks/useAgendaInstrutor";
 
 export default function AgendaInstrutorView() {
-  const [semana, setSemana] = useState(obterSemanaAtualDoAno());
-  const [datas, setDatas] = useState([]);
-  const [aulas, setAulas] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [instrutorInfo, setInstrutorInfo] = useState({ id: null, nome: "" });
-
-  useEffect(() => {
-    try {
-      const dadosSessao = sessionService.getSession();
-      const pessoa = dadosSessao?.usuario?.pessoa;
-
-      if (pessoa && pessoa.tipo_vinculo_id === 4) {
-        setInstrutorInfo({
-          id: pessoa.id_pessoa,
-          nome: pessoa.nome,
-        });
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }, []);
-
-  const toast = useToast();
-
-  useEffect(() => {
-    if (!instrutorInfo.id) return;
-
-    setLoading(true);
-    aulaService
-      .listarAulasDetalhadas()
-      .then((data) => {
-        const filtradas = data.filter(
-          (item) => item.aula.id_instrutor === instrutorInfo.id,
-        );
-        setAulas(filtradas);
-      })
-      .catch((err) => {
-        console.error(err);
-        toast.error("Erro ao carregar aulas.");
-      })
-      .finally(() => setLoading(false));
-  }, [instrutorInfo.id]);
-
-  useEffect(() => {
-    setDatas(calcularDatasDaSemana(semana, 2026));
-  }, [semana]);
-
-  const { semanaTexto, mesAnoTexto } = obterTextoSemanaDoMes(datas);
+  const {
+    semana,
+    setSemana,
+    datasDaSemana,
+    aulas,
+    carregando,
+    instrutorInfo,
+    semanaTexto,
+    mesAnoTexto,
+  } = useAgendaInstrutor();
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden font-sans antialiased text-slate-800">
@@ -117,13 +65,13 @@ export default function AgendaInstrutorView() {
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
-          {loading ? (
+          {carregando ? (
             <div className="flex flex-col items-center justify-center p-12 text-slate-400 bg-white rounded-2xl border border-slate-200/60 shadow-sm text-sm font-semibold gap-3 h-64">
               <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
               <span>Buscando dados no sistema...</span>
             </div>
           ) : aulas.length > 0 ? (
-            <AgendaGrade datasDaSemana={datas} aulas={aulas} />
+            <AgendaGrade datasDaSemana={datasDaSemana} aulas={aulas} />
           ) : (
             <div className="max-w-md mx-auto text-center p-10 text-slate-400 bg-white rounded-2xl border border-dashed border-slate-300 shadow-xs flex flex-col items-center justify-center gap-3 my-12">
               <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 text-slate-300">

@@ -1,47 +1,28 @@
-import { useEffect, useState } from "react";
 import { Home } from "lucide-react";
 import { Users, Info } from "@phosphor-icons/react";
 
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
 import AgeChart from "../../components/Charts/AgeChart";
-import { dashboardService } from "../../services/dashboardService";
+import useDashboardAcademica from "../../hooks/useDashboardAcademica";
 
 function DashboardAcademica() {
-  const [resumo, setResumo] = useState(null);
-  const [generoData, setGeneroData] = useState(null);
-  const [faixaEtaria, setFaixaEtaria] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const {
+    resumo,
+    dadosGenero,
+    dadosFaixaEtaria,
+    carregando,
+    totalPessoas,
+    membros,
+    provacionistas,
+    externos,
+    ativos,
+    indicadores,
+    generoDistribuicao,
+    obterEstiloPorGenero,
+  } = useDashboardAcademica();
 
-  useEffect(() => {
-    Promise.all([
-      dashboardService.getResumo(),
-      dashboardService.getGenero(),
-      dashboardService.getFaixaEtaria(),
-    ])
-      .then(([resumoRes, generoRes, faixaRes]) => {
-        setResumo(resumoRes);
-        setGeneroData(generoRes);
-        setFaixaEtaria(faixaRes);
-      })
-      .catch((err) => {
-        console.error(err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
-
-  const getGeneroEstilo = (genero) => {
-    const g = genero.toLowerCase();
-    if (g.includes("mulh") || g.includes("femin"))
-      return "bg-green-100 text-green-700 border-green-200";
-    if (g.includes("hom") || g.includes("masc"))
-      return "bg-slate-100 text-slate-700 border-slate-200";
-    return "bg-cyan-100 text-cyan-700 border-cyan-200";
-  };
-
-  if (loading) {
+  if (carregando) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-[#F8FAFC]">
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-green-700"></div>
@@ -49,20 +30,10 @@ function DashboardAcademica() {
     );
   }
 
-  const totalPessoas = resumo?.comunidade_academica?.total_pessoas || 0;
-
-  const membros = resumo?.comunidade_academica?.membros || 0;
-  const provac = resumo?.comunidade_academica?.provacionistas || 0;
-  const externo = resumo?.comunidade_academica?.publico_externo || 0;
-  const ativos = resumo?.engajamento_voluntario?.membros_ativos || 0;
-
-  const membrosPerc = totalPessoas ? (membros / totalPessoas) * 100 : 0;
-  const provacPerc = totalPessoas ? (provac / totalPessoas) * 100 : 0;
-  const externoPerc = totalPessoas ? (externo / totalPessoas) * 100 : 0;
-
-  const ativoComunidadePerc = totalPessoas
-    ? Math.round((ativos / totalPessoas) * 100)
-    : 0;
+  const membrosPerc = indicadores.membrosPercentual;
+  const provacPerc = indicadores.provacionistasPercentual;
+  const externoPerc = indicadores.externosPercentual;
+  const ativoComunidadePerc = indicadores.engajamentoPercentual;
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans">
@@ -97,11 +68,11 @@ function DashboardAcademica() {
                     </span>
                     <span className="flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                      {provac}
+                      {provacionistas}
                     </span>
                     <span className="flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-green-300" />
-                      {externo}
+                      {externos}
                     </span>
                   </div>
 
@@ -197,8 +168,8 @@ function DashboardAcademica() {
                   </div>
 
                   <div className="my-6 space-y-4 flex-1 flex flex-col justify-center">
-                    {generoData?.distribuicao_genero?.map((item) => {
-                      const estiloCor = getGeneroEstilo(item.genero);
+                    {generoDistribuicao.map((item) => {
+                      const estiloCor = obterEstiloPorGenero(item.genero);
                       return (
                         <div
                           key={item.genero}

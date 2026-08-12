@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import turmaService from "../services/turmaService";
 import {
   extrairMensagemErro,
@@ -12,10 +12,11 @@ export default function useTurmas() {
   const [error, setError] = useState("");
   const [salvando, setSalvando] = useState(false);
 
-  const carregarTurmas = async () => {
+  const carregarTurmas = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
+
       const dados = await turmaService.listarTurmas();
       setTurmas(Array.isArray(dados) ? dados : []);
     } catch (err) {
@@ -26,11 +27,11 @@ export default function useTurmas() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     carregarTurmas();
-  }, []);
+  }, [carregarTurmas]);
 
   const turmasUi = useMemo(() => turmas.map(mapApiTurmaToUi), [turmas]);
 
@@ -45,15 +46,15 @@ export default function useTurmas() {
           turmaId,
           dadosTurma,
         );
-        setTurmas((ant) =>
-          ant.map((item) =>
+        setTurmas((listaAtualTurmas) =>
+          listaAtualTurmas.map((item) =>
             getTurmaId(item) === turmaId ? turmaAtualizada : item,
           ),
         );
         return turmaAtualizada;
       } else {
         const turmaCriada = await turmaService.criarTurma(dadosTurma);
-        setTurmas((ant) => [...ant, turmaCriada]);
+        setTurmas((listaAtualTurmas) => [...listaAtualTurmas, turmaCriada]);
         return turmaCriada;
       }
     } catch (err) {
@@ -69,7 +70,9 @@ export default function useTurmas() {
     try {
       setError("");
       await turmaService.excluirTurma(idTurma);
-      setTurmas((ant) => ant.filter((item) => getTurmaId(item) !== idTurma));
+      setTurmas((listaAtualTurmas) =>
+        listaAtualTurmas.filter((item) => getTurmaId(item) !== idTurma),
+      );
     } catch (err) {
       console.error("Erro ao excluir turma (hook):", err);
       const msg = extrairMensagemErro(err, "Erro ao excluir turma.");

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Users } from "lucide-react";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
@@ -7,24 +7,11 @@ import BarraAcoes from "../../components/gestaoUsuarios/BarraAcoes";
 import CardUsuario from "../../components/gestaoUsuarios/CardUsuarios";
 import Paginacao from "../../components/gestaoUsuarios/Paginacao";
 import ModalUsuario from "../../components/gestaoUsuarios/ModalUsuario";
-import usuarioService from "../../services/usuarioService";
+import useUsuarios from "../../hooks/useUsuarios";
 
 function GestaoUsuarios() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [usuarios, setUsuarios] = useState([]);
-
-  const fetchUsuarios = async () => {
-    try {
-      const dados = await usuarioService.listarUsuarios();
-      setUsuarios(dados);
-    } catch (error) {
-      console.error("Erro ao buscar usuários:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsuarios();
-  }, []);
+  const { usuarios, carregarUsuarios } = useUsuarios();
 
   return (
     <div className="flex h-screen bg-[#F1F5F9] overflow-hidden">
