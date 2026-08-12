@@ -6,32 +6,9 @@ import {
   formatarCPF,
 } from "../../utils/DateUtils";
 
-// JSON Mockado fixo para teste
-const ALUNO_MOCK = {
-  id_pessoa: 1,
-  nome: "Henrique Nolêto",
-  email: "henrique.contato@email.com",
-  telefone: "11999999999",
-  genero: "Masculino",
-  cpf: "12345678901",
-  bolsista: false,
-  url_foto_perfil: null,
-  data_nascimento: "1995-05-15",
-  data_ingresso: "2026-01-10",
-  data_membro: "2026-01-15",
-  data_saida: null,
-  vinculo: {
-    id_tipo_vinculo: 1,
-    nome_vinculo: "Público Externo",
-    descricao:
-      "Pessoas que frequentam palestras abertas, mas não estão matriculados.",
-  },
-};
-
-function CardDetalhes({ isOpen, onClose }) {
-  // Usando a variável fixa diretamente
-  const dadosCompletos = ALUNO_MOCK;
-  const pct = 100; // Média mockada simples para o rodapé
+function CardDetalhes({ aluno, isOpen, onClose }) {
+  const dadosCompletos = aluno || {};
+  const percentualPresenca = Number(dadosCompletos.percentual_presenca ?? 0);
 
   return (
     <>
@@ -177,7 +154,9 @@ function CardDetalhes({ isOpen, onClose }) {
             <span className="text-gray-500 font-medium">
               Média Geral de Presença:
             </span>
-            <span className="font-bold text-base text-green-600">{pct}%</span>
+            <span className="font-bold text-base text-green-600">
+              {percentualPresenca}%
+            </span>
           </div>
         </div>
       </div>

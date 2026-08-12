@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Home } from "lucide-react";
 import { Play, Calendar, Users } from "@phosphor-icons/react";
@@ -9,69 +8,12 @@ import Header from "../../components/homeSecretario/Header";
 import Sidebar from "../../components/sidebar/SideBar";
 import Cronograma from "../../components/homeInstrutor/Cronograma";
 import { useToast } from "../../components/alert-toast/ToastProvider";
-import aulaService from "../../services/aulaService";
-import sessionService from "../../services/sessionService";
-import { getHojeIso } from "../../utils/DateUtils";
+import useHomeInstrutor from "../../hooks/useHomeInstrutor";
 
 function HomeInstrutor() {
   const navigate = useNavigate();
   const toast = useToast();
-  const [aula, setAula] = useState(null);
-
-  const selecionarAulaParaPresenca = (aulasHoje) => {
-    const aulaEmAberto = aulasHoje.find(
-      (item) => !Boolean(item?.chamadaFeita ?? item?.aula?.chamadaFeita),
-    );
-    return aulaEmAberto || aulasHoje[0] || null;
-  };
-
-  useEffect(() => {
-    const carregarAulas = async () => {
-      try {
-        const dados = sessionService.getSession();
-        if (!dados?.usuario) return;
-
-        const hoje = getHojeIso();
-        const aulasHoje = await aulaService.listarAulasDoDia(
-          dados.usuario.id_usuario,
-          hoje,
-        );
-
-        setAula(selecionarAulaParaPresenca(aulasHoje || []));
-      } catch (err) {
-        console.error("Erro ao buscar aulas:", err);
-      }
-    };
-
-    carregarAulas();
-  }, []);
-
-  const iniciarPresenca = async () => {
-    try {
-      const dados = sessionService.getSession();
-      if (!dados?.usuario) return;
-
-      const hoje = getHojeIso();
-      const aulasHoje = await aulaService.listarAulasDoDia(
-        dados.usuario.id_usuario,
-        hoje,
-      );
-
-      const aulaParaAbrir = selecionarAulaParaPresenca(aulasHoje || []);
-
-      if (!aulaParaAbrir?.aula?.id_turma || !aulaParaAbrir?.aula?.id_aula) {
-        toast.error("Nenhuma aula em andamento encontrada para hoje.");
-        return;
-      }
-
-      navigate(
-        `/presenca/${aulaParaAbrir.aula.id_turma}/${aulaParaAbrir.aula.id_aula}`,
-      );
-    } catch (err) {
-      console.error("Erro ao abrir a presença:", err);
-      toast.error("Erro ao buscar a aula para marcar presença.");
-    }
-  };
+  const { aula, iniciarPresenca } = useHomeInstrutor();
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans">

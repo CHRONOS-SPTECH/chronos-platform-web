@@ -1,122 +1,44 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Search, Layers, Trash2 } from "lucide-react";
-import aulaService from "../../services/aulaService";
-import turmaService from "../../services/turmaService";
-import { useToast } from "../../components/alert-toast/ToastProvider";
+
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
 import ModalCargaLetiva from "../../components/gestaoAulas/modalAulas";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
+import useGestaoAulas from "../../hooks/useGestaoAulas";
 
 export default function GestaoAulasView() {
-  const [listaDeAulas, setListaDeAulas] = useState([]);
-  const [listaTurmas, setListaTurmas] = useState([]);
+  const {
+    turmas,
+    termoBusca,
+    setTermoBusca,
+    idTurmaSelecionada,
+    setIdTurmaSelecionada,
+    anoSelecionado,
+    setAnoSelecionado,
+    arquivoSelecionado,
+    aoSelecionarArquivo,
+    limparArquivoSelecionado,
+    processarEnvioExcel,
+    fecharModalImportacao,
+    relatorioImportacao,
+    carregandoImportacao,
+    carregandoDados,
+    aulasFiltradas,
+    confirmacaoAberta,
+    setConfirmacaoAberta,
+    abrirConfirmacaoExclusao,
+    confirmarExclusao,
+  } = useGestaoAulas();
 
-  const [filtroBusca, setFiltroBusca] = useState("");
-  const [filtroTurma, setFiltroTurma] = useState("");
-  const [filtroAno, setFiltroAno] = useState("2026");
-
-  // Estados gerenciadores do Modal
   const [modalAberto, setModalAberto] = useState(false);
-  const [arquivoSelecionado, setArquivoSelecionado] = useState(null);
-  const [carregando, setCarregando] = useState(false);
-  const [relatorioResult, setRelatorioResult] = useState(null);
-  const toast = useToast();
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [idParaDeletar, setIdParaDeletar] = useState(null);
 
-  const carregarDados = () => {
-    aulaService
-      .listarAulasDetalhadas()
-      .then((data) => setListaDeAulas(data))
-      .catch((err) => console.error("Erro ao buscar aulas:", err));
-
-    turmaService
-      .listarTurmas()
-      .then((data) => setListaTurmas(data))
-      .catch((err) => console.error("Erro ao buscar turmas:", err));
-  };
-
-  useEffect(() => {
-    carregarDados();
-  }, []);
-
-  const aoSelecionarArquivo = (e) => {
-    const arquivo = e.target.files[0];
-    if (!arquivo) return;
-
-    const extensao = arquivo.name.split(".").pop().toLowerCase();
-    if (extensao !== "xlsx" && extensao !== "xls") {
-      toast.error("Selecione apenas arquivos Excel (.xlsx, .xls)");
-      return;
-    }
-    setArquivoSelecionado(arquivo);
-  };
-
-  const processarEnvioExcel = () => {
-    if (!arquivoSelecionado) return;
-
-    setCarregando(true);
-    const formData = new FormData();
-    formData.append("file", arquivoSelecionado);
-
-    aulaService
-      .importar(formData)
-      .then((data) => {
-        setRelatorioResult(data);
-        carregarDados();
-        toast.success("Planilha processada com sucesso");
-      })
-      .catch((err) => {
-        toast.error(
-          err.response?.data?.message || "Erro ao processar planilha.",
-        );
-      })
-      .finally(() => setCarregando(false));
-  };
+  const abrirModalImportacao = () => setModalAberto(true);
 
   const fecharModalLimpo = () => {
     setModalAberto(false);
-    setArquivoSelecionado(null);
-    setRelatorioResult(null);
+    fecharModalImportacao();
   };
-
-  const deletarAulaTotal = (idAula) => {
-    setIdParaDeletar(idAula);
-    setConfirmOpen(true);
-  };
-
-  const confirmarDelecao = () => {
-    if (!idParaDeletar) return setConfirmOpen(false);
-    aulaService
-      .excluirAula(idParaDeletar)
-      .then(() => {
-        carregarDados();
-        toast.success("Aula deletada com sucesso.");
-      })
-      .catch(() => toast.error("Erro ao deletar registro."))
-      .finally(() => {
-        setConfirmOpen(false);
-        setIdParaDeletar(null);
-      });
-  };
-
-  const aulasFiltradas = listaDeAulas.filter((item) => {
-    if (!item.aula) return false;
-    const termo = filtroBusca.toLowerCase();
-    const bateTexto =
-      item.tema.titulo_tema.toLowerCase().includes(termo) ||
-      item.instrutor.nome.toLowerCase().includes(termo);
-    const bateTurma =
-      filtroTurma === "" || item.aula.id_turma.toString() === filtroTurma;
-    const anoDaAula = item.aula.data_aula
-      ? item.aula.data_aula.substring(0, 4)
-      : "2026";
-
-    return (
-      bateTexto && bateTurma && (filtroAno === "" || anoDaAula === filtroAno)
-    );
-  });
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans antialiased text-slate-600 overflow-hidden">
@@ -135,7 +57,7 @@ export default function GestaoAulasView() {
             </div>
 
             <button
-              onClick={() => setModalAberto(true)}
+              onClick={abrirModalImportacao}
               className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-2xl shadow-sm transition-colors flex items-center gap-2 border-0 cursor-pointer"
             >
               <span className="uppercase tracking-wider text-[11px]">
@@ -152,22 +74,27 @@ export default function GestaoAulasView() {
                 <input
                   type="text"
                   placeholder="Buscar tema ou professor..."
-                  value={filtroBusca}
-                  onChange={(e) => setFiltroBusca(e.target.value)}
+                  value={termoBusca}
+                  onChange={(evento) => setTermoBusca(evento.target.value)}
                   className="text-xs py-2 border-0 bg-transparent text-slate-700 focus:outline-none pl-2 font-medium w-56"
                 />
               </div>
 
               <div className="bg-slate-50 rounded-lg border border-slate-200 px-2">
                 <select
-                  value={filtroTurma}
-                  onChange={(e) => setFiltroTurma(e.target.value)}
+                  value={idTurmaSelecionada}
+                  onChange={(evento) =>
+                    setIdTurmaSelecionada(evento.target.value)
+                  }
                   className="text-xs py-2 border-0 bg-transparent text-slate-600 focus:outline-none font-bold cursor-pointer"
                 >
                   <option value="">Todas as Turmas</option>
-                  {listaTurmas.map((t) => (
-                    <option key={t.id_turma} value={t.id_turma.toString()}>
-                      {t.nome_turma}
+                  {turmas.map((turma) => (
+                    <option
+                      key={turma.id_turma}
+                      value={turma.id_turma.toString()}
+                    >
+                      {turma.nome_turma}
                     </option>
                   ))}
                 </select>
@@ -175,8 +102,8 @@ export default function GestaoAulasView() {
 
               <div className="bg-slate-50 rounded-lg border border-slate-200 px-2">
                 <select
-                  value={filtroAno}
-                  onChange={(e) => setFiltroAno(e.target.value)}
+                  value={anoSelecionado}
+                  onChange={(evento) => setAnoSelecionado(evento.target.value)}
                   className="text-xs py-2 border-0 bg-transparent text-slate-600 focus:outline-none font-bold cursor-pointer"
                 >
                   <option value="2026">Ano: 2026</option>
@@ -259,7 +186,7 @@ export default function GestaoAulasView() {
                           <td className="px-6 py-4 text-center whitespace-nowrap">
                             <button
                               onClick={() =>
-                                deletarAulaTotal(item.aula.id_aula)
+                                abrirConfirmacaoExclusao(item.aula.id_aula)
                               }
                               className="w-7 h-7 inline-flex items-center justify-center text-slate-400 hover:text-red-500 border border-slate-200 hover:border-red-200 bg-white rounded-full cursor-pointer transition-colors"
                             >
@@ -292,17 +219,17 @@ export default function GestaoAulasView() {
         onClose={fecharModalLimpo}
         arquivo={arquivoSelecionado}
         onSelecionarArquivo={aoSelecionarArquivo}
-        onLimparArquivo={() => setArquivoSelecionado(null)}
+        onLimparArquivo={limparArquivoSelecionado}
         onConfirmar={processarEnvioExcel}
-        carregando={carregando}
-        relatorio={relatorioResult}
+        carregando={carregandoImportacao}
+        relatorio={relatorioImportacao}
       />
       <ConfirmDialog
-        aberto={confirmOpen}
+        aberto={confirmacaoAberta}
         titulo="Confirmar Exclusão"
         mensagem="Deseja deletar esta aula da matriz permanentemente?"
-        onConfirm={confirmarDelecao}
-        onCancel={() => setConfirmOpen(false)}
+        onConfirm={confirmarExclusao}
+        onCancel={() => setConfirmacaoAberta(false)}
       />
     </div>
   );

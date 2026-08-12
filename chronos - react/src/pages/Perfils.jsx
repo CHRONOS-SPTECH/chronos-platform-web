@@ -1,70 +1,9 @@
-import { useEffect, useState } from "react";
 import logoCronos from "../assets/logoChronos.svg";
 import Card from "../components/perfis/Card";
-import sessionService from "../services/sessionService";
-
-const CONFIG_CARDS = {
-  administrador: {
-    tipo: "Administrador",
-    descricao: "Gestão total de alunos, turmas, finanças e voluntários.",
-    badge: "Acesso Total",
-    rota: "/administrador",
-  },
-  instrutor: {
-    tipo: "Instrutor",
-    descricao: "Lançamento de presenças, aulas e desempenho do aluno",
-    badge: "Acesso Docente",
-    rota: "/instrutor",
-  },
-  secretario: {
-    tipo: "Secretária",
-    descricao: "Matrículas, documentos e atendimento ao aluno.",
-    badge: "Acesso Operacional",
-    rota: "/secretario",
-  },
-};
+import usePerfis from "../hooks/usePerfis";
 
 function Perfils() {
-  const [perfisDisponiveis, setPerfisDisponiveis] = useState([]);
-
-  useEffect(() => {
-    const dadosSessao = sessionService.getSession();
-
-    if (dadosSessao && Array.isArray(dadosSessao.perfis)) {
-      const cardsFiltrados = [];
-
-      dadosSessao.perfis.forEach((p) => {
-        const nomeNormalizado = String(p.nome_perfil)
-          .toLowerCase()
-          .normalize("NFKD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .trim();
-
-        if (nomeNormalizado.includes("admin") && CONFIG_CARDS.administrador) {
-          cardsFiltrados.push({
-            id: p.id_perfil,
-            ...CONFIG_CARDS.administrador,
-          });
-        } else if (
-          nomeNormalizado.includes("secret") &&
-          CONFIG_CARDS.secretario
-        ) {
-          cardsFiltrados.push({ id: p.id_perfil, ...CONFIG_CARDS.secretario });
-        } else if (
-          (nomeNormalizado.includes("instrutor") ||
-            nomeNormalizado.includes("diretor")) &&
-          CONFIG_CARDS.instrutor
-        ) {
-          // Evita duplicar o card caso ele venha como Instrutor E Diretor no banco (já que compartilham o menu/dashboard)
-          if (!cardsFiltrados.some((c) => c.rota === "/instrutor")) {
-            cardsFiltrados.push({ id: p.id_perfil, ...CONFIG_CARDS.instrutor });
-          }
-        }
-      });
-
-      setPerfisDisponiveis(cardsFiltrados);
-    }
-  }, []);
+  const { perfisDisponiveis } = usePerfis();
 
   return (
     <div className="min-h-screen bg-[#eef1f6] flex flex-col items-center justify-center gap-6 p-8">
