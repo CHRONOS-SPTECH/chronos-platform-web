@@ -8,9 +8,16 @@ export function ToastProvider({ children }) {
 
   const show = useCallback((type, message, timeout = 4000) => {
     setToast({ type, message });
+
     if (timeout > 0) {
-      setTimeout(() => setToast({ type: null, message: null }), timeout);
+      const timer = setTimeout(
+        () => setToast({ type: null, message: null }),
+        timeout,
+      );
+      return () => clearTimeout(timer);
     }
+
+    return undefined;
   }, []);
 
   const clear = useCallback(() => setToast({ type: null, message: null }), []);
@@ -18,7 +25,8 @@ export function ToastProvider({ children }) {
   const api = {
     success: (msg, t) => show("success", msg, t),
     error: (msg, t) => show("error", msg, t),
-    info: (msg, t) => show("success", msg, t),
+    info: (msg, t) => show("info", msg, t),
+    warning: (msg, t) => show("warning", msg, t),
     clear,
   };
 

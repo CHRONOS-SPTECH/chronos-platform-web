@@ -1,8 +1,10 @@
 import axios from "axios";
 import sessionService from "./sessionService";
+import { API_BASE_URL } from "../config/app";
 
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: API_BASE_URL,
+  timeout: 20000,
 });
 
 let redirecionandoParaLogin = false;

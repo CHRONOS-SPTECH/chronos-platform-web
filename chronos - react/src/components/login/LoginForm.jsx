@@ -4,8 +4,8 @@ import Button from "../Button";
 import authService from "../../services/authService";
 
 function LoginForm({ onForgotPassword, onStatusChange }) {
-  const [email, setEmail] = useState("henrique@gmail.com");
-  const [password, setPassword] = useState("senhaSegura123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({ email: "", password: "" });
 
