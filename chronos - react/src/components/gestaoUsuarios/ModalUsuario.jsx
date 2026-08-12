@@ -1,6 +1,7 @@
 import { X, UserPlus, UserCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import authService from "../../services/authService";
+import AlertToast from "../alert-toast/AlertToast";
 // import pessoaService from "../../services/pessoaService"; // Importe seu serviço de busca de pessoas
 
 export default function ModalUsuario({ isOpen, onClose, onSuccess }) {
@@ -16,6 +17,7 @@ export default function ModalUsuario({ isOpen, onClose, onSuccess }) {
     perfilId: "1",
     senha: "senhaSegura123",
   });
+  const [toast, setToast] = useState({ type: "", message: "" });
 
   const inputStyle =
     "w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-green-500/20 transition-all placeholder:text-gray-400 text-gray-700 disabled:opacity-50";
@@ -63,7 +65,7 @@ export default function ModalUsuario({ isOpen, onClose, onSuccess }) {
       onClose();
     } catch (error) {
       const msg = error.response?.data?.message || "Erro ao cadastrar usuário";
-      alert(msg);
+      setToast({ type: "error", message: msg });
     }
   }
 
@@ -168,6 +170,7 @@ export default function ModalUsuario({ isOpen, onClose, onSuccess }) {
                       onChange={preencherUsuario}
                     />
                   </div>
+                  <AlertToast type={toast.type} message={toast.message} />
                 </div>
               </div>
             ) : (

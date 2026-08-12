@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, Inbox, ChevronLeft, ChevronRight } from "lucide-react";
 
-import api from "../../services/api";
+import aulaService from "../../services/aulaService";
+import turmaService from "../../services/turmaService";
+import pessoaService from "../../services/pessoaService";
+import temaService from "../../services/temaService";
+import { useToast } from "../../components/alert-toast/ToastProvider";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
 import BancoPendencias from "../../components/cronograma/BancoPendencias";
 import CalendarioGrade from "../../components/cronograma/CalendarioGrade";
-import Alert from "../../components/alert-toast/AlertToast";
 
 import {
   calcularDatasDaSemana,
@@ -24,36 +27,37 @@ export default function CronogramaView() {
   const [aulas, setAulas] = useState([]);
   const [menuAberto, setMenuAberto] = useState(false);
   const [datas, setDatas] = useState([]);
-  const [alerta, setAlerta] = useState({ type: "", message: "" });
+
+  const toast = useToast();
 
   useEffect(() => {
-    api
-      .get("/turmas")
-      .then((res) => setTurmas(res.data))
+    turmaService
+      .listarTurmas()
+      .then((data) => setTurmas(data))
       .catch((err) => console.error("Erro ao buscar turmas:", err));
   }, []);
 
   useEffect(() => {
-    api
-      .get("/pessoas")
-      .then((res) => {
-        const forcaViva = res.data.filter((p) => p.tipo_vinculo_id === 4);
+    pessoaService
+      .listarPessoas()
+      .then((data) => {
+        const forcaViva = data.filter((p) => p.tipo_vinculo_id === 4);
         setProfessores(forcaViva);
       })
       .catch((err) => console.error("Erro ao carregar professores:", err));
   }, []);
 
   useEffect(() => {
-    api
-      .get("/temas-aula")
-      .then((res) => setTemas(res.data))
+    temaService
+      .listarTemas()
+      .then((data) => setTemas(data))
       .catch((err) => console.error("Erro ao carregar temas de aula:", err));
   }, []);
 
   const carregarAulas = () => {
-    api
-      .get("/aulas/detalhadas")
-      .then((res) => setAulas(res.data))
+    aulaService
+      .listarAulasDetalhadas()
+      .then((data) => setAulas(data))
       .catch((err) => console.error("Erro ao buscar aulas detalhadas:", err));
   };
 
@@ -64,11 +68,6 @@ export default function CronogramaView() {
   useEffect(() => {
     setDatas(calcularDatasDaSemana(semana, 2026));
   }, [semana]);
-
-  const mostrarAlerta = (type, message) => {
-    setAlerta({ type, message });
-    setTimeout(() => setAlerta({ type: "", message: "" }), 3000);
-  };
 
   const aoAdicionarAulaRapida = (dadosForm) => {
     const requestAula = {
@@ -81,28 +80,28 @@ export default function CronogramaView() {
       id_instrutor: dadosForm.id_instrutor,
     };
 
-    api
-      .post("/aulas", requestAula)
+    aulaService
+      .criarAula(requestAula)
       .then(() => {
         carregarAulas();
-        mostrarAlerta("success", "Aula pendente adicionada com sucesso!");
+        toast.success("Aula pendente adicionada com sucesso!");
       })
       .catch((err) => {
         console.error("Erro ao criar aula rápida:", err);
-        mostrarAlerta("error", "Erro ao criar aula rápida.");
+        toast.error("Erro ao criar aula rápida.");
       });
   };
 
   const aoDeletarAulaPendente = (idAula) => {
-    api
-      .delete(`/aulas/${idAula}`)
+    aulaService
+      .excluirAula(idAula)
       .then(() => {
         carregarAulas();
-        mostrarAlerta("success", "Aula excluída com sucesso.");
+        toast.success("Aula excluída com sucesso.");
       })
       .catch((err) => {
         console.error(err);
-        mostrarAlerta("error", "Erro ao deletar aula.");
+        toast.error("Erro ao deletar aula.");
       });
   };
 
@@ -173,17 +172,14 @@ export default function CronogramaView() {
   };
 
   const salvarAlteracoes = (mudancas) => {
-    api
-      .patch("/aulas/remanejar", mudancas)
+    aulaService
+      .remanejar(mudancas)
       .then(() => {
         carregarAulas();
-        mostrarAlerta("success", "Alteração salva com sucesso!");
+        toast.success("Alteração salva com sucesso!");
       })
       .catch((err) => {
-        mostrarAlerta(
-          "error",
-          err.response?.data?.message || "Erro ao salvar alteração.",
-        );
+        toast.error(err.response?.data?.message || "Erro ao salvar alteração.");
         carregarAulas();
       });
   };

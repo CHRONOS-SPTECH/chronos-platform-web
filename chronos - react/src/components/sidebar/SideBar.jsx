@@ -4,6 +4,7 @@ import { Home, ChevronDown, ChevronRight, LayoutGrid } from "lucide-react";
 import { MENU_CONFIG } from "../../config/navigation";
 import aulaService from "../../services/aulaService";
 import sessionService from "../../services/sessionService";
+import AlertToast from "../alert-toast/AlertToast";
 import { getHojeIso } from "../../utils/DateUtils";
 
 const getTipoUsuarioFromSession = (dadosSessao) => {
@@ -26,6 +27,8 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [toast, setToast] = useState({ type: "", message: "" });
+
   const dadosSessao = sessionService.getSession();
   const tipoUsuarioSessao = getTipoUsuarioFromSession(dadosSessao);
   const selectedProfile = sessionService.getSelectedProfile();
@@ -39,7 +42,10 @@ export default function Sidebar() {
     if (item.action === "chamadaDoDia") {
       try {
         if (!dadosSessao?.usuario) {
-          alert("Sessão inválida. Faça login novamente.");
+          setToast({
+            type: "error",
+            message: "Sessão inválida. Faça login novamente.",
+          });
           return navigate("/instrutor");
         }
 
@@ -62,13 +68,18 @@ export default function Sidebar() {
           return;
         }
 
-        alert("Nenhuma aula agendada para hoje.");
+        setToast({
+          type: "error",
+          message: "Nenhuma aula agendada para hoje.",
+        });
         return;
       } catch (err) {
         console.error("Erro ao abrir a chamada do dia:", err);
-        alert(
-          "Não foi possível carregar a chamada do dia. Verifique sua conexão ou faça login novamente.",
-        );
+        setToast({
+          type: "error",
+          message:
+            "Não foi possível carregar a chamada do dia. Verifique sua conexão ou faça login novamente.",
+        });
         return;
       }
     }
@@ -78,6 +89,7 @@ export default function Sidebar() {
 
   return (
     <aside className="w-70 h-screen bg-[#00871D] text-white flex flex-col shadow-xl shrink-0">
+      <AlertToast type={toast.type} message={toast.message} />
       <div className="px-6 py-8">
         <div className="flex items-center gap-3">
           <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm">

@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { BookOpen, Plus, Eye, Pencil, Trash2 } from "lucide-react";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
 import ModulosControle from "../../components/turmas/ModuloControle";
 import ModalAluno from "../../components/homeSecretario/ModalAluno";
-import alunoService from "../../services/alunoService";
+import useAlunos from "../../hooks/useAlunos";
+import AlertToast from "../../components/alert-toast/AlertToast";
+import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { formatarCPF, formatarDataBr } from "../../utils/DateUtils";
 
 const BADGE_VINCULO = {
@@ -16,32 +18,20 @@ const BADGE_VINCULO = {
 
 export default function Alunos() {
   const [modalAlunoAberto, setModalAlunoAberto] = useState(false);
-  const [alunos, setAlunos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState("");
-  const [salvandoAluno, setSalvandoAluno] = useState(false);
   const [alunoEmEdicao, setAlunoEmEdicao] = useState(null);
+  const [toast, setToast] = useState({ type: "", message: "" });
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [alunoParaExcluir, setAlunoParaExcluir] = useState(null);
 
-  const carregarAlunos = async () => {
-    try {
-      setLoading(true);
-      setErro("");
-      const dados = await alunoService.listarAlunos();
-      setAlunos(Array.isArray(dados) ? dados : []);
-    } catch (error) {
-      console.error(error);
-      setErro(
-        error?.response?.data?.message ||
-          "Não foi possível carregar os alunos.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    carregarAlunos();
-  }, []);
+  const {
+    alunos,
+    loading,
+    error: erro,
+    salvando,
+    carregarAlunos,
+    salvarAluno,
+    excluirAluno,
+  } = useAlunos();
 
   const emailJaCadastrado = (email, idAlunoIgnorado = null) => {
     const emailNormalizado = String(email || "")
@@ -94,80 +84,53 @@ export default function Alunos() {
 
   const onSalvarAluno = async (dadosPessoa, dadosEndereco) => {
     try {
-      setSalvandoAluno(true);
       const idAluno = alunoEmEdicao?.id_pessoa || null;
 
       if (emailJaCadastrado(dadosPessoa.email, idAluno)) {
-        window.alert("Este e-mail já está cadastrado para outra pessoa.");
+        setToast({
+          type: "error",
+          message: "Este e-mail já está cadastrado para outra pessoa.",
+        });
         return;
       }
 
-      let alunoFinal;
+      await salvarAluno(dadosPessoa, dadosEndereco, alunoEmEdicao);
 
-      if (alunoEmEdicao) {
-        // Atualiza os dados principais do Aluno
-        const alunoAtualizado = await alunoService.atualizarAluno(
-          idAluno,
-          dadosPessoa,
-        );
-        alunoFinal = { ...alunoEmEdicao, ...alunoAtualizado };
-
-        // Processa o endereço na Edição (Atualiza ou Cria um novo se não existia)
-        if (dadosEndereco) {
-          if (dadosEndereco.id) {
-            const enderecoAtu = await alunoService.atualizarEndereco(
-              dadosEndereco.id,
-              { ...dadosEndereco, id_pessoa: idAluno }, // Corrigido para id_pessoa
-            );
-            alunoFinal.endereco = enderecoAtu;
-          } else {
-            const enderecoCriado = await alunoService.cadastrarEndereco({
-              ...dadosEndereco,
-              id_pessoa: idAluno, // Corrigido para id_pessoa
-            });
-            alunoFinal.endereco = enderecoCriado;
-          }
-        }
-
-        setAlunos((ant) =>
-          ant.map((item) => (item.id_pessoa === idAluno ? alunoFinal : item)),
-        );
-        window.alert("Aluno atualizado com sucesso!");
-      } else {
-        // Cadastra o novo Aluno
-        const alunoCriado = await alunoService.cadastrarAluno(dadosPessoa);
-        alunoFinal = { ...alunoCriado };
-
-        // Se houver endereço preenchido, envia associando à Foreign Key correta (id_pessoa)
-        if (dadosEndereco) {
-          const enderecoCriado = await alunoService.cadastrarEndereco({
-            ...dadosEndereco,
-            id_pessoa: alunoCriado.id_pessoa, // Corrigido para id_pessoa
-          });
-          alunoFinal.endereco = enderecoCriado;
-        }
-
-        setAlunos((ant) => [alunoFinal, ...ant]);
-        window.alert("Aluno cadastrado com sucesso!");
-      }
-
+      setToast({
+        type: "success",
+        message: alunoEmEdicao
+          ? "Aluno atualizado com sucesso!"
+          : "Aluno cadastrado com sucesso!",
+      });
       fecharModalAluno();
     } catch (error) {
       console.error(error);
-      window.alert(error?.response?.data?.message || "Erro ao salvar aluno.");
-    } finally {
-      setSalvandoAluno(false);
+      setToast({
+        type: "error",
+        message: error?.response?.data?.message || "Erro ao salvar aluno.",
+      });
     }
   };
 
   const onExcluirAluno = async (idPessoa, nome) => {
-    if (!window.confirm(`Deseja excluir o aluno "${nome}"?`)) return;
+    setAlunoParaExcluir({ id: idPessoa, nome });
+    setConfirmOpen(true);
+  };
+
+  const confirmarExclusao = async () => {
+    if (!alunoParaExcluir) return setConfirmOpen(false);
     try {
-      await alunoService.excluirAluno(idPessoa);
-      setAlunos((ant) => ant.filter((item) => item.id_pessoa !== idPessoa));
+      await excluirAluno(alunoParaExcluir.id);
+      setToast({
+        type: "success",
+        message: `Aluno "${alunoParaExcluir.nome}" excluído.`,
+      });
     } catch (error) {
       console.error(error);
-      window.alert("Erro ao excluir aluno.");
+      setToast({ type: "error", message: "Erro ao excluir aluno." });
+    } finally {
+      setConfirmOpen(false);
+      setAlunoParaExcluir(null);
     }
   };
 
@@ -188,7 +151,7 @@ export default function Alunos() {
         />
 
         <main className="flex-1 overflow-y-auto custom-scrollbar">
-          <div className="max-w-[1500px] mx-auto p-8 flex flex-col gap-6">
+          <div className="max-w-375 mx-auto p-8 flex flex-col gap-6">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-100 pb-6">
               <ModulosControle moduloAtivo="Alunos" />
               <button
@@ -218,7 +181,7 @@ export default function Alunos() {
                 </div>
               )}
 
-              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden max-h-[380px] overflow-y-auto custom-scrollbar relative">
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden max-h-95 overflow-y-auto custom-scrollbar relative">
                 <table className="w-full border-collapse text-left table-fixed sm:table-auto">
                   <thead>
                     <tr className="border-b border-slate-100">
@@ -322,11 +285,20 @@ export default function Alunos() {
         isOpen={modalAlunoAberto}
         onClose={fecharModalAluno}
         onSalvar={onSalvarAluno}
-        carregando={salvandoAluno}
+        carregando={salvando}
         valoresPadrao={
           alunoEmEdicao ? mapAlunoParaForm(alunoEmEdicao) : undefined
         }
       />
+      <ConfirmDialog
+        aberto={confirmOpen}
+        titulo="Confirmar Exclusão"
+        mensagem={`Deseja excluir o aluno "${alunoParaExcluir?.nome}"?`}
+        onConfirm={confirmarExclusao}
+        onCancel={() => setConfirmOpen(false)}
+      />
+
+      <AlertToast type={toast.type} message={toast.message} />
     </div>
   );
 }

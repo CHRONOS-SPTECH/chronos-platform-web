@@ -1,43 +1,44 @@
 import { isValidEmail } from "./utils/validationForm.js";
+import { error } from "./utils/toast.js";
+import { findUserByEmail } from "./services/authService.js";
 
-document.addEventListener('DOMContentLoaded', () => {
-    const btnEntrar = document.querySelector('.btn-entrar');
-    const emailInput = document.getElementById('email');
-    const senhaInput = document.getElementById('senha');
-    const alertInput = document.querySelector('.alert-input')
-    alertInput.classList.remove('active');
-    
-    btnEntrar.addEventListener('click', async () => {
-        const email = emailInput.value.trim();
-        const senha = senhaInput.value.trim();
-        alertInput.classList.remove('active');
+document.addEventListener("DOMContentLoaded", () => {
+  const btnEntrar = document.querySelector(".btn-entrar");
+  const emailInput = document.getElementById("email");
+  const senhaInput = document.getElementById("senha");
+  const alertInput = document.querySelector(".alert-input");
+  alertInput.classList.remove("active");
 
-        if (!email || !senha) {
-            alert('Por favor, preencha email e senha.');
-            return;
-        }
+  btnEntrar.addEventListener("click", async () => {
+    const email = emailInput.value.trim();
+    const senha = senhaInput.value.trim();
+    alertInput.classList.remove("active");
 
-        if(!isValidEmail(email)){
-            alertInput.classList.add('active');
-            return;
-        }
+    if (!email || !senha) {
+      error("Por favor, preencha email e senha.");
+      return;
+    }
 
-        try {
-            const response = await fetch(`http://localhost:8080/alunos?email=${encodeURIComponent(email)}`);
-            const users = await response.json();
+    if (!isValidEmail(email)) {
+      alertInput.classList.add("active");
+      return;
+    }
 
-            const user = users.find(u => u.senha === senha);
+    try {
+      const users = await findUserByEmail(email);
 
-            if (user) {
-                user.tipo = user.tipo.toLowerCase(); // 'aluno' ou 'voluntário'
-                localStorage.setItem('chronos_user', JSON.stringify(user));
-                window.location.href = 'telaAlunos.html';
-            } else {
-                alert('Email ou senha incorretos.');
-            }
-        } catch (error) {
-            console.error('Erro ao fazer login:', error);
-            alert('Erro ao conectar ao servidor.');
-        }
-    });
+      const user = users.find((u) => u.senha === senha);
+
+      if (user) {
+        user.tipo = user.tipo.toLowerCase(); // 'aluno' ou 'voluntário'
+        localStorage.setItem("chronos_user", JSON.stringify(user));
+        window.location.href = "telaAlunos.html";
+      } else {
+        error("Email ou senha incorretos.");
+      }
+    } catch (err) {
+      console.error("Erro ao fazer login:", err);
+      error("Erro ao conectar ao servidor.");
+    }
+  });
 });

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { GraduationCap, MapPin, X, Loader2 } from "lucide-react";
 import cepService from "../../services/cepService";
+import AlertToast from "../alert-toast/AlertToast";
 
 const TOTAL_ETAPAS = 3;
 
@@ -37,6 +38,7 @@ export default function ModalAluno({
   const [formulario, setFormulario] = useState(dadosIniciaisFormulario);
   const [etapaAtual, setEtapaAtual] = useState(1);
   const [buscandoCep, setBuscandoCep] = useState(false);
+  const [toast, setToast] = useState({ type: "", message: "" });
 
   useEffect(() => {
     if (!isOpen) return;
@@ -62,7 +64,7 @@ export default function ModalAluno({
               uf: resultado.uf || "",
             }));
           } else {
-            window.alert("CEP não encontrado.");
+            setToast({ type: "error", message: "CEP não encontrado." });
           }
         } catch (erro) {
           console.error("Erro ao consultar CEP:", erro);
@@ -101,9 +103,10 @@ export default function ModalAluno({
       !formulario.email.trim() ||
       !formulario.telefone.trim()
     ) {
-      window.alert(
-        "Por favor, preencha os campos obrigatórios: Nome, E-mail e Telefone.",
-      );
+      setToast({
+        type: "error",
+        message: "Por favor, preencha Nome, E-mail e Telefone.",
+      });
       return false;
     }
     return true;
@@ -172,6 +175,7 @@ export default function ModalAluno({
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <AlertToast type={toast.type} message={toast.message} />
       <div className="bg-white w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
         <div className="p-8">
           <div className="flex justify-between items-start mb-6">

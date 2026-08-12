@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Search, Layers, Trash2 } from "lucide-react";
-import api from "../../services/api";
+import aulaService from "../../services/aulaService";
+import turmaService from "../../services/turmaService";
+import { useToast } from "../../components/alert-toast/ToastProvider";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
 import ModalCargaLetiva from "../../components/gestaoAulas/modalAulas";
+import ConfirmDialog from "../../components/common/ConfirmDialog";
 
 export default function GestaoAulasView() {
   const [listaDeAulas, setListaDeAulas] = useState([]);
@@ -18,16 +21,19 @@ export default function GestaoAulasView() {
   const [arquivoSelecionado, setArquivoSelecionado] = useState(null);
   const [carregando, setCarregando] = useState(false);
   const [relatorioResult, setRelatorioResult] = useState(null);
+  const toast = useToast();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [idParaDeletar, setIdParaDeletar] = useState(null);
 
   const carregarDados = () => {
-    api
-      .get("/aulas/detalhadas")
-      .then((res) => setListaDeAulas(res.data))
+    aulaService
+      .listarAulasDetalhadas()
+      .then((data) => setListaDeAulas(data))
       .catch((err) => console.error("Erro ao buscar aulas:", err));
 
-    api
-      .get("/turmas")
-      .then((res) => setListaTurmas(res.data))
+    turmaService
+      .listarTurmas()
+      .then((data) => setListaTurmas(data))
       .catch((err) => console.error("Erro ao buscar turmas:", err));
   };
 
@@ -41,7 +47,7 @@ export default function GestaoAulasView() {
 
     const extensao = arquivo.name.split(".").pop().toLowerCase();
     if (extensao !== "xlsx" && extensao !== "xls") {
-      alert("Selecione apenas arquivos Excel (.xlsx, .xls)");
+      toast.error("Selecione apenas arquivos Excel (.xlsx, .xls)");
       return;
     }
     setArquivoSelecionado(arquivo);
@@ -54,16 +60,17 @@ export default function GestaoAulasView() {
     const formData = new FormData();
     formData.append("file", arquivoSelecionado);
 
-    api
-      .post("/aulas/importar", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
-      .then((res) => {
-        setRelatorioResult(res.data);
+    aulaService
+      .importar(formData)
+      .then((data) => {
+        setRelatorioResult(data);
         carregarDados();
+        toast.success("Planilha processada com sucesso");
       })
       .catch((err) => {
-        alert(err.response?.data?.message || "Erro ao processar planilha.");
+        toast.error(
+          err.response?.data?.message || "Erro ao processar planilha.",
+        );
       })
       .finally(() => setCarregando(false));
   };
@@ -75,11 +82,23 @@ export default function GestaoAulasView() {
   };
 
   const deletarAulaTotal = (idAula) => {
-    if (!confirm("Deseja deletar esta aula da matriz permanentemente?")) return;
-    api
-      .delete(`/aulas/${idAula}`)
-      .then(() => carregarDados())
-      .catch(() => alert("Erro ao deletar registro."));
+    setIdParaDeletar(idAula);
+    setConfirmOpen(true);
+  };
+
+  const confirmarDelecao = () => {
+    if (!idParaDeletar) return setConfirmOpen(false);
+    aulaService
+      .excluirAula(idParaDeletar)
+      .then(() => {
+        carregarDados();
+        toast.success("Aula deletada com sucesso.");
+      })
+      .catch(() => toast.error("Erro ao deletar registro."))
+      .finally(() => {
+        setConfirmOpen(false);
+        setIdParaDeletar(null);
+      });
   };
 
   const aulasFiltradas = listaDeAulas.filter((item) => {
@@ -277,6 +296,13 @@ export default function GestaoAulasView() {
         onConfirmar={processarEnvioExcel}
         carregando={carregando}
         relatorio={relatorioResult}
+      />
+      <ConfirmDialog
+        aberto={confirmOpen}
+        titulo="Confirmar Exclusão"
+        mensagem="Deseja deletar esta aula da matriz permanentemente?"
+        onConfirm={confirmarDelecao}
+        onCancel={() => setConfirmOpen(false)}
       />
     </div>
   );

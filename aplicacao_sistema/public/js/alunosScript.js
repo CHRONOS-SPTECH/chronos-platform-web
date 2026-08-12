@@ -1,8 +1,10 @@
-import { checkPageAccess } from './utils/validationUser.js';
+import { checkPageAccess } from "./utils/validationUser.js";
+import { success, error, confirmDialog } from "./utils/toast.js";
+import * as alunoService from "./services/alunoService.js";
 
 // Verificação de login e permissões ao carregar a página
-document.addEventListener('DOMContentLoaded', () => {
-    checkPageAccess(['aluno', 'voluntário']); // Permite alunos e voluntários
+document.addEventListener("DOMContentLoaded", () => {
+  checkPageAccess(["aluno", "voluntário"]); // Permite alunos e voluntários
 });
 
 // Tornar funções globais para onclick no HTML
@@ -15,66 +17,58 @@ window.deletarAluno = deletarAluno;
 window.editarAluno = editarAluno;
 
 function setTab(ativo) {
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    ativo.classList.add('active');
+  document
+    .querySelectorAll(".tab")
+    .forEach((tab) => tab.classList.remove("active"));
+  ativo.classList.add("active");
 }
 
 function abrirModal() {
-    // procura a classe ".fundo" no html 
-    // querySelector sempre pega o primeiro elemento que encontrar.
-    // classList - permite manipular classes
-    // add a classe abrir no elemento 
-    document.querySelector('.fundo').classList.add('abrir');
+  // procura a classe ".fundo" no html
+  // querySelector sempre pega o primeiro elemento que encontrar.
+  // classList - permite manipular classes
+  // add a classe abrir no elemento
+  document.querySelector(".fundo").classList.add("abrir");
 }
 
 function fecharModal(event) {
-    if (event.target.classList.contains('fundo')) {
-        event.target.classList.remove('abrir');
-    }
+  if (event.target.classList.contains("fundo")) {
+    event.target.classList.remove("abrir");
+  }
 }
 
-// json-server 
+// json-server
 async function adicionarAluno() {
-    const resposta = await fetch("http://localhost:8080/alunos", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            nome: input_nome.value,
-            email: input_email.value,
-            turma: input_turma.value,
-            nascimento: input_dtNasc.value,
-            dataIngresso: input_dtaIngresso.value,
-            genero: select_genero.value,
-            tipo: select_tipo.value,
-            senha: input_senha.value
-        })
+  try {
+    const dados = await alunoService.criarAluno({
+      nome: input_nome.value,
+      email: input_email.value,
+      turma: input_turma.value,
+      nascimento: input_dtNasc.value,
+      dataIngresso: input_dtaIngresso.value,
+      genero: select_genero.value,
+      tipo: select_tipo.value,
+      senha: input_senha.value,
     });
-
-    const dados = await resposta.json();
     limparCamposModal();
+    success("Aluno criado com sucesso");
     console.log("Aluno criado", dados);
+  } catch (err) {
+    console.error(err);
+    error("Erro ao criar aluno");
+  }
 }
-
 
 async function listarAlunos() {
-    const resposta = await fetch("http://localhost:8080/alunos", {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-        },
-    });
+  const dadosAlunos = await alunoService.listarAlunos();
 
-    const dadosAlunos = await resposta.json();
+  const tbody = document.querySelector("tbody");
+  tbody.innerHTML = ""; // limpa a tabela antes de inserir
 
-    const tbody = document.querySelector("tbody");
-    tbody.innerHTML = "" // limpa a tabela antes de inserir
+  dadosAlunos.forEach((aluno) => {
+    const tr = document.createElement("tr");
 
-    dadosAlunos.forEach(aluno => {
-        const tr = document.createElement("tr");
-
-        tr.innerHTML = `
+    tr.innerHTML = `
   <td class="name">${aluno.nome}</td>
   <td class="email">${aluno.email}</td>
   <td class="turma">${aluno.turma}</td>
@@ -100,108 +94,102 @@ async function listarAlunos() {
       </button>
   </td>
         `;
-        tbody.appendChild(tr);
+    tbody.appendChild(tr);
 
-        const btnDelete = tr.querySelector(".btn-icon.delete");
-        btnDelete.addEventListener("click", () => deletarAluno(aluno.id));
+    const btnDelete = tr.querySelector(".btn-icon.delete");
+    btnDelete.addEventListener("click", () => deletarAluno(aluno.id));
 
-        const btnEdit = tr.querySelector(".btn-icon.edit");
-        btnEdit.addEventListener("click", () => editarAluno(aluno));
-    });
-
+    const btnEdit = tr.querySelector(".btn-icon.edit");
+    btnEdit.addEventListener("click", () => editarAluno(aluno));
+  });
 }
 listarAlunos();
 
-
 async function deletarAluno(id) {
-    const confirmar = confirm("Deseja realmente excluir este aluno?");
+  try {
+    const confirmar = await confirmDialog(
+      "Deseja realmente excluir este aluno?",
+    );
     if (!confirmar) return;
 
-    try {
-        await fetch(`http://localhost:8080/alunos/${id}`, {
-            method: "DELETE"
-        });
-
-        alert("Aluno deletado com sucesso!");
-        listarAlunos(); // atualiza a tabela
-    } catch (error) {
-        console.error("Erro ao deletar aluno:", error);
-        alert("Erro ao deletar aluno.");
+    const ok = await alunoService.deletarAluno(id);
+    if (ok) {
+      success("Aluno deletado com sucesso!");
+      listarAlunos();
+    } else {
+      error("Erro ao deletar aluno.");
     }
+  } catch (err) {
+    console.error("Erro ao deletar aluno:", err);
+    error("Erro ao deletar aluno.");
+  }
 }
-
 
 let alunoAtual = null; // guarda o aluno que está sendo editado
 async function editarAluno(aluno) {
-    alunoAtual = aluno;
+  alunoAtual = aluno;
 
-    abrirModal();
+  abrirModal();
 
-    // preencher inputs com os dados do aluno
-    input_nome.value = aluno.nome;
-    input_email.value = aluno.email;
-    input_turma.value = aluno.turma;
-    input_dtNasc.value = aluno.nascimento;
-    input_dtaIngresso.value = aluno.dataIngresso;
-    select_genero.value = aluno.genero;
-    select_tipo.value = aluno.tipo;
-    input_senha.value = aluno.senha;
-    
+  // preencher inputs com os dados do aluno
+  input_nome.value = aluno.nome;
+  input_email.value = aluno.email;
+  input_turma.value = aluno.turma;
+  input_dtNasc.value = aluno.nascimento;
+  input_dtaIngresso.value = aluno.dataIngresso;
+  select_genero.value = aluno.genero;
+  select_tipo.value = aluno.tipo;
+  input_senha.value = aluno.senha;
 
-    // alterar o texto do botão de adicionar para atualizar
-    const btnAdicionar = document.querySelector(".botoes .adicionar");
-    btnAdicionar.textContent = "Atualizar";
-    btnAdicionar.onclick = atualizarAluno;
+  // alterar o texto do botão de adicionar para atualizar
+  const btnAdicionar = document.querySelector(".botoes .adicionar");
+  btnAdicionar.textContent = "Atualizar";
+  btnAdicionar.onclick = atualizarAluno;
 
-    async function atualizarAluno() {
+  async function atualizarAluno() {
+    if (!alunoAtual) return;
 
-        if (!alunoAtual) return;
+    try {
+      const dados = await alunoService.atualizarAluno(alunoAtual.id, {
+        nome: input_nome.value,
+        email: input_email.value,
+        turma: input_turma.value,
+        nascimento: input_dtNasc.value,
+        dataIngresso: input_dtaIngresso.value,
+        genero: select_genero.value,
+        tipo: select_tipo.value,
+        senha: input_senha.value,
+      });
+      console.log("Aluno atualizado", dados);
 
-        const resposta = await fetch(`http://localhost:8080/alunos/${alunoAtual.id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                nome: input_nome.value,
-                email: input_email.value,
-                turma: input_turma.value,
-                nascimento: input_dtNasc.value,
-                dataIngresso: input_dtaIngresso.value,
-                genero: select_genero.value,
-                tipo: select_tipo.value,
-                senha: input_senha.value
-            })
-        });
+      // fechar modal
+      fecharModal({ target: document.getElementById("modal") });
 
-        const dados = await resposta.json();
-        console.log("Aluno atualizado", dados);
+      // reset botão
+      limparCamposModal();
+      const btnAdicionar = document.querySelector(".botoes .adicionar");
+      btnAdicionar.textContent = "Adicionar";
+      btnAdicionar.onclick = adicionarAluno;
 
-        // fechar modal
-        fecharModal({ target: document.getElementById("modal") });
+      // atualizar tabela
+      listarAlunos();
 
-        // reset botão
-        limparCamposModal()
-        const btnAdicionar = document.querySelector(".botoes .adicionar");
-        btnAdicionar.textContent = "Adicionar";
-        btnAdicionar.onclick = adicionarAluno;
-
-        // atualizar tabela
-        listarAlunos();
-
-        alunoAtual = null;
-
+      alunoAtual = null;
+      success("Aluno atualizado com sucesso");
+    } catch (err) {
+      console.error(err);
+      error("Erro ao atualizar aluno");
     }
+  }
 }
 
-
 function limparCamposModal() {
-    input_nome.value = '';
-    input_email.value = '';
-    input_turma.value = '';
-    input_dtNasc.value = '';
-    input_dtaIngresso.value = '';
-    select_genero.value = '';
-    select_tipo.value = '';
-    input_senha.value = '';
+  input_nome.value = "";
+  input_email.value = "";
+  input_turma.value = "";
+  input_dtNasc.value = "";
+  input_dtaIngresso.value = "";
+  select_genero.value = "";
+  select_tipo.value = "";
+  input_senha.value = "";
 }

@@ -7,11 +7,12 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-import api from "../../services/api";
 import sessionService from "../../services/sessionService";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
 import AgendaGrade from "../../components/agendaInstrutor/AgendaGrade";
+import aulaService from "../../services/aulaService";
+import { useToast } from "../../components/alert-toast/ToastProvider";
 
 import {
   calcularDatasDaSemana,
@@ -42,19 +43,24 @@ export default function AgendaInstrutorView() {
     }
   }, []);
 
+  const toast = useToast();
+
   useEffect(() => {
     if (!instrutorInfo.id) return;
 
     setLoading(true);
-    api
-      .get("/aulas/detalhadas")
-      .then((res) => {
-        const filtradas = res.data.filter(
+    aulaService
+      .listarAulasDetalhadas()
+      .then((data) => {
+        const filtradas = data.filter(
           (item) => item.aula.id_instrutor === instrutorInfo.id,
         );
         setAulas(filtradas);
       })
-      .catch((err) => console.error(err))
+      .catch((err) => {
+        console.error(err);
+        toast.error("Erro ao carregar aulas.");
+      })
       .finally(() => setLoading(false));
   }, [instrutorInfo.id]);
 

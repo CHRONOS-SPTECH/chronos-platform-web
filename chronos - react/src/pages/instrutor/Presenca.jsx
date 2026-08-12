@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ClipboardList,
@@ -10,62 +10,22 @@ import {
 import Header from "../../components/homeSecretario/Header";
 import Sidebar from "../../components/sidebar/SideBar";
 import CardPresenca from "../../components/presenca/CardPresenca";
-import alunoService from "../../services/alunoService";
-import aulaService from "../../services/aulaService";
-import sessionService from "../../services/sessionService";
-import turmaService from "../../services/turmaService";
+import usePresenca from "../../hooks/usePresenca";
 
 function Presenca() {
   const { idTurma, idAula } = useParams();
   const navigate = useNavigate();
 
-  const [usuario, setUsuario] = useState(null);
-  const [turma, setTurma] = useState(null);
-  const [aula, setAula] = useState(null);
-  const [alunos, setAlunos] = useState([]);
-  const [carregando, setCarregando] = useState(true);
-
-  // Carrega todas as informações necessárias da presença
-  useEffect(() => {
-    const carregarDados = async () => {
-      try {
-        setCarregando(true);
-
-        const dadosSessao = sessionService.getSession();
-        if (dadosSessao) setUsuario(dadosSessao);
-
-        const [turmaData, aulaData, alunosData, presencasData] =
-          await Promise.all([
-            turmaService.buscarTurmaPorId(idTurma),
-            aulaService.buscarDetalhesAula(idAula),
-            alunoService.listarAlunosPorTurma(idTurma),
-            aulaService.buscarChamadaPorAula(idAula),
-          ]);
-
-        const alunosComPresenca = (alunosData || []).map((aluno) => {
-          const registro = (presencasData || []).find(
-            (item) => Number(item.id_pessoa) === Number(aluno.id_pessoa),
-          );
-
-          return {
-            ...aluno,
-            presente: Boolean(registro?.compareceu),
-            compareceu: Boolean(registro?.compareceu),
-          };
-        });
-
-        setTurma(turmaData);
-        setAula(aulaData);
-        setAlunos(alunosComPresenca);
-      } catch (err) {
-        console.error("Erro ao carregar dados da presença:", err);
-      } finally {
-        setCarregando(false);
-      }
-    };
-
-    if (idTurma && idAula) carregarDados();
-  }, [idTurma, idAula]);
+  const {
+    usuario,
+    turma,
+    aula,
+    alunos,
+    carregando,
+    error,
+    alternarPresenca,
+    salvarChamada,
+  } = usePresenca({ idTurma: idTurma, idAula: idAula });
 
   if (carregando) {
     return (
@@ -172,7 +132,7 @@ function Presenca() {
 
           {/* Listagem de Alunos / Formulário de Chamada */}
           <div className="p-8 flex-1">
-            {alunos.length === 0 ? (
+            {!alunos || alunos.length === 0 ? (
               <div className="text-center py-12 text-sm text-slate-400 font-medium bg-white rounded-2xl border border-slate-100 shadow-sm">
                 Nenhum aluno matriculado nesta turma.
               </div>
