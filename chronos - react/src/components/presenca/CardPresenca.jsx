@@ -4,7 +4,7 @@ import TabelaAlunos from "./TabelaAlunos";
 import ModalConfirmacao from "./ModalConfirmacao";
 import AlertToast from "../alert-toast/AlertToast";
 import { BookOpen } from "lucide-react";
-import api from "../../services/api";
+import aulaService from "../../services/aulaService";
 
 function CardPresenca({ alunos, dadosAula }) {
   const navigate = useNavigate();
@@ -47,7 +47,7 @@ function CardPresenca({ alunos, dadosAula }) {
         })),
       };
 
-      await api.post("/chamadas-aula/em-lote", dadosChamada);
+      await aulaService.salvarChamadaEmLote(dadosChamada);
       setModalAberto(false);
       setTipoMensagem("success");
       setMensagem("Chamada enviada com sucesso!");

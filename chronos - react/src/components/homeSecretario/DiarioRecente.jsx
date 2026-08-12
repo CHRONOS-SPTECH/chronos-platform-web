@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Calendar, User, BookOpen } from "lucide-react";
-import api from "../../services/api";
+import aulaService from "../../services/aulaService";
 import { formatarDataBr } from "../../utils/DateUtils";
 
 export default function DiarioRecente() {
@@ -11,10 +11,10 @@ export default function DiarioRecente() {
     async function buscarAulas() {
       try {
         setLoading(true);
-        const resposta = await api.get("/aulas/detalhadas");
+        const aulasDetalhadas = await aulaService.listarAulasDetalhadas();
 
-        if (Array.isArray(resposta.data)) {
-          const aulasInvertidas = [...resposta.data].reverse();
+        if (Array.isArray(aulasDetalhadas)) {
+          const aulasInvertidas = [...aulasDetalhadas].reverse();
           setAulas(aulasInvertidas.slice(0, 3));
         }
       } catch (error) {

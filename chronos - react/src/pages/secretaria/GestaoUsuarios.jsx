@@ -7,7 +7,7 @@ import BarraAcoes from "../../components/gestaoUsuarios/BarraAcoes";
 import CardUsuario from "../../components/gestaoUsuarios/CardUsuarios";
 import Paginacao from "../../components/gestaoUsuarios/Paginacao";
 import ModalUsuario from "../../components/gestaoUsuarios/ModalUsuario";
-import api from "../../services/api";
+import usuarioService from "../../services/usuarioService";
 
 function GestaoUsuarios() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,8 +15,8 @@ function GestaoUsuarios() {
 
   const fetchUsuarios = async () => {
     try {
-      const response = await api.get("/usuarios");
-      setUsuarios(response.data);
+      const dados = await usuarioService.listarUsuarios();
+      setUsuarios(dados);
     } catch (error) {
       console.error("Erro ao buscar usuários:", error);
     }

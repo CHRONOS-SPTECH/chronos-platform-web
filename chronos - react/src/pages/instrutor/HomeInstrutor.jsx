@@ -8,7 +8,7 @@ import Evento from "../../components/homeSecretario/Evento";
 import Header from "../../components/homeSecretario/Header";
 import Sidebar from "../../components/sidebar/SideBar";
 import Cronograma from "../../components/homeInstrutor/Cronograma";
-import api from "../../services/api";
+import aulaService from "../../services/aulaService";
 import sessionService from "../../services/sessionService";
 import { getHojeIso } from "../../utils/DateUtils";
 
@@ -30,11 +30,12 @@ function HomeInstrutor() {
         if (!dados?.usuario) return;
 
         const hoje = getHojeIso();
-        const res = await api.get(
-          `/aulas/dia?data=${hoje}&instrutorId=${dados.usuario.id_usuario}`,
+        const aulasHoje = await aulaService.listarAulasDoDia(
+          dados.usuario.id_usuario,
+          hoje,
         );
 
-        setAula(selecionarAulaParaPresenca(res.data || []));
+        setAula(selecionarAulaParaPresenca(aulasHoje || []));
       } catch (err) {
         console.error("Erro ao buscar aulas:", err);
       }
@@ -49,11 +50,12 @@ function HomeInstrutor() {
       if (!dados?.usuario) return;
 
       const hoje = getHojeIso();
-      const res = await api.get(
-        `/aulas/dia?data=${hoje}&instrutorId=${dados.usuario.id_usuario}`,
+      const aulasHoje = await aulaService.listarAulasDoDia(
+        dados.usuario.id_usuario,
+        hoje,
       );
 
-      const aulaParaAbrir = selecionarAulaParaPresenca(res.data || []);
+      const aulaParaAbrir = selecionarAulaParaPresenca(aulasHoje || []);
 
       if (!aulaParaAbrir?.aula?.id_turma || !aulaParaAbrir?.aula?.id_aula) {
         alert("Nenhuma aula em andamento encontrada para hoje.");

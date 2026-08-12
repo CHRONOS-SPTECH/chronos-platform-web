@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, Play, Clock } from "@phosphor-icons/react";
-import api from "../../services/api";
+import aulaService from "../../services/aulaService";
 import sessionService from "../../services/sessionService";
 import { getHojeIso } from "../../utils/DateUtils";
 
@@ -30,10 +30,11 @@ function Cronograma() {
         });
         setDataTexto(texto.charAt(0).toUpperCase() + texto.slice(1));
 
-        const res = await api.get(
-          `/aulas/dia?data=${hoje}&instrutorId=${instrutorId}`,
+        const aulasDoDia = await aulaService.listarAulasDoDia(
+          instrutorId,
+          hoje,
         );
-        setAulas(res.data);
+        setAulas(aulasDoDia);
       } catch (err) {
         console.error("Erro ao buscar aulas:", err);
       }
@@ -86,7 +87,7 @@ function Cronograma() {
               >
                 {/* Indicador de Status (Ícone lateral) */}
                 <div
-                  className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110 ${
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${
                     isConcluida
                       ? "bg-emerald-50 text-emerald-600"
                       : isEmAndamento

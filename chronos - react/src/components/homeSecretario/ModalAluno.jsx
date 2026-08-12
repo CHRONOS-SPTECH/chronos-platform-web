@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { GraduationCap, MapPin, X, Loader2 } from "lucide-react";
+import cepService from "../../services/cepService";
 
 const TOTAL_ETAPAS = 3;
 
@@ -50,10 +51,7 @@ export default function ModalAluno({
       const buscarViaCep = async () => {
         try {
           setBuscandoCep(true);
-          const resposta = await fetch(
-            `https://viacep.com.br/ws/${cepNumeros}/json/`,
-          );
-          const resultado = await resposta.json();
+          const resultado = await cepService.buscarEnderecoPorCep(cepNumeros);
 
           if (!resultado.erro) {
             setFormulario((anterior) => ({

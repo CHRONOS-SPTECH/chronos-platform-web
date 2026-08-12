@@ -10,8 +10,10 @@ import {
 import Header from "../../components/homeSecretario/Header";
 import Sidebar from "../../components/sidebar/SideBar";
 import CardPresenca from "../../components/presenca/CardPresenca";
-import api from "../../services/api";
+import alunoService from "../../services/alunoService";
+import aulaService from "../../services/aulaService";
 import sessionService from "../../services/sessionService";
+import turmaService from "../../services/turmaService";
 
 function Presenca() {
   const { idTurma, idAula } = useParams();
@@ -32,17 +34,13 @@ function Presenca() {
         const dadosSessao = sessionService.getSession();
         if (dadosSessao) setUsuario(dadosSessao);
 
-        const [resTurma, resAula, resAlunos, resChamadas] = await Promise.all([
-          api.get(`/turmas/${idTurma}`),
-          api.get(`/aulas/${idAula}/detalhada`),
-          api.get(`/turmas/${idTurma}/alunos`),
-          api.get(`/chamadas-aula/aula/${idAula}`),
-        ]);
-
-        const turmaData = resTurma.data;
-        const aulaData = resAula.data;
-        const alunosData = resAlunos.data || [];
-        const presencasData = resChamadas.data || [];
+        const [turmaData, aulaData, alunosData, presencasData] =
+          await Promise.all([
+            turmaService.buscarTurmaPorId(idTurma),
+            aulaService.buscarDetalhesAula(idAula),
+            alunoService.listarAlunosPorTurma(idTurma),
+            aulaService.buscarChamadaPorAula(idAula),
+          ]);
 
         const alunosComPresenca = (alunosData || []).map((aluno) => {
           const registro = (presencasData || []).find(

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Home, ChevronDown, ChevronRight, LayoutGrid } from "lucide-react";
 import { MENU_CONFIG } from "../../config/navigation";
-import api from "../../services/api";
+import aulaService from "../../services/aulaService";
 import sessionService from "../../services/sessionService";
 import { getHojeIso } from "../../utils/DateUtils";
 
@@ -44,11 +44,11 @@ export default function Sidebar() {
         }
 
         const hoje = getHojeIso();
-        const res = await api.get(
-          `/aulas/dia?data=${hoje}&instrutorId=${dadosSessao.usuario.id_usuario}`,
-        );
-
-        const aulasHoje = res.data || [];
+        const aulasHoje =
+          (await aulaService.listarAulasDoDia(
+            dadosSessao.usuario.id_usuario,
+            hoje,
+          )) || [];
         const aulaEmAberto = aulasHoje.find(
           (itemAula) =>
             !Boolean(itemAula?.chamadaFeita ?? itemAula?.aula?.chamadaFeita),
