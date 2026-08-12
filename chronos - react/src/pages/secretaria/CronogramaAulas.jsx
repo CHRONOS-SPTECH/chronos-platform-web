@@ -210,8 +210,7 @@ export default function CronogramaView() {
         idArrastado,
       )
     ) {
-      mostrarAlerta(
-        "error",
+      toast.error(
         `Conflito: O Prof. ${aulaArrastada.instrutor.nome} já tem aula nesse horário!`,
       );
       return;
@@ -241,8 +240,6 @@ export default function CronogramaView() {
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden font-sans">
-      <Alert type={alerta.type} message={alerta.message} />
-
       <Sidebar />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden">

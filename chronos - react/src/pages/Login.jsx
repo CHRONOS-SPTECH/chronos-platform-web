@@ -2,38 +2,39 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import LoginForm from "../components/login/LoginForm";
 import ForgotForm from "../components/login/ForgotForm";
-import Alert from "../components/alert-toast/AlertToast";
+import { useToast } from "../components/alert-toast/ToastProvider";
 import logoChronos from "../assets/logoChronos.svg";
 import authService from "../services/authService";
 
 function Login() {
   const location = useLocation();
   const navigate = useNavigate();
+  const toast = useToast();
   const [view, setView] = useState("login");
-  const [status, setStatus] = useState({ type: "", message: "" });
 
   useEffect(() => {
     authService.clearSession();
     if (location.state?.unauthorized) {
-      setStatus({
-        type: "error",
-        message: "Você precisa estar logado para acessar esta página.",
-      });
+      toast.error("Você precisa estar logado para acessar esta página.");
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, []);
 
   const atualizarStatus = (novoStatus) => {
-    setStatus(novoStatus);
-    if (novoStatus.message) {
-      setTimeout(() => setStatus({ type: "", message: "" }), 4000);
+    if (!novoStatus?.message) return;
+
+    if (novoStatus.type === "success") {
+      toast.success(novoStatus.message);
+      return;
+    }
+
+    if (novoStatus.type === "error") {
+      toast.error(novoStatus.message);
     }
   };
 
   return (
     <div className="flex h-screen w-full bg-[#FDFDFD] font-['Inter']">
-      <Alert type={status.type} message={status.message} />
-
       <div className="hidden lg:flex lg:w-1/2 bg-[#0F172A] relative items-center justify-center overflow-hidden">
         <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#2bab56] rounded-full blur-[120px] opacity-40"></div>
         <div className="absolute bottom-[-5%] left-[-5%] w-[400px] h-[400px] bg-[#297141] rounded-full blur-[100px] opacity-30"></div>

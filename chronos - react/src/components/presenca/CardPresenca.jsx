@@ -2,18 +2,17 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import TabelaAlunos from "./TabelaAlunos";
 import ModalConfirmacao from "./ModalConfirmacao";
-import AlertToast from "../alert-toast/AlertToast";
+import { useToast } from "../alert-toast/ToastProvider";
 import { BookOpen } from "lucide-react";
 import aulaService from "../../services/aulaService";
 
 function CardPresenca({ alunos, dadosAula }) {
   const navigate = useNavigate();
+  const toast = useToast();
   const [modalAberto, setModalAberto] = useState(false);
   const chamadaJaFeita = Boolean(dadosAula?.chamadaFeita);
   const [lista, setLista] = useState([]);
   const [carregando, setCarregando] = useState(false);
-  const [mensagem, setMensagem] = useState("");
-  const [tipoMensagem, setTipoMensagem] = useState("success");
 
   useEffect(() => {
     if (!alunos) return;
@@ -49,13 +48,11 @@ function CardPresenca({ alunos, dadosAula }) {
 
       await aulaService.salvarChamadaEmLote(dadosChamada);
       setModalAberto(false);
-      setTipoMensagem("success");
-      setMensagem("Chamada enviada com sucesso!");
+      toast.success("Chamada enviada com sucesso!");
       setTimeout(() => navigate("/instrutor"), 2500);
     } catch (err) {
       console.error("Erro ao enviar chamada:", err);
-      setTipoMensagem("error");
-      setMensagem("Houve um erro ao enviar a chamada.");
+      toast.error("Houve um erro ao enviar a chamada.");
     } finally {
       setCarregando(false);
     }
@@ -63,7 +60,6 @@ function CardPresenca({ alunos, dadosAula }) {
 
   return (
     <section className="overflow-hidden h-auto animate-in fade-in duration-500">
-      <AlertToast type={tipoMensagem} message={mensagem} />
       {/* Cabeçalho do Card */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3">
         <div className="flex items-center gap-2.5 text-slate-700">

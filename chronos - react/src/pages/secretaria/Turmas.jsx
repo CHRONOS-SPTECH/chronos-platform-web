@@ -1,26 +1,20 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { BookOpen, Plus } from "lucide-react";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
 import ModulosControle from "../../components/turmas/ModuloControle";
 import CardTurma from "../../components/turmas/CardTurma";
 import ModalTurma from "../../components/turmas/ModalTurma";
-import turmaService from "../../services/turmaService";
-import {
-  extrairMensagemErro,
-  getTurmaId,
-  mapApiTurmaToUi,
-} from "../../utils/turmaUtils";
 import useTurmas from "../../hooks/useTurmas";
-import Alert from "../../components/alert-toast/AlertToast";
+import { useToast } from "../../components/alert-toast/ToastProvider";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 
 export default function Turmas() {
+  const toast = useToast();
   const [isModalAberto, setIsModalAberto] = useState(false);
   const [turmaEmEdicao, setTurmaEmEdicao] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [turmaParaExcluir, setTurmaParaExcluir] = useState(null);
-  const [toast, setToast] = useState({ type: "", message: "" });
 
   const {
     turmasUi,
@@ -45,14 +39,11 @@ export default function Turmas() {
   const onSalvarTurma = async (dadosTurma) => {
     try {
       await salvarTurma(dadosTurma, turmaEmEdicao);
-      setToast({ type: "success", message: "Turma salva com sucesso!" });
+      toast.success("Turma salva com sucesso!");
       setIsModalAberto(false);
       setTurmaEmEdicao(null);
     } catch (err) {
-      setToast({
-        type: "error",
-        message: err?.response?.data?.message || "Erro ao salvar turma.",
-      });
+      toast.error(err?.response?.data?.message || "Erro ao salvar turma.");
     }
   };
 
@@ -65,15 +56,9 @@ export default function Turmas() {
     if (!turmaParaExcluir) return;
     try {
       await excluirTurma(turmaParaExcluir.id);
-      setToast({
-        type: "success",
-        message: `Turma "${turmaParaExcluir.nome}" excluída.`,
-      });
+      toast.success(`Turma "${turmaParaExcluir.nome}" excluída.`);
     } catch (err) {
-      setToast({
-        type: "error",
-        message: err?.response?.data?.message || "Erro ao excluir turma.",
-      });
+      toast.error(err?.response?.data?.message || "Erro ao excluir turma.");
     } finally {
       setConfirmOpen(false);
       setTurmaParaExcluir(null);
@@ -157,8 +142,6 @@ export default function Turmas() {
           onCancel={() => setConfirmOpen(false)}
           carregando={false}
         />
-
-        <Alert type={toast.type} message={toast.message} />
       </div>
     </div>
   );

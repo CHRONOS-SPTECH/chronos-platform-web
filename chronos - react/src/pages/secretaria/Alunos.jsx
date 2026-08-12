@@ -5,7 +5,7 @@ import Header from "../../components/homeSecretario/Header";
 import ModulosControle from "../../components/turmas/ModuloControle";
 import ModalAluno from "../../components/homeSecretario/ModalAluno";
 import useAlunos from "../../hooks/useAlunos";
-import AlertToast from "../../components/alert-toast/AlertToast";
+import { useToast } from "../../components/alert-toast/ToastProvider";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { formatarCPF, formatarDataBr } from "../../utils/DateUtils";
 
@@ -17,9 +17,9 @@ const BADGE_VINCULO = {
 };
 
 export default function Alunos() {
+  const toast = useToast();
   const [modalAlunoAberto, setModalAlunoAberto] = useState(false);
   const [alunoEmEdicao, setAlunoEmEdicao] = useState(null);
-  const [toast, setToast] = useState({ type: "", message: "" });
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [alunoParaExcluir, setAlunoParaExcluir] = useState(null);
 
@@ -87,28 +87,21 @@ export default function Alunos() {
       const idAluno = alunoEmEdicao?.id_pessoa || null;
 
       if (emailJaCadastrado(dadosPessoa.email, idAluno)) {
-        setToast({
-          type: "error",
-          message: "Este e-mail já está cadastrado para outra pessoa.",
-        });
+        toast.error("Este e-mail já está cadastrado para outra pessoa.");
         return;
       }
 
       await salvarAluno(dadosPessoa, dadosEndereco, alunoEmEdicao);
 
-      setToast({
-        type: "success",
-        message: alunoEmEdicao
+      toast.success(
+        alunoEmEdicao
           ? "Aluno atualizado com sucesso!"
           : "Aluno cadastrado com sucesso!",
-      });
+      );
       fecharModalAluno();
     } catch (error) {
       console.error(error);
-      setToast({
-        type: "error",
-        message: error?.response?.data?.message || "Erro ao salvar aluno.",
-      });
+      toast.error(error?.response?.data?.message || "Erro ao salvar aluno.");
     }
   };
 
@@ -121,13 +114,10 @@ export default function Alunos() {
     if (!alunoParaExcluir) return setConfirmOpen(false);
     try {
       await excluirAluno(alunoParaExcluir.id);
-      setToast({
-        type: "success",
-        message: `Aluno "${alunoParaExcluir.nome}" excluído.`,
-      });
+      toast.success(`Aluno "${alunoParaExcluir.nome}" excluído.`);
     } catch (error) {
       console.error(error);
-      setToast({ type: "error", message: "Erro ao excluir aluno." });
+      toast.error("Erro ao excluir aluno.");
     } finally {
       setConfirmOpen(false);
       setAlunoParaExcluir(null);
@@ -297,8 +287,6 @@ export default function Alunos() {
         onConfirm={confirmarExclusao}
         onCancel={() => setConfirmOpen(false)}
       />
-
-      <AlertToast type={toast.type} message={toast.message} />
     </div>
   );
 }

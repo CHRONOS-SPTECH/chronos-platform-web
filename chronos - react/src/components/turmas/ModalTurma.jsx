@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { BookOpen, X } from "lucide-react";
-import turmaService from "../../services/turmaService";
-import AlertToast from "../alert-toast/AlertToast";
+import { useToast } from "../alert-toast/ToastProvider";
 
 export default function ModalTurma({
   isOpen,
@@ -10,6 +9,7 @@ export default function ModalTurma({
   carregando,
   valoresPadrao,
 }) {
+  const toast = useToast();
   const valoresIniciais = {
     nome_turma: "",
     data_inicio: "",
@@ -18,7 +18,6 @@ export default function ModalTurma({
   };
 
   const [formData, setFormData] = useState(valoresPadrao || valoresIniciais);
-  const [toast, setToast] = useState({ type: "", message: "" });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,11 +29,11 @@ export default function ModalTurma({
 
   const validarFormulario = () => {
     if (!formData.nome_turma?.trim()) {
-      setToast({ type: "error", message: "Nome da turma é obrigatório" });
+      toast.error("Nome da turma é obrigatório");
       return false;
     }
     if (!formData.data_inicio) {
-      setToast({ type: "error", message: "Data de início é obrigatória" });
+      toast.error("Data de início é obrigatória");
       return false;
     }
     return true;
@@ -68,7 +67,6 @@ export default function ModalTurma({
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <AlertToast type={toast.type} message={toast.message} />
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto custom-scrollbar animate-in fade-in zoom-in-95 duration-300">
         {/* Header */}
         <div className="sticky top-0 bg-linear-to-b from-white to-slate-50 border-b border-slate-100 px-6 py-4 flex items-center justify-between">

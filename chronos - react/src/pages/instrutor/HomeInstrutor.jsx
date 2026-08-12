@@ -8,15 +8,15 @@ import Evento from "../../components/homeSecretario/Evento";
 import Header from "../../components/homeSecretario/Header";
 import Sidebar from "../../components/sidebar/SideBar";
 import Cronograma from "../../components/homeInstrutor/Cronograma";
-import AlertToast from "../../components/alert-toast/AlertToast";
+import { useToast } from "../../components/alert-toast/ToastProvider";
 import aulaService from "../../services/aulaService";
 import sessionService from "../../services/sessionService";
 import { getHojeIso } from "../../utils/DateUtils";
 
 function HomeInstrutor() {
   const navigate = useNavigate();
+  const toast = useToast();
   const [aula, setAula] = useState(null);
-  const [toast, setToast] = useState({ type: "", message: "" });
 
   const selecionarAulaParaPresenca = (aulasHoje) => {
     const aulaEmAberto = aulasHoje.find(
@@ -60,10 +60,7 @@ function HomeInstrutor() {
       const aulaParaAbrir = selecionarAulaParaPresenca(aulasHoje || []);
 
       if (!aulaParaAbrir?.aula?.id_turma || !aulaParaAbrir?.aula?.id_aula) {
-        setToast({
-          type: "error",
-          message: "Nenhuma aula em andamento encontrada para hoje.",
-        });
+        toast.error("Nenhuma aula em andamento encontrada para hoje.");
         return;
       }
 
@@ -72,10 +69,7 @@ function HomeInstrutor() {
       );
     } catch (err) {
       console.error("Erro ao abrir a presença:", err);
-      setToast({
-        type: "error",
-        message: "Erro ao buscar a aula para marcar presença.",
-      });
+      toast.error("Erro ao buscar a aula para marcar presença.");
     }
   };
 
@@ -83,7 +77,6 @@ function HomeInstrutor() {
     <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans">
       {/* Sidebar limpa e auto-adaptável */}
       <Sidebar />
-      <AlertToast type={toast.type} message={toast.message} />
 
       <div className="flex-1 flex flex-col min-w-0">
         <Header titulo="Home" icone={Home} />
@@ -120,11 +113,9 @@ function HomeInstrutor() {
                         label: "Em Desenvolvimento",
                         icon: Users,
                         onClick: () =>
-                          setToast({
-                            type: "success",
-                            message:
-                              "Esta funcionalidade está em desenvolvimento e será disponibilizada em breve.",
-                          }),
+                          toast.success(
+                            "Esta funcionalidade está em desenvolvimento e será disponibilizada em breve.",
+                          ),
                         isDisabled: true,
                       },
                     ]}
