@@ -211,7 +211,7 @@ function DashboardAcademica() {
                           Equilíbrio de Gênero
                         </h4>
                         <p className="text-[11px] text-slate-500 font-medium mt-0.5 leading-tight">
-                          {generoData?.equilibrio_genero?.nota ||
+                          {dadosGenero?.equilibrio_genero?.nota ||
                             "Dados indisponíveis."}
                         </p>
                       </div>
@@ -230,7 +230,7 @@ function DashboardAcademica() {
                   </div>
 
                   <div className="flex-1 min-h-[300px] mt-4 mb-4">
-                    <AgeChart data={faixaEtaria?.faixas || []} />
+                    <AgeChart data={dadosFaixaEtaria?.faixas || []} />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-slate-100 pt-4">
@@ -239,7 +239,7 @@ function DashboardAcademica() {
                         Idade mais comum
                       </p>
                       <h3 className="text-2xl font-black text-green-700 tracking-tight mt-0.5">
-                        {faixaEtaria?.resumo?.idade_mais_comum || "N/A"}
+                        {dadosFaixaEtaria?.resumo?.idade_mais_comum || "N/A"}
                       </h3>
                     </div>
 
@@ -248,7 +248,7 @@ function DashboardAcademica() {
                         Média de anos
                       </p>
                       <h3 className="text-2xl font-black text-slate-800 tracking-tight mt-0.5">
-                        {faixaEtaria?.resumo?.media_anos || 0}{" "}
+                        {dadosFaixaEtaria?.resumo?.media_anos || 0}{" "}
                         <span className="text-xs text-slate-400 font-normal">
                           anos
                         </span>
@@ -260,7 +260,7 @@ function DashboardAcademica() {
                         Pessoas 65+
                       </p>
                       <h3 className="text-2xl font-black text-slate-800 tracking-tight mt-0.5">
-                        {faixaEtaria?.resumo?.total_acima_65 || 0}
+                        {dadosFaixaEtaria?.resumo?.total_acima_65 || 0}
                       </h3>
                     </div>
                   </div>

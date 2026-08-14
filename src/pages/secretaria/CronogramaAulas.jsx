@@ -42,7 +42,7 @@ export default function CronogramaView() {
             estaAberto={menuAberto}
             aoFechar={() => setMenuAberto(false)}
             setMenuAberto={setMenuAberto}
-            aulasPendentes={pendendasFormatadas}
+            aulasPendentes={pendenciasFormatadas}
             aoAdicionarAulaRapida={aoAdicionarAulaRapida}
             aoDeletarAulaPendente={aoDeletarAulaPendente}
             turmas={turmas}
@@ -66,7 +66,7 @@ export default function CronogramaView() {
                 >
                   <Inbox size={14} className="text-green-400" />
                   <span>
-                    Banco de Pendências ({pendendasFormatadas.length})
+                    Banco de Pendências ({pendenciasFormatadas.length})
                   </span>
                 </button>
 
@@ -119,7 +119,7 @@ export default function CronogramaView() {
                   datasDaSemana={datas}
                   listaHorarios={horarios}
                   alocacoesDoBanco={obterAlocacoes()}
-                  turmaSelecionada={turma}
+                  turmaSelecionada={turmaSelecionada}
                   semanaAtual={semana}
                   aoSoltarCard={aoSoltarCard}
                   aoDesalocar={aoDesalocar}
