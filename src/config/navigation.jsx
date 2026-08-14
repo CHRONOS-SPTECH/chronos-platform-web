@@ -1,0 +1,78 @@
+import { Users, UserCheck, LayoutDashboard } from "lucide-react";
+
+export const MENU_CONFIG = {
+  instrutor: {
+    dashboardPath: "/instrutor",
+    secoes: [
+      {
+        label: "Acadêmico",
+        titulo: "Controle de Frequência",
+        icone: <UserCheck size={20} />,
+        itens: [
+          { nome: "Chamada do dia", action: "chamadaDoDia" },
+          { nome: "Minha Agenda", rota: "/minha-agenda" },
+        ],
+      },
+    ],
+  },
+  secretario: {
+    dashboardPath: "/secretario",
+    secoes: [
+      {
+        label: "Operacional",
+        titulo: "Gestão Acadêmica",
+        icone: <Users size={20} />,
+        itens: [
+          { nome: "Alunos", rota: "/alunos" },
+          { nome: "Turmas", rota: "/turmas" },
+          // { nome: "Eventos", rota: "/eventos" },
+        ],
+      },
+      {
+        label: "Dashboard",
+        titulo: "Dashboard's",
+        icone: <LayoutDashboard size={20} />,
+        itens: [{ nome: "Panorama Acadêmico", rota: "/dashboard-academica" }],
+      },
+      {
+        label: "Gestão Ano letivo",
+        titulo: "Controle de Aulas",
+        icone: <LayoutDashboard size={20} />,
+        itens: [
+          { nome: "Cronograma de Aulas", rota: "/cronograma" },
+          { nome: "Gestão de Aulas", rota: "/gestao-aulas" },
+        ],
+      },
+    ],
+  },
+  Administrador: {
+    dashboardPath: "/administrador",
+    secoes: [
+      {
+        label: "Dashboard",
+        titulo: "Dashboard's",
+        icone: <LayoutDashboard size={20} />,
+        itens: [
+          { nome: "Panorama Acadêmico", rota: "/dashboard-academica" },
+          // { nome: "Engajamento das Atividades", rota: "/engajamento-atividades" },
+        ],
+      },
+      {
+        label: "Operacional",
+        titulo: "Gestão Acadêmica",
+        icone: <Users size={20} />,
+        itens: [
+          { nome: "Alunos", rota: "/alunos" },
+          { nome: "Turmas", rota: "/turmas" },
+          // { nome: "Eventos", rota: "/eventos" },
+        ],
+      },
+      {
+        label: "Gestão de Usuários",
+        titulo: "Controle de Acesso",
+        icone: <LayoutDashboard size={20} />,
+        itens: [{ nome: "Usuários", rota: "/usuarios" }],
+      },
+    ],
+  },
+};
