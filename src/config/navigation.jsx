@@ -25,7 +25,7 @@ export const MENU_CONFIG = {
         itens: [
           { nome: "Alunos", rota: "/alunos" },
           { nome: "Turmas", rota: "/turmas" },
-          // { nome: "Eventos", rota: "/eventos" },
+          { nome: "Eventos", rota: "/eventos" },
         ],
       },
       {
@@ -64,7 +64,7 @@ export const MENU_CONFIG = {
         itens: [
           { nome: "Alunos", rota: "/alunos" },
           { nome: "Turmas", rota: "/turmas" },
-          // { nome: "Eventos", rota: "/eventos" },
+          { nome: "Eventos", rota: "/eventos" },
         ],
       },
       {

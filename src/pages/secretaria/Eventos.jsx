@@ -1,215 +1,73 @@
-import { useState } from "react";
-import {
-  Clock,
-  MapPin,
-  Pencil,
-  Link as LinkIcon,
-  CalendarPlus,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { CalendarPlus, Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
 import ModulosControle from "../../components/turmas/ModuloControle";
+import EventoCard from "../../components/eventos/EventoCard";
+import ConfirmDeleteModal from "../../components/eventos/ConfirmDeleteModal";
+import eventoService from "../../services/EventoService";
+import { useToast } from "../../components/alert-toast/ToastProvider";
 
-// ─── Dados de exemplo estruturados ───────────────────────────────────────────
-const EVENTOS = [
-  {
-    id: 1,
-    status: "OFICIALIZADO",
-    statusVariant: "green",
-    dia: "12",
-    mes: "JUN",
-    titulo: "Simpósio de Ética Aplicada",
-    descricao:
-      "Um encontro voltado para alunos e membros para discutir como aplicar as virtudes estoicas nos dilemas profissionais do século XXI.",
-    horario: "14:00 – Sexta",
-    local: "Auditório – Sala 1",
-    tags: [
-      { label: "Público Interno", variant: "green" },
-      { label: "Oficina", variant: "teal" },
-    ],
-    headerBg: "bg-[#1E7A3C]",
-  },
-  {
-    id: 2,
-    status: "PENDENTE DIRETOR",
-    statusVariant: "orange",
-    dia: "21",
-    mes: "AGO",
-    titulo: "Apresentação Artística – Sócrates",
-    descricao:
-      "Um encontro em ambiente aberto dedicado a dar visibilidade aos trabalhos dos alunos sobre a vida e o pensamento de Sócrates.",
-    horario: "14:00 – Sexta",
-    local: "Parque CECAP",
-    tags: [
-      { label: "Público Ext.", variant: "gray" },
-      { label: "Evento", variant: "blue" },
-    ],
-    headerBg: "bg-[#1A56A0]",
-  },
-  {
-    id: 3,
-    status: "OFICIALIZADO",
-    statusVariant: "green",
-    dia: "05",
-    mes: "SET",
-    titulo: "Ciclo de Leituras: O Caibalion",
-    descricao:
-      "Estudo aprofundado dos princípios herméticos e sua correlação com a filosofia clássica universal.",
-    horario: "19:30 – Quinta",
-    local: "Sala de Estudos II",
-    tags: [
-      { label: "Exclusivo", variant: "teal" },
-      { label: "Grupo de Est.", variant: "blue" },
-    ],
-    headerBg: "bg-[#4F46E5]",
-  },
-];
-
-// ─── Mapas de estilo consistentes ─────────────────────────────────────────────
-const STATUS_STYLE = {
-  green: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  orange: "bg-amber-50 text-amber-700 border-amber-200",
-};
-
-const TAG_STYLE = {
-  green: "bg-emerald-50 text-emerald-700 border-emerald-100",
-  teal: "bg-teal-50 text-teal-700 border-teal-100",
-  gray: "bg-slate-100 text-slate-600 border-slate-200",
-  blue: "bg-blue-50 text-blue-700 border-blue-100",
-};
+const getId = (evento) => evento?.id_evento ?? evento?.idEvento ?? evento?.id;
+const getErrorMessage = (error, fallback) => error?.response?.data?.message || error?.response?.data?.erro || fallback;
 
 export default function Eventos() {
-  const [moduloAtivo, setModuloAtivo] = useState("Eventos");
+  const navigate = useNavigate();
+  const toast = useToast();
+  const [eventos, setEventos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [eventoSelecionado, setEventoSelecionado] = useState(null);
+  const [excluindo, setExcluindo] = useState(false);
+
+  const carregarEventos = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const response = await eventoService.getEventos();
+      setEventos(Array.isArray(response) ? response : response?.content || response?.eventos || []);
+    } catch (requestError) {
+      setError(getErrorMessage(requestError, "Não foi possível carregar os eventos."));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { carregarEventos(); }, []);
+
+  const confirmarExclusao = async () => {
+    if (!eventoSelecionado) return;
+    setExcluindo(true);
+    try {
+      await eventoService.deleteEvento(getId(eventoSelecionado));
+      setEventos((current) => current.filter((evento) => getId(evento) !== getId(eventoSelecionado)));
+      toast.success("Evento excluído com sucesso.");
+    } catch (requestError) {
+      toast.error(getErrorMessage(requestError, "Não foi possível excluir o evento."));
+    } finally {
+      setExcluindo(false);
+      setEventoSelecionado(null);
+    }
+  };
 
   return (
-    <div className="flex h-screen bg-[#F8FAFC] overflow-hidden font-sans antialiased">
+    <div className="flex h-screen overflow-hidden bg-[#F8FAFC] font-sans antialiased">
       <Sidebar />
-
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <Header titulo="Gestão Acadêmica" icone={CalendarPlus} />
-
-        <main className="flex-1 overflow-y-auto px-8 py-8 custom-scrollbar">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 border-b border-slate-100 pb-4">
-            <ModulosControle
-              moduloAtivo={moduloAtivo}
-              setModuloAtivo={setModuloAtivo}
-            />
-
-            <button className="flex items-center gap-2 bg-[#1E7A3C] hover:bg-[#165a2d] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-2xl transition-all shadow-md shadow-green-100/50 active:scale-[0.98]">
-              <CalendarPlus size={16} />
-              Novo Evento
-            </button>
+        <main className="flex-1 overflow-y-auto px-4 py-6 custom-scrollbar sm:px-8 sm:py-8">
+          <div className="mb-8 flex flex-col justify-between gap-4 border-b border-slate-100 pb-4 sm:flex-row sm:items-end">
+            <ModulosControle moduloAtivo="Eventos" />
+            <button onClick={() => navigate("/eventos/novo")} className="flex items-center justify-center gap-2 rounded-2xl bg-[#1E7A3C] px-5 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-green-100/50 transition-all hover:bg-[#165a2d] active:scale-[0.98]"><Plus size={16} /> Novo Evento</button>
           </div>
-
-          <div className="flex items-center justify-between mb-6 px-1">
-            <div className="flex items-center gap-2.5 text-slate-700">
-              <h1 className="text-sm font-black tracking-widest text-slate-400 uppercase">
-                Eventos e Oficinas Programadas
-              </h1>
-            </div>
-            <span className="text-xs font-bold text-slate-400">
-              {EVENTOS.length} Registros encontrados
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
-            {EVENTOS.map((ev) => (
-              <EventoCard key={ev.id} evento={ev} />
-            ))}
-          </div>
+          <div className="mb-6 flex items-center justify-between px-1"><h1 className="text-sm font-black uppercase tracking-widest text-slate-400">Eventos e Oficinas Programadas</h1><span className="text-xs font-bold text-slate-400">{eventos.length} registros encontrados</span></div>
+          {loading && <div className="rounded-2xl border border-slate-100 bg-white p-8 text-center text-sm font-semibold text-slate-500">Carregando eventos...</div>}
+          {!loading && error && <div className="flex items-center justify-between rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"><span>{error}</span><button onClick={carregarEventos} className="font-bold underline">Tentar novamente</button></div>}
+          {!loading && !error && eventos.length === 0 && <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center text-sm text-slate-500">Nenhum evento cadastrado.</div>}
+          {!loading && !error && eventos.length > 0 && <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2 lg:grid-cols-3">{eventos.map((evento) => <EventoCard key={getId(evento)} evento={evento} onExcluir={setEventoSelecionado} />)}</div>}
         </main>
-      </div>
-    </div>
-  );
-}
-
-// ─── Card de evento refinado ───────────────────────────────────────────────────
-function EventoCard({ evento: ev }) {
-  return (
-    <div className="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200/60 transition-all duration-300 overflow-hidden flex flex-col group">
-      <div
-        className={`${ev.headerBg} relative h-24 flex items-start justify-end p-4 transition-all duration-300 group-hover:opacity-95`}
-      >
-        <span
-          className={`text-[10px] font-black tracking-wider px-2.5 py-1 rounded-full border bg-white/95 backdrop-blur-sm shadow-sm ${STATUS_STYLE[ev.statusVariant]}`}
-        >
-          {ev.status}
-        </span>
-
-        {/* Badge de Data Flutuante */}
-        <div className="absolute -bottom-5 left-5 bg-white border border-slate-100 rounded-2xl px-3.5 py-2 text-center shadow-md min-w-[58px] z-10">
-          <div className="text-xl font-black text-slate-800 leading-none tracking-tight">
-            {ev.dia}
-          </div>
-          <div className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-1">
-            {ev.mes}
-          </div>
-        </div>
-      </div>
-
-      {/* Corpo do Card */}
-      <div className="p-5 pt-8 flex flex-col flex-1 gap-4">
-        {/* Título e Descrição */}
-        <div className="flex flex-col gap-1.5">
-          <h2 className="font-bold text-slate-800 text-sm leading-snug group-hover:text-[#1E7A3C] transition-colors line-clamp-1">
-            {ev.titulo}
-          </h2>
-          <p className="text-slate-400 text-xs leading-relaxed line-clamp-2 h-8">
-            {ev.descricao}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100/60">
-          <div className="flex flex-col gap-1 min-w-0">
-            <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider flex items-center gap-1">
-              <Clock size={11} className="text-[#1E7A3C] shrink-0" /> Horário
-            </span>
-            <span className="text-xs font-bold text-slate-600 truncate">
-              {ev.horario}
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-1 min-w-0">
-            <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider flex items-center gap-1">
-              <MapPin size={11} className="text-[#1E7A3C] shrink-0" /> Local
-            </span>
-            <span className="text-xs font-bold text-slate-600 truncate">
-              {ev.local}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 mt-1">
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider shrink-0">
-            Tags:
-          </span>
-          <div className="flex flex-wrap gap-1">
-            {ev.tags.map((t) => (
-              <span
-                key={t.label}
-                className={`text-[9px] px-2.5 py-0.5 rounded-md font-black uppercase tracking-wide border ${TAG_STYLE[t.variant]}`}
-              >
-                {t.label}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Rodapé Interno do Card */}
-        <div className="border-t border-slate-100 pt-4 mt-auto flex items-center justify-between">
-          <button className="text-[#1E7A3C] font-black text-xs uppercase tracking-widest hover:text-[#165a2d] transition-colors focus:outline-none">
-            Detalhes
-          </button>
-
-          <div className="flex gap-2">
-            <button className="border border-slate-200 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl p-2 transition-all active:scale-95 shadow-sm">
-              <Pencil size={13} />
-            </button>
-            <button className="border border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 rounded-xl px-3 py-2 transition-all flex items-center gap-1.5 text-xs font-bold active:scale-95 shadow-sm">
-              Formulário <LinkIcon size={12} className="text-slate-400" />
-            </button>
-          </div>
-        </div>
+        <ConfirmDeleteModal aberto={Boolean(eventoSelecionado)} evento={eventoSelecionado} carregando={excluindo} onConfirm={confirmarExclusao} onCancel={() => setEventoSelecionado(null)} />
       </div>
     </div>
   );
