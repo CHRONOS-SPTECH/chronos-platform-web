@@ -13,6 +13,8 @@ import GestaoUsuarios from "../pages/secretaria/GestaoUsuarios";
 import DashboardAcademica from "../pages/instrutor/DashboardAcademica";
 
 import Eventos from "../pages/secretaria/Eventos";
+import DetalhesEvento from "../pages/secretaria/DetalhesEvento";
+import FormularioEvento from "../pages/secretaria/FormularioEvento";
 import Turmas from "../pages/secretaria/Turmas";
 import Alunos from "../pages/secretaria/Alunos";
 
@@ -79,6 +81,18 @@ export const routes = createBrowserRouter([
   {
     path: "/eventos",
     element: <PrivateRoute element={<Eventos />} />,
+  },
+  {
+    path: "/eventos/novo",
+    element: <PrivateRoute element={<FormularioEvento />} />,
+  },
+  {
+    path: "/eventos/editar/:id",
+    element: <PrivateRoute element={<FormularioEvento />} />,
+  },
+  {
+    path: "/eventos/:id",
+    element: <PrivateRoute element={<DetalhesEvento />} />,
   },
   {
     path: "/usuarios",
