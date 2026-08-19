@@ -30,12 +30,40 @@ export default function DetalhesEvento() {
   const navigate = useNavigate();
   const toast = useToast();
   const [evento, setEvento] = useState(null);
+  const [categorias, setCategorias] = useState([]);
+  const [secretarias, setSecretarias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [excluirAberto, setExcluirAberto] = useState(false);
   const [excluindo, setExcluindo] = useState(false);
 
   useEffect(() => {
-    eventoService.getEventoById(id).then(setEvento).catch((error) => toast.error(getErrorMessage(error, "Não foi possível carregar o evento."))).finally(() => setLoading(false));
+    const carregarDetalhes = async () => {
+      const [eventoResult, categoriasResult, secretariasResult] = await Promise.allSettled([
+        eventoService.getEventoById(id),
+        eventoService.getCategorias(),
+        eventoService.getSecretarias(),
+      ]);
+
+      if (eventoResult.status === "fulfilled") {
+        setEvento(eventoResult.value);
+      } else {
+        toast.error(getErrorMessage(eventoResult.reason, "Não foi possível carregar o evento."));
+      }
+
+      if (categoriasResult.status === "fulfilled") {
+        const response = categoriasResult.value;
+        setCategorias(Array.isArray(response) ? response : response?.content || response?.data || response?.categorias || []);
+      }
+
+      if (secretariasResult.status === "fulfilled") {
+        const response = secretariasResult.value;
+        setSecretarias(Array.isArray(response) ? response : response?.content || response?.data || response?.secretarias || []);
+      }
+
+      setLoading(false);
+    };
+
+    carregarDetalhes();
   }, [id]);
 
   const excluir = async () => {
@@ -53,7 +81,12 @@ export default function DetalhesEvento() {
   const status = statusValue === "Não informado" ? MOCK_EVENT_DETAILS.status : statusValue;
   const descricao = descricaoValue === "Não informado" ? MOCK_EVENT_DETAILS.descricao : descricaoValue;
   const local = localValue === "Não informado" ? MOCK_EVENT_DETAILS.local : localValue;
-  return <PageShell><button onClick={() => navigate("/eventos")} className="mb-5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-[#1E7A3C]"><ArrowLeft size={16} /> Voltar</button><article className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm"><div className="bg-[#1E7A3C] p-6 text-white sm:p-10"><span className="rounded-full bg-white/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest">{status}</span><h1 className="mt-5 max-w-3xl text-3xl font-black">{getValue(evento, "titulo")}</h1></div><div className="p-6 sm:p-10"><div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"><Info label="Categoria" value={evento.categoria?.nome || getValue(evento, "categoria_nome", "categoriaNome")} /><Info label="Secretaria responsável" value={evento.secretaria?.nome_secretaria || getValue(evento, "secretaria_nome", "secretariaNome")} /><Info label="Data" value={formatDate(getValue(evento, "data_evento", "dataEvento"))} icon={CalendarPlus} /><Info label="Horário" value={`${getValue(evento, "hora_inicio_evento", "horaInicioEvento")} - ${getValue(evento, "hora_fim_evento", "horaFimEvento")}`} icon={Clock} /></div><div className="mt-8 grid gap-8 border-t border-slate-100 pt-8 lg:grid-cols-[1fr_280px]"><div><h2 className="mb-3 text-xs font-black uppercase tracking-widest text-slate-400">Descrição completa</h2><p className="whitespace-pre-wrap text-sm leading-7 text-slate-600">{descricao}</p></div><div><h2 className="mb-3 text-xs font-black uppercase tracking-widest text-slate-400">Local e tags</h2><p className="flex items-center gap-2 text-sm font-semibold text-slate-700"><MapPin size={16} className="text-[#1E7A3C]" /> {local}</p><div className="mt-4 flex flex-wrap gap-2">{tags.length ? tags.map((tag) => <span key={tag.label || tag} className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-bold uppercase text-slate-600">{tag.label || tag}</span>) : <span className="text-sm text-slate-400">Nenhuma tag cadastrada.</span>}</div></div></div><div className="mt-8 flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-6"><button onClick={() => navigate(`/eventos/editar/${id}`)} className="flex items-center gap-2 rounded-xl bg-[#1E7A3C] px-4 py-3 text-xs font-bold text-white hover:bg-[#165a2d]"><Pencil size={15} /> Editar evento</button><button onClick={() => setExcluirAberto(true)} className="flex items-center gap-2 rounded-xl border border-red-200 px-4 py-3 text-xs font-bold text-red-600 hover:bg-red-50"><Trash2 size={15} /> Excluir evento</button></div></div></article><ConfirmDeleteModal aberto={excluirAberto} evento={evento} carregando={excluindo} onConfirm={excluir} onCancel={() => setExcluirAberto(false)} /></PageShell>;
+  const participantes = Array.isArray(evento.participantes) ? evento.participantes : [];
+  const categoriaId = evento.id_categoria ?? evento.idCategoria;
+  const secretariaId = evento.id_secretaria ?? evento.idSecretaria;
+  const categoria = evento.categoria?.nome || categorias.find((item) => (item.id_categoria ?? item.idCategoria ?? item.id) === categoriaId)?.nome || (categoriaId ? `ID ${categoriaId}` : "Não informado");
+  const secretaria = evento.secretaria?.nome_secretaria || secretarias.find((item) => (item.id_secretaria ?? item.idSecretaria ?? item.id) === secretariaId)?.nome_secretaria || (secretariaId ? `ID ${secretariaId}` : "Não informado");
+  return <PageShell><button onClick={() => navigate("/eventos")} className="mb-5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-[#1E7A3C]"><ArrowLeft size={16} /> Voltar</button><article className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm"><div className="bg-[#1E7A3C] p-6 text-white sm:p-10"><span className="rounded-full bg-white/15 px-3 py-1 text-[10px] font-black uppercase tracking-widest">{status}</span><h1 className="mt-5 max-w-3xl text-3xl font-black">{getValue(evento, "titulo")}</h1></div><div className="p-6 sm:p-10"><div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"><Info label="Categoria" value={categoria} /><Info label="Secretaria responsável" value={secretaria} /><Info label="Data" value={formatDate(getValue(evento, "data_evento", "dataEvento"))} icon={CalendarPlus} /><Info label="Horário" value={`${getValue(evento, "hora_inicio_evento", "horaInicioEvento")} - ${getValue(evento, "hora_fim_evento", "horaFimEvento")}`} icon={Clock} /></div><div className="mt-8 grid gap-8 border-t border-slate-100 pt-8 lg:grid-cols-[1fr_280px]"><div><h2 className="mb-3 text-xs font-black uppercase tracking-widest text-slate-400">Descrição completa</h2><p className="whitespace-pre-wrap text-sm leading-7 text-slate-600">{descricao}</p></div><div><h2 className="mb-3 text-xs font-black uppercase tracking-widest text-slate-400">Local e tags</h2><p className="flex items-center gap-2 text-sm font-semibold text-slate-700"><MapPin size={16} className="text-[#1E7A3C]" /> {local}</p><div className="mt-4 flex flex-wrap gap-2">{tags.length ? tags.map((tag) => <span key={tag.label || tag} className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-bold uppercase text-slate-600">{tag.label || tag}</span>) : <span className="text-sm text-slate-400">Nenhuma tag cadastrada.</span>}</div></div></div><section className="mt-8 border-t border-slate-100 pt-8"><h2 className="mb-4 text-xs font-black uppercase tracking-widest text-slate-400">Participantes do evento</h2>{participantes.length > 0 ? <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{participantes.map((participante) => <div key={participante.id_pessoa} className="rounded-2xl border border-slate-100 bg-slate-50 p-4"><p className="text-sm font-bold text-slate-700">{participante.nome}</p><p className="mt-1 text-xs text-slate-500">{participante.email}</p><span className={`mt-3 inline-flex rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase ${participante.compareceu ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>{participante.compareceu ? "Compareceu" : "Não compareceu"}</span></div>)}</div> : <p className="text-sm text-slate-400">Nenhum participante cadastrado.</p>}</section><div className="mt-8 flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-6"><button onClick={() => navigate(`/eventos/editar/${id}`)} className="flex items-center gap-2 rounded-xl bg-[#1E7A3C] px-4 py-3 text-xs font-bold text-white hover:bg-[#165a2d]"><Pencil size={15} /> Editar evento</button><button onClick={() => setExcluirAberto(true)} className="flex items-center gap-2 rounded-xl border border-red-200 px-4 py-3 text-xs font-bold text-red-600 hover:bg-red-50"><Trash2 size={15} /> Excluir evento</button></div></div></article><ConfirmDeleteModal aberto={excluirAberto} evento={evento} carregando={excluindo} onConfirm={excluir} onCancel={() => setExcluirAberto(false)} /></PageShell>;
 }
 
 function Info({ label, value, icon: Icon }) { return <div className="rounded-2xl bg-slate-50 p-4"><span className="text-[10px] font-black uppercase tracking-wider text-slate-400">{label}</span><p className="mt-2 flex items-center gap-2 text-sm font-bold text-slate-700">{Icon && <Icon size={15} className="text-[#1E7A3C]" />} {value}</p></div>; }
