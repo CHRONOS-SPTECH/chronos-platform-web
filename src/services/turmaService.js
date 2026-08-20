@@ -4,6 +4,7 @@ const STATUS_LABELS_VALIDOS = [
 	"Não Iniciada",
 	"Em Andamento",
 	"Concluída",
+	"Inativa",
 ];
 
 // Mapa inverso: enum backend para label
@@ -11,12 +12,14 @@ const STATUS_ENUM_TO_LABEL = {
 	NAO_INICIADA: "Não Iniciada",
 	EM_ANDAMENTO: "Em Andamento",
 	CONCLUIDA: "Concluída",
+	INATIVA: "Inativa",
 };
 
 const STATUS_LABEL_CANONICA = {
 	naoiniciada: "Não Iniciada",
 	emandamento: "Em Andamento",
 	concluida: "Concluída",
+	inativa: "Inativa"
 };
 
 const normalizarChaveStatus = (status) =>
