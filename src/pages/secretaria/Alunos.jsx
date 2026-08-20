@@ -23,15 +23,7 @@ export default function Alunos() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [alunoParaExcluir, setAlunoParaExcluir] = useState(null);
 
-  const {
-    alunos,
-    loading,
-    error: erro,
-    salvando,
-    carregarAlunos,
-    salvarAluno,
-    excluirAluno,
-  } = useAlunos();
+  const { alunos, loading, error: erro, excluirAluno } = useAlunos();
 
   const emailJaCadastrado = (email, idAlunoIgnorado = null) => {
     const emailNormalizado = String(email || "")
@@ -82,16 +74,17 @@ export default function Alunos() {
     }));
   }, [alunos]);
 
-  const onSalvarAluno = async (dadosPessoa, dadosEndereco) => {
+  const onSalvarAluno = async (payload) => {
     try {
       const idAluno = alunoEmEdicao?.id_pessoa || null;
 
-      if (emailJaCadastrado(dadosPessoa.email, idAluno)) {
+      if (emailJaCadastrado(payload.dadosPessoa.email, idAluno)) {
         toast.error("Este e-mail já está cadastrado para outra pessoa.");
         return;
       }
 
-      await salvarAluno(dadosPessoa, dadosEndereco, alunoEmEdicao);
+      console.log("Payload completo do cadastro de aluno:", payload);
+      // O envio para o back-end ficará habilitado quando a API de biometria estiver pronta.
 
       toast.success(
         alunoEmEdicao
@@ -275,7 +268,7 @@ export default function Alunos() {
         isOpen={modalAlunoAberto}
         onClose={fecharModalAluno}
         onSalvar={onSalvarAluno}
-        carregando={salvando}
+        carregando={false}
         valoresPadrao={
           alunoEmEdicao ? mapAlunoParaForm(alunoEmEdicao) : undefined
         }

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { GraduationCap, MapPin, X, Loader2 } from "lucide-react";
+import { Camera, GraduationCap, MapPin, X, Loader2 } from "lucide-react";
 import cepService from "../../services/cepService";
 import { useToast } from "../alert-toast/ToastProvider";
+import ModalBiometriaAluno from "../reconhecimento-facial/ModalBiometriaAluno";
 
 const TOTAL_ETAPAS = 3;
 
@@ -26,6 +27,8 @@ const dadosIniciaisFormulario = {
   bairro: "",
   cidade: "",
   uf: "",
+  foto_biometrica: null,
+  vetor_biometrico: null,
 };
 
 export default function ModalAluno({
@@ -39,11 +42,15 @@ export default function ModalAluno({
   const [formulario, setFormulario] = useState(dadosIniciaisFormulario);
   const [etapaAtual, setEtapaAtual] = useState(1);
   const [buscandoCep, setBuscandoCep] = useState(false);
+  const [modalBiometriaAberto, setModalBiometriaAberto] = useState(false);
+  const [modoVisualizacaoFoto, setModoVisualizacaoFoto] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
     setFormulario({ ...dadosIniciaisFormulario, ...(valoresPadrao || {}) });
     setEtapaAtual(1);
+    setModalBiometriaAberto(false);
+    setModoVisualizacaoFoto(false);
   }, [isOpen, valoresPadrao]);
 
   useEffect(() => {
@@ -95,6 +102,15 @@ export default function ModalAluno({
     }));
   };
 
+  const confirmarFotoBiometrica = (dados) => {
+    setFormulario((anterior) => ({
+      ...anterior,
+      foto_biometrica: dados?.imagemBase64 || null,
+      vetor_biometrico: dados?.vetorBiometrico || null,
+    }));
+    setModalBiometriaAberto(false);
+  };
+
   const validarCamposObrigatorios = () => {
     if (etapaAtual !== 1) return true;
 
@@ -120,6 +136,11 @@ export default function ModalAluno({
 
   const enviarDadosFinais = () => {
     if (!onSalvar) return;
+
+    if (!formulario.foto_biometrica || !formulario.vetor_biometrico) {
+      toast.error("Capture e aprove a foto biométrica para concluir.");
+      return;
+    }
 
     const dadosPessoa = {
       nome: formulario.nome.trim(),
@@ -160,7 +181,14 @@ export default function ModalAluno({
         }
       : null; // Se estiver incompleto ou vazio, o back-end não receberá a requisição de endereço
 
-    onSalvar(dadosPessoa, dadosEndereco);
+    onSalvar({
+      dadosPessoa,
+      dadosEndereco,
+      biometria: {
+        imagemBase64: formulario.foto_biometrica,
+        vetorBiometrico: formulario.vetor_biometrico,
+      },
+    });
   };
 
   const tituloEtapa =
@@ -172,7 +200,7 @@ export default function ModalAluno({
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div className="bg-white w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl animate-in fade-in zoom-in duration-200">
         <div className="p-8">
           <div className="flex justify-between items-start mb-6">
             <div>
@@ -297,6 +325,51 @@ export default function ModalAluno({
 
             {etapaAtual === 2 && (
               <>
+                <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="rounded-xl bg-green-100 p-2 text-green-700">
+                        <Camera size={18} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-800">
+                          Foto biométrica
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {formulario.foto_biometrica
+                            ? "Foto confirmada"
+                            : "Ainda não registrada"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 gap-2">
+                      {formulario.foto_biometrica && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setModoVisualizacaoFoto(true);
+                            setModalBiometriaAberto(true);
+                          }}
+                          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-100"
+                        >
+                          Ver foto
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setModoVisualizacaoFoto(false);
+                          setModalBiometriaAberto(true);
+                        }}
+                        className="rounded-xl bg-green-700 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-green-800"
+                      >
+                        {formulario.foto_biometrica
+                          ? "Refazer foto"
+                          : "Registrar foto"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
                     Tipo de Vínculo
@@ -490,6 +563,13 @@ export default function ModalAluno({
           </form>
         </div>
       </div>
+      <ModalBiometriaAluno
+        isOpen={modalBiometriaAberto}
+        onClose={() => setModalBiometriaAberto(false)}
+        onConfirmar={confirmarFotoBiometrica}
+        modoVisualizacao={modoVisualizacaoFoto}
+        fotoInicial={formulario.foto_biometrica}
+      />
     </div>
   );
 }
