@@ -12,7 +12,7 @@ const STATUS_ENUM_TO_LABEL = {
 	NAO_INICIADA: "Não Iniciada",
 	EM_ANDAMENTO: "Em Andamento",
 	CONCLUIDA: "Concluída",
-	INATIVA: "Inativa",
+	INATIVA: "Inativdjdsjkds",
 };
 
 const STATUS_LABEL_CANONICA = {
