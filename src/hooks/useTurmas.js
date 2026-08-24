@@ -11,6 +11,7 @@ export default function useTurmas() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [salvando, setSalvando] = useState(false);
+  const [dadosAlunosPorTurma, setDadosAlunosPorTurma] = useState([]);
 
   const carregarTurmas = useCallback(async () => {
     try {
@@ -81,14 +82,27 @@ export default function useTurmas() {
     }
   };
 
+  async function buscarAlunos(id) {
+    try {
+      const alunosTurma = await turmaService.buscarAlunosPorTurma(id);
+      setDadosAlunosPorTurma(alunosTurma);
+      return alunosTurma;
+    } catch (err) {
+      console.error("Erro ao buscar alunos:", err);
+      throw err;
+    }
+  }
+
   return {
     turmas,
     turmasUi,
     loading,
     error,
     salvando,
+    dadosAlunosPorTurma,
     carregarTurmas,
     salvarTurma,
     excluirTurma,
+    buscarAlunos,
   };
 }

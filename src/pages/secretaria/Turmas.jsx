@@ -8,22 +8,27 @@ import ModalTurma from "../../components/turmas/ModalTurma";
 import useTurmas from "../../hooks/useTurmas";
 import { useToast } from "../../components/alert-toast/ToastProvider";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
+import ModalAlunosPorTurma from "../../components/turmas/ModalTurmaAlunos";
 
 export default function Turmas() {
   const toast = useToast();
   const [isModalAberto, setIsModalAberto] = useState(false);
+  const [isModalAbertoAlunosTurma, setIsModalAbertoAlunosTurma] = useState(false);
   const [turmaEmEdicao, setTurmaEmEdicao] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [turmaParaExcluir, setTurmaParaExcluir] = useState(null);
+  const [dadosAlunos, setDadosAlunos] = useState(null);
 
   const {
     turmasUi,
     loading,
     error,
     salvando,
+    dadosAlunosPorTurma,
     carregarTurmas,
     salvarTurma,
     excluirTurma,
+    buscarAlunos,
   } = useTurmas();
 
   const onNovaTurma = () => {
@@ -35,6 +40,17 @@ export default function Turmas() {
     setTurmaEmEdicao(turma.raw);
     setIsModalAberto(true);
   };
+
+  const onVer = async (turma) => {
+    setIsModalAbertoAlunosTurma(true)
+    console.log(turma.id);
+
+    try {
+      await buscarAlunos(turma.id)
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   const onSalvarTurma = async (dadosTurma) => {
     try {
@@ -119,6 +135,7 @@ export default function Turmas() {
                     turma={turma}
                     onEditar={onEditarTurma}
                     onExcluir={onExcluirTurma}
+                    onVer={onVer}
                   />
                 ))}
               </div>
@@ -134,6 +151,13 @@ export default function Turmas() {
           valoresPadrao={turmaEmEdicao}
         />
 
+        <ModalAlunosPorTurma
+          isOpen={isModalAbertoAlunosTurma}
+          onClose={() => setIsModalAbertoAlunosTurma(false)}
+          carregando={salvando}
+          dadosAlunos={dadosAlunosPorTurma}
+        />
+
         <ConfirmDialog
           aberto={confirmOpen}
           titulo="Confirmar Exclusão"
@@ -142,6 +166,8 @@ export default function Turmas() {
           onCancel={() => setConfirmOpen(false)}
           carregando={false}
         />
+
+
       </div>
     </div>
   );

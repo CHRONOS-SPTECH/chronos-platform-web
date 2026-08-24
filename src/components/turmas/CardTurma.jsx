@@ -12,11 +12,10 @@ function CardTurma({ turma, onVer, onEditar, onExcluir }) {
           <BookOpen size={22} className="text-[#00871D]" />
         </div>
         <span
-          className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${
-            isFormado
-              ? "bg-blue-50 text-blue-600 border border-blue-100"
-              : "bg-green-50 text-green-700 border border-green-100"
-          }`}
+          className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${isFormado
+            ? "bg-blue-50 text-blue-600 border border-blue-100"
+            : "bg-green-50 text-green-700 border border-green-100"
+            }`}
         >
           {turma.status}
         </span>
@@ -49,9 +48,8 @@ function CardTurma({ turma, onVer, onEditar, onExcluir }) {
         </div>
         <div className="w-full bg-gray-100 rounded-full h-1.5">
           <div
-            className={`h-1.5 rounded-full transition-all ${
-              isFormado ? "bg-blue-500" : "bg-[#00871D]"
-            }`}
+            className={`h-1.5 rounded-full transition-all ${isFormado ? "bg-blue-500" : "bg-[#00871D]"
+              }`}
             style={{ width: `${turma.progresso}%` }}
           />
         </div>

@@ -81,6 +81,11 @@ const turmaService = {
 		return response.data;
 	},
 
+	buscarAlunosPorTurma: async (id) => {
+		const response = await api.get(`/turmas/${id}/alunosPorTurma`);
+		return response.data;
+	},
+
 // post
 	criarTurma: async (dados) => {
 		const response = await api.post("/turmas", dataToApi(dados));
