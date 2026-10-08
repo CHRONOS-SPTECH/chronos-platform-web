@@ -28,7 +28,6 @@ export default function Alunos() {
     loading,
     error: erro,
     salvando,
-    carregarAlunos,
     salvarAluno,
     excluirAluno,
   } = useAlunos();
@@ -82,16 +81,21 @@ export default function Alunos() {
     }));
   }, [alunos]);
 
-  const onSalvarAluno = async (dadosPessoa, dadosEndereco) => {
+  const onSalvarAluno = async (payload) => {
     try {
       const idAluno = alunoEmEdicao?.id_pessoa || null;
 
-      if (emailJaCadastrado(dadosPessoa.email, idAluno)) {
+      if (emailJaCadastrado(payload.dadosPessoa.email, idAluno)) {
         toast.error("Este e-mail já está cadastrado para outra pessoa.");
         return;
       }
 
-      await salvarAluno(dadosPessoa, dadosEndereco, alunoEmEdicao);
+      await salvarAluno(
+        payload.dadosPessoa,
+        payload.dadosEndereco,
+        alunoEmEdicao,
+        payload.biometria,
+      );
 
       toast.success(
         alunoEmEdicao

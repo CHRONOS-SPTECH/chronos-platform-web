@@ -32,6 +32,7 @@ export default function useAlunos() {
     dadosPessoa,
     dadosEndereco,
     alunoEmEdicao = null,
+    biometria = null,
   ) => {
     try {
       setSalvando(true);
@@ -67,7 +68,15 @@ export default function useAlunos() {
         );
         return alunoFinal;
       } else {
-        const alunoCriado = await alunoService.cadastrarAluno(dadosPessoa);
+        const possuiBiometria =
+          biometria?.imagemBlob instanceof Blob &&
+          biometria?.vetorBiometrico?.length > 0;
+        const alunoCriado = possuiBiometria
+          ? await alunoService.cadastrarAlunoComBiometria(
+              dadosPessoa,
+              biometria,
+            )
+          : await alunoService.cadastrarAluno(dadosPessoa);
         let alunoFinal = { ...alunoCriado };
 
         if (dadosEndereco) {
