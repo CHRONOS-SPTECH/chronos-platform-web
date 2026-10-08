@@ -3,15 +3,21 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useToast } from "../components/alert-toast/ToastProvider";
 import aulaService from "../services/aulaService";
 import turmaService from "../services/turmaService";
+import pessoaService from "../services/pessoaService";
+import temaService from "../services/temaService";
 
 export default function useGestaoAulas() {
   const toast = useToast();
 
   const [aulas, setAulas] = useState([]);
   const [turmas, setTurmas] = useState([]);
+  const [professores, setProfessores] = useState([]);
+  const [temas, setTemas] = useState([]);
   const [termoBusca, setTermoBusca] = useState("");
   const [idTurmaSelecionada, setIdTurmaSelecionada] = useState("");
-  const [anoSelecionado, setAnoSelecionado] = useState("2026");
+  const [anoSelecionado, setAnoSelecionado] = useState(
+    String(new Date().getFullYear()),
+  );
   const [arquivoSelecionado, setArquivoSelecionado] = useState(null);
   const [carregandoImportacao, setCarregandoImportacao] = useState(false);
   const [relatorioImportacao, setRelatorioImportacao] = useState(null);
@@ -23,13 +29,20 @@ export default function useGestaoAulas() {
     setCarregandoDados(true);
 
     try {
-      const [aulasDetalhadas, turmasDisponiveis] = await Promise.all([
-        aulaService.listarAulasDetalhadas(),
-        turmaService.listarTurmas(),
-      ]);
+      const [aulasDetalhadas, turmasDisponiveis, pessoas, temasDisponiveis] =
+        await Promise.all([
+          aulaService.listarAulasDetalhadas(),
+          turmaService.listarTurmas(),
+          pessoaService.listarPessoas(),
+          temaService.listarTemas(),
+        ]);
 
       setAulas(aulasDetalhadas || []);
       setTurmas(turmasDisponiveis || []);
+      setProfessores(
+        (pessoas || []).filter((pessoa) => pessoa.tipo_vinculo_id === 4),
+      );
+      setTemas(temasDisponiveis || []);
     } catch (erro) {
       console.error("Erro ao carregar dados da gestão de aulas:", erro);
       toast.error("Não foi possível carregar as aulas e turmas.");
@@ -113,6 +126,23 @@ export default function useGestaoAulas() {
     }
   }, [aulaParaExcluir, carregarDados, toast]);
 
+  const salvarEdicao = useCallback(
+    async (idAula, dados) => {
+      try {
+        await aulaService.atualizarAula(idAula, dados);
+        await carregarDados();
+        toast.success("Aula atualizada com sucesso.");
+        return true;
+      } catch (erro) {
+        toast.error(
+          erro.response?.data?.message || "Não foi possível editar a aula.",
+        );
+        return false;
+      }
+    },
+    [carregarDados, toast],
+  );
+
   const aulasFiltradas = useMemo(() => {
     const termoNormalize = termoBusca.trim().toLowerCase();
 
@@ -132,7 +162,7 @@ export default function useGestaoAulas() {
 
       const anoDaAula = item.aula.data_aula
         ? item.aula.data_aula.substring(0, 4)
-        : "2026";
+        : String(new Date().getFullYear());
 
       const bateAno = !anoSelecionado || anoDaAula === anoSelecionado;
 
@@ -143,6 +173,8 @@ export default function useGestaoAulas() {
   return {
     aulas,
     turmas,
+    professores,
+    temas,
     termoBusca,
     setTermoBusca,
     idTurmaSelecionada,
@@ -163,5 +195,6 @@ export default function useGestaoAulas() {
     setConfirmacaoAberta,
     abrirConfirmacaoExclusao,
     confirmarExclusao,
+    salvarEdicao,
   };
 }

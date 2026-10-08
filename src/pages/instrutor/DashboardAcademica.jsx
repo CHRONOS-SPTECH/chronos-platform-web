@@ -3,7 +3,7 @@ import { Users, Info } from "@phosphor-icons/react";
 
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
-import AgeChart from "../../components/Charts/AgeChart";
+import AgeChart from "../../components/charts/AgeChart";
 import useDashboardAcademica from "../../hooks/useDashboardAcademica";
 
 function DashboardAcademica() {
