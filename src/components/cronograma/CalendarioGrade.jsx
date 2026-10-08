@@ -1,205 +1,110 @@
 import React, { useState } from "react";
-import { Reply } from "lucide-react";
+import { ArrowDownToLine } from "lucide-react";
+import { formatarDataLocal } from "../../utils/CronogramaUtils";
 
-export default function CalendarioGrade({
-  datasDaSemana,
-  listaHorarios,
-  alocacoesDoBanco,
-  turmaSelecionada,
-  semanaAtual,
-  aoSoltarCard,
-  aoDesalocar,
-}) {
-  const dias = [
-    "Segunda",
-    "Terça",
-    "Quarta",
-    "Quinta",
-    "Sexta",
-    "Sábado",
-    "Domingo",
-  ];
-  const [quadradoAtivo, setQuadradoAtivo] = useState(null);
+const DIAS = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+const HORAS = Array.from({ length: 18 }, (_, i) => i + 6);
 
-  const coresStatus = {
-    emerald: {
-      borda: "border-l-emerald-500",
-      tagProf: "bg-emerald-50 text-emerald-700 border-emerald-200",
-      btnDesalocar: "text-emerald-600 hover:bg-emerald-50",
-    },
-    indigo: {
-      borda: "border-l-indigo-500",
-      tagProf: "bg-indigo-50 text-indigo-700 border-indigo-200",
-      btnDesalocar: "text-indigo-600 hover:bg-indigo-50",
-    },
-    rose: {
-      borda: "border-l-rose-500",
-      tagProf: "bg-rose-50 text-rose-700 border-rose-200",
-      btnDesalocar: "text-rose-600 hover:bg-rose-50",
-    },
-    amber: {
-      borda: "border-l-amber-500",
-      tagProf: "bg-amber-50 text-amber-700 border-amber-200",
-      btnDesalocar: "text-amber-600 hover:bg-amber-50",
-    },
-  };
-
-  const arrastarPorCima = (e, chave) => {
-    e.preventDefault();
-    setQuadradoAtivo(chave);
-  };
-
-  const soltarNoQuadrado = (e, diaNum, horario, chaveCelular) => {
-    e.preventDefault();
-    setQuadradoAtivo(null);
-    aoSoltarCard(e, diaNum, horario, chaveCelular);
-  };
-
-  const comecarArrastar = (e, aula, chaveReal) => {
-    e.dataTransfer.setData("text/plain", aula.id_aula.toString());
-    e.dataTransfer.setData("chaveAntiga", chaveReal);
-    e.dataTransfer.setData("origem", "calendario");
-  };
-
-  const buscarAulaNaCelula = (diaNum, horario) => {
-    if (turmaSelecionada !== "todos") {
-      const chavePadrao = `${turmaSelecionada}_${semanaAtual}_${diaNum}_${horario}`;
-      return {
-        aula: alocacoesDoBanco[chavePadrao],
-        chaveReal: chavePadrao,
-        idTurmaReal: turmaSelecionada,
-      };
-    }
-
-    const sufixoProcurado = `_${semanaAtual}_${diaNum}_${horario}`;
-    const chaveEncontrada = Object.keys(alocacoesDoBanco).find((key) =>
-      key.endsWith(sufixoProcurado),
-    );
-
-    let idTurmaReal = "";
-    if (chaveEncontrada) {
-      idTurmaReal = chaveEncontrada.split("_")[0];
-    }
-
-    return {
-      aula: chaveEncontrada ? alocacoesDoBanco[chaveEncontrada] : null,
-      chaveReal: chaveEncontrada || `todos_${semanaAtual}_${diaNum}_${horario}`,
-      idTurmaReal,
-    };
-  };
-
+function CartaoAula({ item, aoSelecionar, arrastavel = true, aoIniciarArraste }) {
+  const { aula } = item;
+  const chamada = Boolean(item.chamadaFeita ?? aula.chamadaFeita);
   return (
-    <div className="min-w-[1200px] bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
-      <div className="grid grid-cols-[100px_repeat(7,1fr)] bg-gray-50/50 border-b border-gray-200">
-        <div className="h-12 border-r border-gray-200 bg-gray-50/50"></div>
-        {dias.map((nomeDia, index) => {
-          const dataObj = datasDaSemana[index];
-          const dataFormatada = dataObj
-            ? `${String(dataObj.getDate()).padStart(2, "0")}/${String(
-                dataObj.getMonth() + 1,
-              ).padStart(2, "0")}`
-            : "--/--";
+    <button
+      type="button"
+      draggable={arrastavel && !chamada}
+      onDragStart={(e) => {
+        e.dataTransfer.setData("text/plain", String(aula.id_aula));
+        e.dataTransfer.setData("origem", "calendario");
+        e.dataTransfer.effectAllowed = "move";
+        const imagemArraste = document.createElement("div");
+        imagemArraste.textContent = `Mover · ${item.tema?.titulo_tema || "Aula"}`;
+        Object.assign(imagemArraste.style, {
+          position: "fixed", top: "-1000px", left: "-1000px", zIndex: "9999",
+          padding: "7px 11px", borderRadius: "9px", background: "#312e81",
+          color: "white", font: "600 12px sans-serif", boxShadow: "0 6px 18px rgba(15,23,42,.2)",
+          pointerEvents: "none", whiteSpace: "nowrap",
+        });
+        document.body.appendChild(imagemArraste);
+        e.dataTransfer.setDragImage(imagemArraste, 14, 14);
+        window.setTimeout(() => imagemArraste.remove(), 1000);
+        aoIniciarArraste?.();
+      }}
+      onDragEnd={aoIniciarArraste}
+      onClick={() => aoSelecionar(item)}
+      className={`w-full min-w-0 rounded-xl border-l-4 px-2.5 py-2 text-left shadow-sm ring-1 ring-slate-900/5 transition hover:-translate-y-0.5 hover:shadow-md ${chamada ? "border-emerald-500 bg-emerald-50" : "border-indigo-500 bg-white"}`}
+    >
+      <span className="block truncate text-[11px] font-bold text-slate-800">{item.tema?.titulo_tema || "Aula"}</span>
+      <span className="mt-0.5 flex justify-between gap-1 text-[9px] text-slate-500">
+        <span className="truncate">{item.turma?.nome_turma || `Turma ${aula.id_turma}`}</span>
+        <span className={chamada ? "font-bold text-emerald-700" : "font-semibold text-indigo-600"}>{chamada ? "Presença feita" : "Pendente"}</span>
+      </span>
+      <span className="block truncate text-[9px] text-slate-500">{aula.hora_inicio?.slice(0, 5)} · {item.instrutor?.nome || "Instrutor"}</span>
+    </button>
+  );
+}
 
-          return (
-            <div
-              key={nomeDia}
-              className="flex flex-col items-center justify-center py-2 bg-transparent border-r border-gray-200 last:border-r-0"
-            >
-              <span className="font-bold text-gray-700 text-[11px] uppercase tracking-wider">
-                {nomeDia}
-              </span>
-              <span className="text-[10px] text-green-600 font-bold bg-green-50 px-1.5 py-0.5 rounded-md mt-0.5">
-                {dataFormatada}
-              </span>
+export { CartaoAula };
+
+export default function CalendarioGrade({ datasDaSemana, obterAulasPorDataHora, aoSoltarCard, aoSelecionar, aoDesalocar }) {
+  const [alvoArraste, setAlvoArraste] = useState(null);
+  return (
+    <div className="h-full min-w-0 overflow-x-auto overflow-y-hidden rounded-3xl bg-slate-100 p-2 shadow-xl shadow-slate-300/30 ring-1 ring-slate-300/60">
+      <div className="flex h-full min-w-[1200px] flex-col">
+        <div className="z-10 grid shrink-0 grid-cols-[76px_repeat(7,minmax(150px,1fr))] overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 to-indigo-950 text-white shadow-md">
+          <div className="p-3 text-center text-[10px] font-bold uppercase text-indigo-200">Hora</div>
+          {datasDaSemana.map((data, index) => (
+            <div key={formatarDataLocal(data)} className="border-l border-white/10 p-2 text-center">
+              <span className="block text-[10px] font-bold uppercase tracking-wide text-indigo-200">{DIAS[index]}</span>
+              <span className="text-sm font-black text-white">{data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}</span>
             </div>
-          );
-        })}
-      </div>
-
-      <div className="grid grid-cols-[100px_repeat(7,1fr)] bg-white items-stretch">
-        {listaHorarios.map((horario) => (
-          <React.Fragment key={horario}>
-            <div className="flex flex-col items-center justify-center border-b border-r border-gray-200 bg-gray-50/40 font-mono text-xs text-gray-400 font-bold p-2 min-h-[112px]">
-              {horario}
+          ))}
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-b-2xl">
+          {HORAS.map((hora) => (
+            <div key={hora} className="grid grid-cols-[76px_repeat(7,minmax(150px,1fr))]">
+              <div className="border-b border-slate-200/70 bg-slate-200/80 px-2 py-2 text-center font-mono text-xs font-black text-indigo-950">{String(hora).padStart(2, "0")}:00</div>
+              {datasDaSemana.map((data) => {
+                const dataISO = formatarDataLocal(data);
+                const chave = `${dataISO}-${hora}`;
+                const estaSobCursor = alvoArraste === chave;
+                const itens = obterAulasPorDataHora(dataISO, hora);
+                return (
+                  <div
+                    key={chave}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                      if (alvoArraste !== chave) setAlvoArraste(chave);
+                    }}
+                    onDragLeave={(e) => {
+                      if (!e.currentTarget.contains(e.relatedTarget)) setAlvoArraste(null);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setAlvoArraste(null);
+                      aoSoltarCard(e, dataISO, hora);
+                    }}
+                    className={`relative min-h-[84px] space-y-1 border-b border-l p-1.5 transition-colors duration-100 ${estaSobCursor ? "z-10 border-2 border-dashed border-violet-500 bg-violet-100 shadow-[inset_0_0_0_2px_rgba(139,92,246,.12)]" : "border-slate-200/70 bg-white/75 hover:bg-indigo-50/70"}`}
+                  >
+                    {estaSobCursor && (
+                      <span className="pointer-events-none absolute right-2 top-2 z-20 inline-flex items-center gap-1 rounded-full bg-violet-700 px-2 py-1 text-[10px] font-bold text-white shadow-md ring-2 ring-white">
+                        <ArrowDownToLine size={12} /> {String(hora).padStart(2, "0")}:00
+                      </span>
+                    )}
+                    {itens.map((item) => (
+                      <div key={item.aula.id_aula} className="group relative">
+                        <CartaoAula item={item} aoSelecionar={aoSelecionar} aoIniciarArraste={() => setAlvoArraste(null)} />
+                        {!Boolean(item.chamadaFeita ?? item.aula.chamadaFeita) && (
+                          <button type="button" onClick={() => aoDesalocar(item)} className="absolute right-1 top-1 hidden rounded-lg bg-white/95 px-1.5 py-1 text-[9px] font-bold text-rose-600 shadow-sm group-hover:block">Desalocar</button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
             </div>
-
-            {[1, 2, 3, 4, 5, 6, 7].map((diaNum) => {
-              const { aula, chaveReal, idTurmaReal } = buscarAulaNaCelula(
-                diaNum,
-                horario,
-              );
-              const chaveMockDrop = `${turmaSelecionada}_${semanaAtual}_${diaNum}_${horario}`;
-              const estaAtivo = quadradoAtivo === chaveMockDrop;
-
-              const estiloConfig = aula
-                ? coresStatus[aula.color] || {
-                    borda: "border-l-slate-400",
-                    tagProf: "bg-slate-50 text-slate-700 border-slate-200",
-                    btnDesalocar: "text-slate-600 hover:bg-slate-50",
-                  }
-                : null;
-
-              return (
-                <div
-                  key={diaNum}
-                  onDragOver={(e) => arrastarPorCima(e, chaveMockDrop)}
-                  onDragLeave={() => setQuadradoAtivo(null)}
-                  onDrop={(e) =>
-                    soltarNoQuadrado(e, diaNum, horario, chaveReal)
-                  }
-                  className={`p-2 border-b border-r border-gray-200/70 transition-all duration-150 flex flex-col min-h-[112px] justify-between ${
-                    estaAtivo
-                      ? "bg-green-50/60 border-2 border-dashed border-green-400 z-10"
-                      : "bg-white"
-                  }`}
-                >
-                  {aula ? (
-                    <div
-                      draggable
-                      onDragStart={(e) => comecarArrastar(e, aula, chaveReal)}
-                      className={`bg-white border-y border-r border-l-[5px] ${estiloConfig.borda} border-gray-200 p-2.5 rounded-xl shadow-sm flex-1 w-full cursor-move flex flex-col justify-between transition-all group hover:shadow-md text-left overflow-hidden`}
-                    >
-                      <div className="flex flex-col gap-1 w-full">
-                        <div className="flex gap-1 flex-wrap items-center">
-                          <span
-                            className={`text-[9px] font-bold uppercase tracking-wide border px-1.5 py-0.5 rounded truncate max-w-full ${estiloConfig.tagProf}`}
-                          >
-                            {aula.prof}
-                          </span>
-                          {turmaSelecionada === "todos" && idTurmaReal && (
-                            <span className="text-[9px] font-bold bg-slate-100 text-slate-600 border border-slate-200 px-1.5 py-0.5 rounded">
-                              Turma {aula.turma}
-                            </span>
-                          )}
-                        </div>
-
-                        <p
-                          className="text-xs font-bold text-slate-800 leading-snug mt-1.5 break-all sm:break-words"
-                          title={aula.tema}
-                        >
-                          {aula.tema}
-                        </p>
-                      </div>
-
-                      <div className="flex justify-end mt-2 pt-1 border-t border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            aoDesalocar(chaveReal);
-                          }}
-                          className={`flex items-center gap-1 cursor-pointer border-0 bg-transparent font-bold text-[10px] py-1 px-1.5 rounded-md transition-colors ${estiloConfig.btnDesalocar}`}
-                        >
-                          <Reply size={11} className="transform rotate-180" />
-                          <span>Desalocar</span>
-                        </button>
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-              );
-            })}
-          </React.Fragment>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -6,10 +6,13 @@ import Header from "../../components/homeSecretario/Header";
 import ModalCargaLetiva from "../../components/gestaoAulas/modalAulas";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import useGestaoAulas from "../../hooks/useGestaoAulas";
+import AulaDialog from "../../components/cronograma/AulaDialog";
 
 export default function GestaoAulasView() {
   const {
     turmas,
+    professores,
+    temas,
     termoBusca,
     setTermoBusca,
     idTurmaSelecionada,
@@ -29,9 +32,12 @@ export default function GestaoAulasView() {
     setConfirmacaoAberta,
     abrirConfirmacaoExclusao,
     confirmarExclusao,
+    salvarEdicao,
   } = useGestaoAulas();
 
   const [modalAberto, setModalAberto] = useState(false);
+  const [aulaSelecionada, setAulaSelecionada] = useState(null);
+  const [modoEdicao, setModoEdicao] = useState(false);
 
   const abrirModalImportacao = () => setModalAberto(true);
 
@@ -106,9 +112,15 @@ export default function GestaoAulasView() {
                   onChange={(evento) => setAnoSelecionado(evento.target.value)}
                   className="text-xs py-2 border-0 bg-transparent text-slate-600 focus:outline-none font-bold cursor-pointer"
                 >
-                  <option value="2026">Ano: 2026</option>
-                  <option value="2027">Ano: 2027</option>
-                  <option value="2028">Ano: 2028</option>
+                  <option value={String(new Date().getFullYear())}>
+                    Ano: {new Date().getFullYear()}
+                  </option>
+                  <option value={String(new Date().getFullYear() - 1)}>
+                    Ano: {new Date().getFullYear() - 1}
+                  </option>
+                  <option value={String(new Date().getFullYear() + 1)}>
+                    Ano: {new Date().getFullYear() + 1}
+                  </option>
                 </select>
               </div>
             </div>
@@ -180,10 +192,34 @@ export default function GestaoAulasView() {
                           </td>
                           <td className="px-6 py-4 text-center whitespace-nowrap">
                             <span
-                              className={`inline-block w-2 h-2 rounded-full ${estaAgendada ? "bg-emerald-400" : "bg-slate-300"}`}
-                            ></span>
+                              className={`inline-block rounded-full px-2 py-1 text-[10px] font-bold ${item.chamadaFeita ? "bg-emerald-50 text-emerald-700" : estaAgendada ? "bg-indigo-50 text-indigo-700" : "bg-slate-100 text-slate-500"}`}
+                            >
+                              {item.chamadaFeita
+                                ? "Presença feita"
+                                : estaAgendada
+                                  ? "Presença pendente"
+                                  : "Não alocada"}
+                            </span>
                           </td>
                           <td className="px-6 py-4 text-center whitespace-nowrap">
+                            <button
+                              onClick={() => {
+                                setAulaSelecionada(item);
+                                setModoEdicao(false);
+                              }}
+                              className="mr-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[10px] font-bold text-slate-600 hover:bg-slate-50"
+                            >
+                              Detalhes
+                            </button>
+                            <button
+                              onClick={() => {
+                                setAulaSelecionada(item);
+                                setModoEdicao(true);
+                              }}
+                              className="mr-2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-[10px] font-bold text-indigo-700 hover:bg-indigo-100"
+                            >
+                              Editar
+                            </button>
                             <button
                               onClick={() =>
                                 abrirConfirmacaoExclusao(item.aula.id_aula)
@@ -230,6 +266,25 @@ export default function GestaoAulasView() {
         mensagem="Deseja deletar esta aula da matriz permanentemente?"
         onConfirm={confirmarExclusao}
         onCancel={() => setConfirmacaoAberta(false)}
+      />
+      <AulaDialog
+        item={aulaSelecionada}
+        editando={modoEdicao}
+        onClose={() => {
+          setAulaSelecionada(null);
+          setModoEdicao(false);
+        }}
+        onEditar={() => setModoEdicao(true)}
+        onSalvar={async (id, dados) => {
+          const salvo = await salvarEdicao(id, dados);
+          if (salvo) {
+            setAulaSelecionada(null);
+            setModoEdicao(false);
+          }
+        }}
+        turmas={turmas}
+        professores={professores}
+        temas={temas}
       />
     </div>
   );

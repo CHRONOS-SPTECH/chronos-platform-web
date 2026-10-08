@@ -1,291 +1,323 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-
 import { useToast } from "../components/alert-toast/ToastProvider";
 import aulaService from "../services/aulaService";
 import pessoaService from "../services/pessoaService";
 import temaService from "../services/temaService";
 import turmaService from "../services/turmaService";
 import {
+  adicionarDias,
   calcularDatasDaSemana,
-  verificarConflitoProfessor,
+  calcularDatasDoMes,
+  formatarDataLocal,
   obterTextoSemanaDoMes,
-  obterSemanaAtualDoAno,
+  verificarConflitoProfessor,
 } from "../utils/CronogramaUtils";
 
 export default function useCronogramaAulas() {
   const toast = useToast();
-
-  const [semana, setSemana] = useState(obterSemanaAtualDoAno());
+  const [dataReferencia, setDataReferencia] = useState(() => new Date());
+  const [visualizacao, setVisualizacao] = useState("semana");
   const [turmaSelecionada, setTurmaSelecionada] = useState("todos");
+  const [instrutorSelecionado, setInstrutorSelecionado] = useState("todos");
+  const [filtroPresenca, setFiltroPresenca] = useState("todas");
   const [turmas, setTurmas] = useState([]);
   const [professores, setProfessores] = useState([]);
   const [temas, setTemas] = useState([]);
   const [aulas, setAulas] = useState([]);
-  const [datas, setDatas] = useState([]);
+  const [confirmacao, setConfirmacao] = useState(null);
+  const [aulaSelecionada, setAulaSelecionada] = useState(null);
+  const [aulaEmEdicao, setAulaEmEdicao] = useState(null);
+  const [carregando, setCarregando] = useState(false);
 
   useEffect(() => {
-    turmaService
-      .listarTurmas()
-      .then((dadosTurmas) => setTurmas(dadosTurmas))
-      .catch((erro) => {
-        console.error("Erro ao buscar turmas:", erro);
-      });
-  }, []);
-
-  useEffect(() => {
+    turmaService.listarTurmas().then(setTurmas).catch(console.error);
     pessoaService
       .listarPessoas()
-      .then((dadosPessoas) => {
-        const professoresAtivos = dadosPessoas.filter(
-          (pessoa) => pessoa.tipo_vinculo_id === 4,
-        );
-        setProfessores(professoresAtivos);
-      })
-      .catch((erro) => {
-        console.error("Erro ao carregar professores:", erro);
-      });
-  }, []);
-
-  useEffect(() => {
-    temaService
-      .listarTemas()
-      .then((dadosTemas) => setTemas(dadosTemas))
-      .catch((erro) => {
-        console.error("Erro ao carregar temas de aula:", erro);
-      });
+      .then((pessoas) =>
+        setProfessores(pessoas.filter((p) => p.tipo_vinculo_id === 4)),
+      )
+      .catch(console.error);
+    temaService.listarTemas().then(setTemas).catch(console.error);
   }, []);
 
   const carregarAulas = useCallback(async () => {
+    setCarregando(true);
     try {
-      const dadosAulas = await aulaService.listarAulasDetalhadas();
-      setAulas(dadosAulas);
+      setAulas((await aulaService.listarAulasDetalhadas()) || []);
     } catch (erro) {
-      console.error("Erro ao buscar aulas detalhadas:", erro);
+      console.error("Erro ao carregar aulas:", erro);
+      toast.error("Não foi possível carregar as aulas.");
+    } finally {
+      setCarregando(false);
     }
-  }, []);
-
+  }, [toast]);
   useEffect(() => {
     carregarAulas();
   }, [carregarAulas]);
 
-  useEffect(() => {
-    setDatas(calcularDatasDaSemana(semana, 2026));
-  }, [semana]);
+  const datas = useMemo(
+    () =>
+      visualizacao === "mes"
+        ? calcularDatasDoMes(dataReferencia)
+        : calcularDatasDaSemana(dataReferencia),
+    [dataReferencia, visualizacao],
+  );
+  const datasSemana = useMemo(
+    () => calcularDatasDaSemana(dataReferencia),
+    [dataReferencia],
+  );
+  const { semanaTexto, mesAnoTexto } = useMemo(
+    () => obterTextoSemanaDoMes(datasSemana),
+    [datasSemana],
+  );
+
+  const aulasFiltradas = useMemo(
+    () =>
+      aulas.filter(({ aula, chamadaFeita }) => {
+        if (!aula) return false;
+        const correspondeTurma =
+          turmaSelecionada === "todos" ||
+          String(aula.id_turma) === turmaSelecionada;
+        const correspondeInstrutor =
+          instrutorSelecionado === "todos" ||
+          String(aula.id_instrutor) === instrutorSelecionado;
+        const chamada = Boolean(chamadaFeita ?? aula.chamadaFeita);
+        const correspondePresenca =
+          filtroPresenca === "todas" ||
+          (filtroPresenca === "feita" ? chamada : !chamada);
+        return correspondeTurma && correspondeInstrutor && correspondePresenca;
+      }),
+    [aulas, turmaSelecionada, instrutorSelecionado, filtroPresenca],
+  );
+
+  const pendenciasFormatadas = useMemo(
+    () =>
+      aulasFiltradas
+        .filter(({ aula }) => !aula.data_aula)
+        .map((item) => ({
+          id: String(item.aula.id_aula),
+          id_instrutor: item.aula.id_instrutor,
+          prof: item.instrutor?.nome || "Instrutor",
+          tema: item.tema?.titulo_tema || "Aula",
+          turma: item.turma?.nome_turma || `Turma ${item.aula.id_turma}`,
+          chamadaFeita: Boolean(item.chamadaFeita ?? item.aula.chamadaFeita),
+        })),
+    [aulasFiltradas],
+  );
+
+  const obterAulasPorDataHora = useCallback(
+    (data, hora) =>
+      aulasFiltradas.filter(({ aula }) => {
+        if (!aula?.data_aula || !aula?.hora_inicio) return false;
+        const horaInformada = Number(String(hora).slice(0, 2));
+        return (
+          aula.data_aula.split("T")[0] === data &&
+          Number(aula.hora_inicio.substring(0, 2)) ===
+            horaInformada
+        );
+      }),
+    [aulasFiltradas],
+  );
+
+  const salvarRemanejamento = useCallback(
+    async (mudancas) => {
+      try {
+        await aulaService.remanejar(mudancas);
+        await carregarAulas();
+        toast.success("Cronograma atualizado.");
+        return true;
+      } catch (erro) {
+        toast.error(
+          erro.response?.data?.message ||
+            "Não foi possível atualizar o cronograma.",
+        );
+        await carregarAulas();
+        return false;
+      }
+    },
+    [carregarAulas, toast],
+  );
+
+  const aoSoltarCard = useCallback(
+    (evento, dataAlvo, hora) => {
+      evento.preventDefault();
+      const idAula = Number(evento.dataTransfer.getData("text/plain"));
+      const item = aulas.find(
+        (registro) => Number(registro.aula?.id_aula) === idAula,
+      );
+      if (!item) return;
+      const horaFormatada = `${String(hora).slice(0, 2)}:00:00`;
+      if (Boolean(item.chamadaFeita ?? item.aula.chamadaFeita)) {
+        toast.error("Aulas com presença registrada não podem ser remanejadas.");
+        return;
+      }
+      if (
+        verificarConflitoProfessor(
+          aulas,
+          item.aula.id_instrutor,
+          dataAlvo,
+          horaFormatada,
+          idAula,
+        )
+      ) {
+        toast.error(
+          `Conflito: ${item.instrutor?.nome || "O instrutor"} já tem aula nessa faixa de horário.`,
+        );
+        return;
+      }
+      const ocupantes = aulas.filter(
+        ({ aula }) =>
+          aula?.data_aula?.split("T")[0] === dataAlvo &&
+          Number(aula?.hora_inicio?.substring(0, 2)) === Number(hora) &&
+          Number(aula?.id_turma) === Number(item.aula.id_turma) &&
+          Number(aula?.id_aula) !== idAula,
+      );
+      if (
+        ocupantes.some((registro) =>
+          Boolean(registro.chamadaFeita ?? registro.aula.chamadaFeita),
+        )
+      ) {
+        toast.error(
+          "O horário está ocupado por uma aula com presença registrada.",
+        );
+        return;
+      }
+      if (ocupantes.length === 0) {
+        void salvarRemanejamento([
+          { idAula, dataAula: dataAlvo, horaInicio: horaFormatada },
+        ]);
+        return;
+      }
+      setConfirmacao({ item, dataAlvo, horaFormatada, ocupantes });
+    },
+    [aulas, salvarRemanejamento, toast],
+  );
+
+  const confirmarRemanejamento = useCallback(async () => {
+    if (!confirmacao) return;
+    const mudancas = confirmacao.ocupantes.map(({ aula }) => ({
+      idAula: aula.id_aula,
+      dataAula: null,
+      horaInicio: null,
+    }));
+    mudancas.push({
+      idAula: confirmacao.item.aula.id_aula,
+      dataAula: confirmacao.dataAlvo,
+      horaInicio: confirmacao.horaFormatada,
+    });
+    const salvo = await salvarRemanejamento(mudancas);
+    if (salvo) setConfirmacao(null);
+  }, [confirmacao, salvarRemanejamento]);
+
+  const aoDesalocar = useCallback(
+    async (item) => {
+      if (Boolean(item?.chamadaFeita ?? item?.aula?.chamadaFeita)) {
+        toast.error("Aulas com presença registrada não podem ser desalocadas.");
+        return;
+      }
+      await salvarRemanejamento([
+        { idAula: item.aula.id_aula, dataAula: null, horaInicio: null },
+      ]);
+    },
+    [salvarRemanejamento, toast],
+  );
 
   const aoAdicionarAulaRapida = useCallback(
-    async (dadosFormulario) => {
-      const requisicaoAula = {
-        data_aula: null,
-        hora_inicio: null,
-        hora_fim: null,
-        statusAula: "Agendada",
-        id_turma: dadosFormulario.id_turma,
-        id_tema: dadosFormulario.id_tema,
-        id_instrutor: dadosFormulario.id_instrutor,
-      };
-
+    async (dados) => {
       try {
-        await aulaService.criarAula(requisicaoAula);
+        await aulaService.criarAula({
+          data_aula: null,
+          hora_inicio: null,
+          hora_fim: null,
+          statusAula: "Agendada",
+          ...dados,
+        });
         await carregarAulas();
-        toast.success("Aula pendente adicionada com sucesso!");
+        toast.success("Aula pendente adicionada.");
       } catch (erro) {
-        console.error("Erro ao criar aula rápida:", erro);
-        toast.error("Erro ao criar aula rápida.");
+        toast.error(erro.response?.data?.message || "Erro ao criar aula.");
       }
     },
     [carregarAulas, toast],
   );
 
   const aoDeletarAulaPendente = useCallback(
-    async (idAula) => {
+    async (id) => {
       try {
-        await aulaService.excluirAula(idAula);
+        await aulaService.excluirAula(id);
         await carregarAulas();
-        toast.success("Aula excluída com sucesso.");
+        toast.success("Aula excluída.");
       } catch (erro) {
-        console.error("Erro ao deletar aula:", erro);
-        toast.error("Erro ao deletar aula.");
+        toast.error(erro.response?.data?.message || "Erro ao excluir aula.");
       }
     },
     [carregarAulas, toast],
   );
 
-  const pendenciasFormatadas = useMemo(
-    () =>
-      aulas
-        .filter((item) => {
-          const ehPendente = !item.aula.data_aula;
-          const atendeFiltroTurma =
-            turmaSelecionada === "todos" ||
-            item.aula.id_turma.toString() === turmaSelecionada;
-
-          return ehPendente && atendeFiltroTurma;
-        })
-        .map((item) => ({
-          id: item.aula.id_aula.toString(),
-          prof: item.instrutor.nome,
-          id_instrutor: item.aula.id_instrutor,
-          tema: item.tema.titulo_tema,
-          turma: item.turma.nome_turma,
-          color: "emerald",
-        })),
-    [aulas, turmaSelecionada],
-  );
-
-  const horarios = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          aulas
-            .filter((item) => item.aula.hora_inicio)
-            .map((item) => item.aula.hora_inicio.substring(0, 5)),
-        ),
-      ).sort(),
-    [aulas],
-  );
-
-  const obterAlocacoes = useCallback(() => {
-    const mapaAlocacoes = {};
-    if (datas.length === 0) return mapaAlocacoes;
-
-    const datasDaSemana = datas.map((data) => data.toISOString().split("T")[0]);
-
-    aulas.forEach((item) => {
-      const { data_aula, hora_inicio, id_turma, id_aula, id_instrutor } =
-        item.aula;
-
-      const atendeFiltroTurma =
-        turmaSelecionada === "todos" ||
-        id_turma.toString() === turmaSelecionada;
-
-      if (data_aula && hora_inicio && atendeFiltroTurma) {
-        const dataPura = data_aula.split("T")[0];
-        const indiceDia = datasDaSemana.indexOf(dataPura);
-
-        if (indiceDia !== -1) {
-          const diaNumero = indiceDia + 1;
-          const hora = hora_inicio.substring(0, 5);
-
-          const chave =
-            turmaSelecionada === "todos"
-              ? `todos_${semana}_${diaNumero}_${hora}`
-              : `${turmaSelecionada}_${semana}_${diaNumero}_${hora}`;
-
-          mapaAlocacoes[chave] = {
-            id_aula,
-            id_instrutor,
-            prof: item.instrutor.nome,
-            tema: item.tema.titulo_tema,
-            color: item.chamadaFeFeita ? "emerald" : "indigo",
-            turma: item.turma.nome_turma,
-          };
-        }
-      }
-    });
-
-    return mapaAlocacoes;
-  }, [aulas, datas, semana, turmaSelecionada]);
-
-  const salvarAlteracoes = useCallback(
-    async (mudancas) => {
+  const salvarEdicao = useCallback(
+    async (id, dados) => {
       try {
-        await aulaService.remanejar(mudancas);
+        await aulaService.atualizarAula(id, dados);
         await carregarAulas();
-        toast.success("Alteração salva com sucesso!");
+        setAulaEmEdicao(null);
+        setAulaSelecionada(null);
+        toast.success("Aula atualizada.");
       } catch (erro) {
         toast.error(
-          erro.response?.data?.message || "Erro ao salvar alteração.",
+          erro.response?.data?.message || "Não foi possível editar a aula.",
         );
-        await carregarAulas();
       }
     },
     [carregarAulas, toast],
-  );
-
-  const aoDesalocar = useCallback(
-    async (chave) => {
-      const aulaAlocada = obterAlocacoes()[chave];
-      if (!aulaAlocada) return;
-
-      await salvarAlteracoes([
-        { idAula: aulaAlocada.id_aula, dataAula: null, horaInicio: null },
-      ]);
-    },
-    [obterAlocacoes, salvarAlteracoes],
-  );
-
-  const aoSoltarCard = useCallback(
-    async (evento, diaNumero, hora, chaveDestino) => {
-      const idArrastado = Number(evento.dataTransfer.getData("text/plain"));
-      const dataAlvo = datas[diaNumero - 1].toISOString().split("T")[0];
-      const horaFormatada = `${hora}:00`;
-
-      const aulaArrastada = aulas.find(
-        (aula) => aula.aula.id_aula === idArrastado,
-      );
-      if (!aulaArrastada) return;
-
-      if (
-        verificarConflitoProfessor(
-          aulas,
-          aulaArrastada.aula.id_instrutor,
-          dataAlvo,
-          horaFormatada,
-          idArrastado,
-        )
-      ) {
-        toast.error(
-          `Conflito: O Prof. ${aulaArrastada.instrutor.nome} já tem aula nesse horário!`,
-        );
-        return;
-      }
-
-      const mudancas = [];
-      const ocupanteAtual = obterAlocacoes()[chaveDestino];
-
-      if (ocupanteAtual && ocupanteAtual.id_aula !== idArrastado) {
-        mudancas.push({
-          idAula: ocupanteAtual.id_aula,
-          dataAula: null,
-          horaInicio: null,
-        });
-      }
-
-      mudancas.push({
-        idAula: idArrastado,
-        dataAula: dataAlvo,
-        horaInicio: horaFormatada,
-      });
-
-      await salvarAlteracoes(mudancas);
-    },
-    [aulas, datas, obterAlocacoes, salvarAlteracoes, toast],
-  );
-
-  const { semanaTexto, mesAnoTexto } = useMemo(
-    () => obterTextoSemanaDoMes(datas),
-    [datas],
   );
 
   return {
-    semana,
-    setSemana,
+    dataReferencia,
+    setDataReferencia,
+    visualizacao,
+    setVisualizacao,
     turmaSelecionada,
     setTurmaSelecionada,
+    instrutorSelecionado,
+    setInstrutorSelecionado,
+    filtroPresenca,
+    setFiltroPresenca,
     turmas,
     professores,
     temas,
     aulas,
+    aulasFiltradas,
     datas,
-    pendenciasFormatadas,
-    horarios,
+    datasSemana,
     semanaTexto,
     mesAnoTexto,
-    carregarAulas,
+    pendenciasFormatadas,
+    obterAulasPorDataHora,
     aoAdicionarAulaRapida,
     aoDeletarAulaPendente,
     aoDesalocar,
     aoSoltarCard,
-    obterAlocacoes,
+    confirmacao,
+    setConfirmacao,
+    confirmarRemanejamento,
+    aulaSelecionada,
+    setAulaSelecionada,
+    aulaEmEdicao,
+    setAulaEmEdicao,
+    salvarEdicao,
+    carregarAulas,
+    carregando,
+    navegarPeriodo: (delta) =>
+      setDataReferencia((atual) =>
+        visualizacao === "mes"
+          ? new Date(atual.getFullYear(), atual.getMonth() + delta, 1)
+          : adicionarDias(atual, 7 * delta),
+      ),
+    selecionarData: (data) => {
+      setDataReferencia(data);
+      setVisualizacao("semana");
+    },
+    hoje: () => setDataReferencia(new Date()),
+    dataHoje: formatarDataLocal(new Date()),
   };
 }

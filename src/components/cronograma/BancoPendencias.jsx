@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, PlusCircle, Trash2 } from "lucide-react";
+import { X, PlusCircle, Trash2, GripVertical, Inbox } from "lucide-react";
 
 export default function BancoPendencias({
   estaAberto,
@@ -54,6 +54,13 @@ export default function BancoPendencias({
   const comecarArrastar = (e, aula) => {
     e.dataTransfer.setData("text/plain", aula.id);
     e.dataTransfer.setData("origem", "lista_pendencias");
+    e.dataTransfer.effectAllowed = "move";
+    const indicador = document.createElement("div");
+    indicador.textContent = `↗ ${aula.tema} · movendo`;
+    Object.assign(indicador.style, { position: "fixed", top: "-1000px", left: "-1000px", zIndex: "9999", padding: "8px 12px", borderRadius: "10px", background: "#312e81", color: "white", font: "600 12px sans-serif", boxShadow: "0 8px 24px rgba(15,23,42,.25)", pointerEvents: "none", whiteSpace: "nowrap" });
+    document.body.appendChild(indicador);
+    e.dataTransfer.setDragImage(indicador, 16, 16);
+    window.setTimeout(() => indicador.remove(), 1000);
 
     // Fecha o banco imediatamente após o início do arraste para liberar a Segunda-feira
     setTimeout(() => {
@@ -63,36 +70,36 @@ export default function BancoPendencias({
 
   return (
     <aside
-      className={`absolute left-0 top-0 bottom-0 w-80 bg-white shadow-2xl z-20 flex flex-col transform ${
+      className={`absolute left-0 top-0 bottom-0 z-20 flex w-80 flex-col transform bg-slate-50 shadow-xl shadow-slate-950/20 ring-1 ring-slate-200 ${
         estaAberto ? "translate-x-0" : "-translate-x-full"
       } transition-transform duration-300 ease-in-out`}
     >
-      <div className="p-4 bg-slate-900 text-white flex justify-between items-center">
+      <div className="flex items-center justify-between bg-gradient-to-r from-slate-900 to-indigo-950 px-4 py-3 text-white">
         <div>
-          <h2 className="text-sm font-black tracking-wider text-green-400 uppercase">
+          <h2 className="text-xs font-black tracking-wider text-emerald-300 uppercase">
             Aulas Pendentes
           </h2>
-          <p className="text-[10px] opacity-60 uppercase mt-0.5">
-            Arraste para a grade
+          <p className="mt-0.5 text-[10px] text-slate-300">
+            Arraste um cartão; o destino acende
           </p>
         </div>
         <button
           onClick={aoFechar}
-          className="w-7 h-7 flex items-center justify-center bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-all cursor-pointer border-0"
+          className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10 text-slate-300 transition hover:bg-white/20 hover:text-white"
         >
           <X size={14} />
         </button>
       </div>
 
-      <div className="p-4 border-b bg-slate-50">
-        <p className="text-[11px] font-bold text-slate-500 uppercase mb-2 flex items-center gap-1">
-          <PlusCircle size={12} className="text-green-600" /> Criar Aula Rápida
+      <div className="border-b border-slate-200/70 bg-white p-4">
+        <p className="mb-3 flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-slate-500">
+          <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-50"><PlusCircle size={13} className="text-emerald-600" /></span> Criar aula pendente
         </p>
         <form onSubmit={criarAula} className="space-y-2">
           <select
             value={temaSelecionado}
             onChange={(e) => setTemaSelecionado(e.target.value)}
-            className="w-full text-xs px-3 py-2 border rounded-lg bg-white text-slate-700 focus:outline-none focus:border-green-600 shadow-sm outline-none"
+          className="w-full rounded-xl border-0 bg-slate-100 px-3 py-2.5 text-xs font-medium text-slate-700 outline-none transition focus:bg-white focus:ring-2 focus:ring-indigo-300"
           >
             {temas.length === 0 && (
               <option value="">Carregando temas...</option>
@@ -108,7 +115,7 @@ export default function BancoPendencias({
             <select
               value={turmaForm}
               onChange={(e) => setTurmaForm(e.target.value)}
-              className="w-full text-xs px-2 py-2 border rounded-lg bg-white text-slate-700 focus:outline-none focus:border-green-600 shadow-sm outline-none"
+              className="w-full rounded-xl border-0 bg-slate-100 px-3 py-2.5 text-xs font-medium text-slate-700 outline-none transition focus:bg-white focus:ring-2 focus:ring-indigo-300"
             >
               {turmas.map((t) => (
                 <option key={t.id_turma} value={t.id_turma.toString()}>
@@ -117,7 +124,7 @@ export default function BancoPendencias({
               ))}
             </select>
           ) : (
-            <div className="text-[10px] bg-slate-200/60 text-slate-600 font-bold px-2 py-1.5 rounded-lg border border-slate-300 pointer-events-none">
+            <div className="rounded-xl bg-indigo-50 px-3 py-2.5 text-[10px] font-bold text-indigo-700">
               Turma Vinculada:{" "}
               {turmas.find((t) => t.id_turma.toString() === turmaSelecionada)
                 ?.nome_turma || "Carregando..."}
@@ -128,7 +135,7 @@ export default function BancoPendencias({
             <select
               value={professor}
               onChange={(e) => setProfessor(e.target.value)}
-              className="text-xs px-2 py-2 border rounded-lg bg-white text-slate-700 focus:outline-none focus:border-green-600 shadow-sm outline-none"
+              className="min-w-0 rounded-xl border-0 bg-slate-100 px-2 py-2.5 text-xs font-medium text-slate-700 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-300"
             >
               {professores.map((p) => (
                 <option key={p.id_pessoa} value={p.id_pessoa.toString()}>
@@ -138,7 +145,7 @@ export default function BancoPendencias({
             </select>
             <button
               type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white font-bold text-xs rounded-lg py-2 transition-all shadow-sm cursor-pointer border-0"
+              className="rounded-xl bg-indigo-700 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-300"
             >
               Adicionar
             </button>
@@ -146,30 +153,30 @@ export default function BancoPendencias({
         </form>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 custom-scroll">
+      <div className="custom-scroll flex-1 space-y-2 overflow-y-auto p-3">
+        <div className="flex items-center justify-between px-1 pb-1"><span className="text-[10px] font-black uppercase tracking-wider text-slate-500">Fila de pendências</span><span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-bold text-slate-600">{aulasPendentes.length}</span></div>
+        {aulasPendentes.length === 0 && <div className="rounded-2xl bg-white px-4 py-8 text-center shadow-sm ring-1 ring-slate-900/5"><span className="mx-auto flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600"><Inbox size={18} /></span><p className="mt-3 text-xs font-bold text-slate-700">Nenhuma aula pendente</p><p className="mt-1 text-[10px] leading-relaxed text-slate-500">Crie uma aula acima ou ajuste os filtros de turma.</p></div>}
         {aulasPendentes.map((aula) => (
           <div
             key={aula.id}
             id={aula.id}
             draggable
             onDragStart={(e) => comecarArrastar(e, aula)}
-            className="bg-white border-l-4 border-emerald-500 p-3 rounded-xl shadow-sm border border-slate-200 cursor-grab active:cursor-grabbing hover:shadow-md transition-all text-left"
+            className="group cursor-grab rounded-2xl border-l-4 border-emerald-500 bg-white p-3.5 text-left shadow-sm ring-1 ring-slate-900/5 transition hover:-translate-y-0.5 hover:shadow-lg active:cursor-grabbing active:scale-[.99]"
           >
             <div className="flex justify-between items-start">
-              <span className="text-[9px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded uppercase">
+              <span className="rounded-lg bg-emerald-50 px-2 py-1 text-[9px] font-black uppercase text-emerald-700">
                 {aula.prof}
               </span>
               <button
                 onClick={() => aoDeletarAulaPendente(aula.id)}
-                className="text-slate-300 hover:text-red-500 transition-all text-[10px] cursor-pointer border-0 bg-transparent"
+                className="rounded-lg p-1 text-slate-300 transition hover:bg-rose-50 hover:text-rose-600"
               >
                 <Trash2 size={12} />
               </button>
             </div>
-            <p className="text-xs font-bold text-slate-700 mt-2 leading-tight">
-              {aula.tema}
-            </p>
-            <span className="text-[9px] block text-slate-400 mt-1 italic">
+            <div className="mt-2 flex items-start justify-between gap-2"><p className="text-xs font-bold leading-snug text-slate-800">{aula.tema}</p><GripVertical size={15} className="mt-0.5 shrink-0 text-slate-300 transition group-hover:text-indigo-500" /></div>
+            <span className="mt-1 block text-[10px] font-medium text-slate-500">
               Turma: {aula.turma}
             </span>
           </div>
