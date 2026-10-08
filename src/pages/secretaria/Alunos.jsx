@@ -23,7 +23,14 @@ export default function Alunos() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [alunoParaExcluir, setAlunoParaExcluir] = useState(null);
 
-  const { alunos, loading, error: erro, excluirAluno } = useAlunos();
+  const {
+    alunos,
+    loading,
+    error: erro,
+    salvando,
+    salvarAluno,
+    excluirAluno,
+  } = useAlunos();
 
   const emailJaCadastrado = (email, idAlunoIgnorado = null) => {
     const emailNormalizado = String(email || "")
@@ -83,8 +90,12 @@ export default function Alunos() {
         return;
       }
 
-      console.log("Payload completo do cadastro de aluno:", payload);
-      // O envio para o back-end ficará habilitado quando a API de biometria estiver pronta.
+      await salvarAluno(
+        payload.dadosPessoa,
+        payload.dadosEndereco,
+        alunoEmEdicao,
+        payload.biometria,
+      );
 
       toast.success(
         alunoEmEdicao
@@ -268,7 +279,7 @@ export default function Alunos() {
         isOpen={modalAlunoAberto}
         onClose={fecharModalAluno}
         onSalvar={onSalvarAluno}
-        carregando={false}
+        carregando={salvando}
         valoresPadrao={
           alunoEmEdicao ? mapAlunoParaForm(alunoEmEdicao) : undefined
         }

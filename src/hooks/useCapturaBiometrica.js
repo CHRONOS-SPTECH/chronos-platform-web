@@ -27,6 +27,7 @@ export const useCapturaBiometrica = (aoCapturarFoto) => {
     "Iniciando câmera...",
   );
   const [previewFoto, setPreviewFoto] = useState(null);
+  const [tamanhoImagem, setTamanhoImagem] = useState(null);
 
   // Inicializa a webcam
   useEffect(() => {
@@ -151,37 +152,67 @@ export const useCapturaBiometrica = (aoCapturarFoto) => {
 
     const video = referenciaVideo.current;
     const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    const larguraMaxima = 1280;
+    const maiorDimensao = Math.max(video.videoWidth, video.videoHeight);
+    const escala = Math.min(1, larguraMaxima / maiorDimensao);
+    canvas.width = Math.round(video.videoWidth * escala);
+    canvas.height = Math.round(video.videoHeight * escala);
     const contexto = canvas.getContext("2d");
 
     contexto.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imagemBase64 = canvas.toDataURL("image/jpeg", 0.9);
-
     const deteccaoFinal = await detectarRosto(video);
     const deteccaoParaCaptura = deteccaoFinal || ultimaDeteccaoValida.current;
 
     if (deteccaoParaCaptura) {
       const vetorBiometrico = Array.from(deteccaoParaCaptura.descriptor);
-      setPreviewFoto(imagemBase64);
+      canvas.toBlob(
+        (imagemBlob) => {
+          if (!imagemBlob) return;
 
-      if (aoCapturarFoto) {
-        aoCapturarFoto({
-          imagemBase64,
-          vetorBiometrico,
-        });
-      }
+          const imagemPreview = URL.createObjectURL(imagemBlob);
+          setPreviewFoto(imagemPreview);
+          setTamanhoImagem(imagemBlob.size);
+
+          const tamanhoEmKb = imagemBlob.size / 1024;
+          const tamanhoEmMb = tamanhoEmKb / 1024;
+          const limiteBackend = 10 * 1024 * 1024;
+          const limiteAdapter = 5 * 1024 * 1024;
+          console.info("[Biometria] TAMANHO REAL DA IMAGEM:", {
+            bytes: imagemBlob.size,
+            kb: `${tamanhoEmKb.toFixed(2)} KB`,
+            mb: `${tamanhoEmMb.toFixed(4)} MB`,
+            dimensoes: `${canvas.width}x${canvas.height}px`,
+            qualidadeJpeg: 0.8,
+            percentualDoLimiteDe10MB: `${((imagemBlob.size / limiteBackend) * 100).toFixed(2)}%`,
+            acimaDoLimiteDoBackend: imagemBlob.size > limiteBackend,
+            acimaDoLimiteDoAdapterS3: imagemBlob.size > limiteAdapter,
+          });
+
+          if (aoCapturarFoto) {
+            aoCapturarFoto({
+              imagemBlob,
+              imagemPreview,
+              tamanhoImagem: imagemBlob.size,
+              vetorBiometrico,
+            });
+          }
+        },
+        "image/jpeg",
+        0.8,
+      );
     }
   }, [rostoAlinhado, detectarRosto, aoCapturarFoto]);
 
   const refazerFoto = useCallback(() => {
     setPreviewFoto(null);
+    setTamanhoImagem(null);
     setRostoAlinhado(false);
     ultimaDeteccaoValida.current = null;
     ultimoAlinhamentoEm.current = 0;
     setMensagemFeedback("Alinhe o rosto no círculo...");
+    if (previewFoto) URL.revokeObjectURL(previewFoto);
     if (aoCapturarFoto) aoCapturarFoto(null);
-  }, [aoCapturarFoto]);
+  }, [aoCapturarFoto, previewFoto]);
 
   return {
     referenciaVideo,
@@ -190,6 +221,7 @@ export const useCapturaBiometrica = (aoCapturarFoto) => {
     rostoAlinhado,
     mensagemFeedback,
     previewFoto,
+    tamanhoImagem,
     tirarFoto,
     refazerFoto,
   };

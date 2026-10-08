@@ -9,6 +9,7 @@ export const CapturaBiometrica = ({ aoCapturarFoto }) => {
     rostoAlinhado,
     mensagemFeedback,
     previewFoto,
+    tamanhoImagem,
     tirarFoto,
     refazerFoto,
   } = useCapturaBiometrica(aoCapturarFoto);
@@ -75,6 +76,12 @@ export const CapturaBiometrica = ({ aoCapturarFoto }) => {
           ? "Confira a foto antes de concluir o cadastro."
           : "Centralize o rosto no enquadramento 3 x 4."}
       </p>
+
+      {tamanhoImagem && (
+        <p className="text-center text-xs font-semibold text-slate-600">
+          Tamanho da imagem: {(tamanhoImagem / 1024).toFixed(2)} KB
+        </p>
+      )}
 
       <div className="flex gap-3">
         {!previewFoto ? (

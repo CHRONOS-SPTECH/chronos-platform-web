@@ -105,8 +105,10 @@ export default function ModalAluno({
   const confirmarFotoBiometrica = (dados) => {
     setFormulario((anterior) => ({
       ...anterior,
-      foto_biometrica: dados?.imagemBase64 || null,
+      foto_biometrica: dados?.imagemPreview || null,
       vetor_biometrico: dados?.vetorBiometrico || null,
+      foto_biometrica_blob: dados?.imagemBlob || null,
+      tamanho_foto_biometrica: dados?.tamanhoImagem || null,
     }));
     setModalBiometriaAberto(false);
   };
@@ -136,11 +138,6 @@ export default function ModalAluno({
 
   const enviarDadosFinais = () => {
     if (!onSalvar) return;
-
-    if (!formulario.foto_biometrica || !formulario.vetor_biometrico) {
-      toast.error("Capture e aprove a foto biométrica para concluir.");
-      return;
-    }
 
     const dadosPessoa = {
       nome: formulario.nome.trim(),
@@ -185,7 +182,8 @@ export default function ModalAluno({
       dadosPessoa,
       dadosEndereco,
       biometria: {
-        imagemBase64: formulario.foto_biometrica,
+        imagemBlob: formulario.foto_biometrica_blob,
+        tamanhoImagem: formulario.tamanho_foto_biometrica,
         vetorBiometrico: formulario.vetor_biometrico,
       },
     });
