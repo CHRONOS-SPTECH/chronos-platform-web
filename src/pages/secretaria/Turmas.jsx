@@ -17,7 +17,8 @@ export default function Turmas() {
   const [turmaEmEdicao, setTurmaEmEdicao] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [turmaParaExcluir, setTurmaParaExcluir] = useState(null);
-  const [dadosAlunos, setDadosAlunos] = useState(null);
+  const [carregandoAlunos, setCarregandoAlunos] = useState(false);
+  const [erroAlunos, setErroAlunos] = useState("");
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("Todas");
 
@@ -27,7 +28,6 @@ export default function Turmas() {
     error,
     salvando,
     dadosAlunosPorTurma,
-    carregarTurmas,
     salvarTurma,
     excluirTurma,
     buscarAlunos,
@@ -35,7 +35,7 @@ export default function Turmas() {
 
   const turmasFiltradas = turmasUi.filter((turma) => {
     const termo = busca.trim().toLocaleLowerCase("pt-BR");
-    const correspondeBusca = !termo || turma.nome.toLocaleLowerCase("pt-BR").includes(termo);
+    const correspondeBusca = !termo || String(turma.nome || "").toLocaleLowerCase("pt-BR").includes(termo);
     const correspondeStatus = filtroStatus === "Todas" || turma.status === filtroStatus;
     return correspondeBusca && correspondeStatus;
   });
@@ -51,15 +51,17 @@ export default function Turmas() {
   };
 
   const onVer = async (turma) => {
-    setIsModalAbertoAlunosTurma(true)
-    console.log(turma.id);
-
+    setIsModalAbertoAlunosTurma(true);
+    setCarregandoAlunos(true);
+    setErroAlunos("");
     try {
-      await buscarAlunos(turma.id)
+      await buscarAlunos(turma.id);
     } catch (err) {
-      console.log(err);
+      setErroAlunos(err?.response?.data?.message || "Não foi possível carregar os alunos desta turma.");
+    } finally {
+      setCarregandoAlunos(false);
     }
-  }
+  };
 
   const onSalvarTurma = async (dadosTurma) => {
     try {
@@ -177,7 +179,8 @@ export default function Turmas() {
         <ModalAlunosPorTurma
           isOpen={isModalAbertoAlunosTurma}
           onClose={() => setIsModalAbertoAlunosTurma(false)}
-          carregando={salvando}
+          carregando={carregandoAlunos}
+          erro={erroAlunos}
           dadosAlunos={dadosAlunosPorTurma}
         />
 
