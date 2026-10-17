@@ -32,8 +32,8 @@ export const CapturaBiometrica = ({ aoCapturarFoto }) => {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full max-w-sm mx-auto">
-      <div className="relative w-full max-w-xs aspect-[0.75] bg-slate-900 rounded-2xl overflow-hidden shadow-lg flex items-center justify-center">
+    <div className="flex w-full flex-col items-center gap-2.5">
+      <div className="relative h-[min(48dvh,420px)] aspect-[3/4] max-w-full shrink-0 overflow-hidden rounded-2xl bg-slate-900 shadow-lg flex items-center justify-center">
         {!previewFoto ? (
           <>
             <video

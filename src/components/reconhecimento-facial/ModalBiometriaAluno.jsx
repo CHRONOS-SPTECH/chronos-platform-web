@@ -29,13 +29,13 @@ export default function ModalBiometriaAluno({
   };
 
   return (
-    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="flex max-h-[calc(100vh-2rem)] w-full max-w-lg flex-col overflow-y-auto rounded-3xl bg-white shadow-2xl">
-        <div className="flex items-start justify-between border-b border-slate-100 px-6 py-5">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/60 p-3 backdrop-blur-sm sm:p-5" role="presentation">
+      <div role="dialog" aria-modal="true" aria-labelledby="biometria-titulo" className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-2xl sm:max-h-[calc(100dvh-2.5rem)]">
+        <div className="flex shrink-0 items-start justify-between border-b border-slate-100 px-5 py-4">
           <div>
             <div className="flex items-center gap-2 text-slate-900">
               <Camera size={20} className="text-green-700" />
-              <h2 className="text-lg font-bold">
+              <h2 id="biometria-titulo" className="text-lg font-bold">
                 {modoVisualizacao ? "Foto biométrica" : "Registrar foto"}
               </h2>
             </div>
@@ -55,19 +55,19 @@ export default function ModalBiometriaAluno({
           </button>
         </div>
 
-        <div className="flex justify-center px-6 py-5">
+        <div className="flex min-h-0 flex-1 justify-center overflow-hidden px-4 py-3">
           {modoVisualizacao ? (
             <img
               src={fotoInicial}
               alt="Foto biométrica do aluno"
-              className="aspect-[0.75] w-full max-w-xs rounded-2xl bg-slate-900 object-cover shadow-lg"
+              className="max-h-full w-auto max-w-full rounded-2xl bg-slate-900 object-contain shadow-lg"
             />
           ) : (
             <CapturaBiometrica aoCapturarFoto={lidarComFotoCapturada} />
           )}
         </div>
 
-        <div className="flex gap-3 border-t border-slate-100 px-6 py-4">
+        <div className="flex shrink-0 gap-3 border-t border-slate-100 px-5 py-3">
           <button
             type="button"
             onClick={fechar}

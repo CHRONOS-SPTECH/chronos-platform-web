@@ -38,13 +38,13 @@ export default function AulaDialog({
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
-      <section className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
-        <div className="mb-5 flex items-start justify-between">
+      <section className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+        <div className="-mx-6 -mt-6 mb-5 flex items-start justify-between border-b border-slate-700 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-800 px-6 py-5 text-white">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wide text-indigo-600">
+            <p className="text-xs font-bold uppercase tracking-wide text-blue-200">
               Detalhes da aula
             </p>
-            <h2 className="mt-1 text-xl font-black text-slate-800">
+            <h2 className="mt-1 text-xl font-black text-white">
               {item.tema?.titulo_tema || "Aula"}
             </h2>
           </div>
@@ -53,7 +53,7 @@ export default function AulaDialog({
             type="button"
             aria-label="Fechar detalhes da aula"
             title="Fechar"
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-300 transition hover:bg-white/10 hover:text-white"
           >
             <X size={18} />
           </button>
@@ -101,14 +101,14 @@ export default function AulaDialog({
                   onClick={() =>
                     navigate(`/presenca/${aula.id_turma}/${aula.id_aula}`)
                   }
-                  className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-bold text-white"
+                  className="rounded-lg bg-[#1E7A3C] px-4 py-2 text-sm font-bold text-white hover:bg-[#165a2d]"
                 >
                   Abrir presença
                 </button>
               )}
               <button
                 onClick={onEditar}
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white"
+                className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-bold text-white hover:bg-blue-800"
               >
                 Editar aula
               </button>
@@ -221,7 +221,7 @@ export default function AulaDialog({
               >
                 Cancelar
               </button>
-              <button className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white">
+              <button className="rounded-lg bg-[#1E7A3C] px-4 py-2 text-sm font-bold text-white hover:bg-[#165a2d]">
                 Salvar alterações
               </button>
             </div>

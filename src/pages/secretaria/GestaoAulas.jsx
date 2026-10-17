@@ -64,7 +64,7 @@ export default function GestaoAulasView() {
 
             <button
               onClick={abrirModalImportacao}
-              className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-2xl shadow-sm transition-colors flex items-center gap-2 border-0 cursor-pointer"
+              className="px-5 py-2.5 bg-[#1E7A3C] hover:bg-[#165a2d] text-white text-xs font-bold rounded-2xl shadow-sm transition-colors flex items-center gap-2 border-0 cursor-pointer"
             >
               <span className="uppercase tracking-wider text-[11px]">
                 Importar Carga de Aulas
@@ -135,24 +135,24 @@ export default function GestaoAulasView() {
             <div className="overflow-y-auto flex-1 custom-scroll max-h-[calc(100vh-280px)]">
               <table className="w-full border-collapse text-left text-xs">
                 {/* Cabeçalho FIXO no topo via sticky */}
-                <thead className="bg-slate-50 text-slate-400 uppercase font-bold tracking-wider sticky top-0 z-10 shadow-xs border-b border-slate-100">
+                <thead className="sticky top-0 z-10 border-b border-blue-200 bg-blue-100 text-blue-950 uppercase font-bold tracking-wider shadow-xs">
                   <tr>
-                    <th className="px-6 py-4 text-[10px] bg-slate-50">
+                    <th className="px-6 py-4 text-[10px] bg-blue-100">
                       Nome / Tema
                     </th>
-                    <th className="px-6 py-4 text-[10px] bg-slate-50">
+                    <th className="px-6 py-4 text-[10px] bg-blue-100">
                       Professor
                     </th>
-                    <th className="px-6 py-4 text-[10px] bg-slate-50">
+                    <th className="px-6 py-4 text-[10px] bg-blue-100">
                       Vínculo Turma
                     </th>
-                    <th className="px-6 py-4 text-[10px] bg-slate-50">
+                    <th className="px-6 py-4 text-[10px] bg-blue-100">
                       Data Distribuição
                     </th>
-                    <th className="px-6 py-4 text-[10px] text-center bg-slate-50">
+                    <th className="px-6 py-4 text-[10px] text-center bg-blue-100">
                       Status
                     </th>
-                    <th className="px-6 py-4 text-[10px] text-center bg-slate-50">
+                    <th className="px-6 py-4 text-[10px] text-center bg-blue-100">
                       Ações
                     </th>
                   </tr>
@@ -165,7 +165,7 @@ export default function GestaoAulasView() {
                       return (
                         <tr
                           key={item.aula.id_aula}
-                          className="hover:bg-slate-50/40 transition-colors"
+                          className="odd:bg-white even:bg-blue-50/30 hover:bg-blue-50 transition-colors"
                         >
                           <td className="px-6 py-4">
                             <div className="font-bold text-slate-800 text-sm">
@@ -216,7 +216,7 @@ export default function GestaoAulasView() {
                                 setAulaSelecionada(item);
                                 setModoEdicao(true);
                               }}
-                              className="mr-2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-[10px] font-bold text-indigo-700 hover:bg-indigo-100"
+                              className="mr-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-[10px] font-bold text-blue-800 transition-colors hover:bg-blue-100"
                             >
                               Editar
                             </button>
@@ -266,6 +266,8 @@ export default function GestaoAulasView() {
         mensagem="Deseja deletar esta aula da matriz permanentemente?"
         onConfirm={confirmarExclusao}
         onCancel={() => setConfirmacaoAberta(false)}
+        variant="danger"
+        confirmText="Excluir aula"
       />
       <AulaDialog
         item={aulaSelecionada}

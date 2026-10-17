@@ -5,17 +5,18 @@ function CardTurma({ turma, onVer, onEditar, onExcluir }) {
   const isFormado = status.includes("formad") || status.includes("conclu");
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 hover:shadow-lg hover:shadow-gray-200/50 transition-all p-5 flex flex-col gap-4 group">
+    <div className="group relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg hover:shadow-slate-900/10">
+      <span className={`absolute inset-x-0 top-0 h-1 ${isFormado ? "bg-slate-400" : "bg-[#1E7A3C]"}`} />
       {/* Topo: ícone + status */}
       <div className="flex items-start justify-between">
-        <div className="bg-[#e8f5e9] p-3 rounded-xl">
-          <BookOpen size={22} className="text-[#00871D]" />
+        <div className="rounded-xl bg-blue-50 p-3">
+          <BookOpen size={22} className="text-blue-800" />
         </div>
         <span
           className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${
             isFormado
-              ? "bg-blue-50 text-blue-600 border border-blue-100"
-              : "bg-green-50 text-green-700 border border-green-100"
+              ? "border border-slate-200 bg-slate-100 text-slate-700"
+              : "border border-emerald-100 bg-emerald-50 text-emerald-800"
           }`}
         >
           {turma.status}
@@ -50,7 +51,7 @@ function CardTurma({ turma, onVer, onEditar, onExcluir }) {
         <div className="w-full bg-gray-100 rounded-full h-1.5">
           <div
             className={`h-1.5 rounded-full transition-all ${
-              isFormado ? "bg-blue-500" : "bg-[#00871D]"
+              isFormado ? "bg-slate-500" : "bg-[#1E7A3C]"
             }`}
             style={{ width: `${turma.progresso}%` }}
           />
@@ -62,18 +63,21 @@ function CardTurma({ turma, onVer, onEditar, onExcluir }) {
         <div className="flex gap-1">
           <button
             onClick={() => onVer?.(turma)}
+            aria-label={`Visualizar ${turma.nome}`}
             className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
           >
             <Eye size={16} />
           </button>
           <button
             onClick={() => onEditar?.(turma)}
-            className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all"
+            aria-label={`Editar ${turma.nome}`}
+            className="p-2 text-gray-400 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all"
           >
             <Pencil size={16} />
           </button>
           <button
             onClick={() => onExcluir?.(turma)}
+            aria-label={`Excluir ${turma.nome}`}
             className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
           >
             <Trash2 size={16} />
@@ -82,7 +86,7 @@ function CardTurma({ turma, onVer, onEditar, onExcluir }) {
 
         <button
           onClick={() => onVer?.(turma)}
-          className="bg-gray-900 hover:bg-gray-700 text-white text-[12px] font-bold px-4 py-2 rounded-xl transition-all"
+          className="bg-slate-900 hover:bg-blue-950 text-white text-[12px] font-bold px-4 py-2 rounded-xl transition-all"
         >
           {isFormado ? "Ver Histórico →" : "Ver Alunos →"}
         </button>
