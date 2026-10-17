@@ -13,6 +13,14 @@ import {
   verificarConflitoProfessor,
 } from "../utils/CronogramaUtils";
 
+const descreverAula = (item) =>
+  `"${item.tema?.titulo_tema || "Aula"}" da turma ${
+    item.turma?.nome_turma || `Turma ${item.aula.id_turma}`
+  }`;
+
+const descreverHorario = (data, hora) =>
+  `${data.split("-").reverse().join("/")} às ${hora.slice(0, 5)}`;
+
 export default function useCronogramaAulas() {
   const toast = useToast();
   const [dataReferencia, setDataReferencia] = useState(() => new Date());
@@ -44,9 +52,11 @@ export default function useCronogramaAulas() {
     setCarregando(true);
     try {
       setAulas((await aulaService.listarAulasDetalhadas()) || []);
+      return true;
     } catch (erro) {
       console.error("Erro ao carregar aulas:", erro);
       toast.error("Não foi possível carregar as aulas.");
+      return false;
     } finally {
       setCarregando(false);
     }
@@ -105,6 +115,11 @@ export default function useCronogramaAulas() {
     [aulasFiltradas],
   );
 
+  const quantidadePendencias = useMemo(
+    () => aulas.filter(({ aula }) => aula && !aula.data_aula).length,
+    [aulas],
+  );
+
   const obterAulasPorDataHora = useCallback(
     (data, hora) =>
       aulasFiltradas.filter(({ aula }) => {
@@ -120,11 +135,47 @@ export default function useCronogramaAulas() {
   );
 
   const salvarRemanejamento = useCallback(
-    async (mudancas) => {
+    async (mudancas, mensagemSucesso) => {
       try {
+        if (
+          mudancas.some(
+            ({ dataAula, horaInicio }) => dataAula && horaInicio,
+          )
+        ) {
+          console.log(
+            "JSON enviado para alocar aula:",
+            JSON.stringify(mudancas, null, 2),
+          );
+        }
         await aulaService.remanejar(mudancas);
-        await carregarAulas();
-        toast.success("Cronograma atualizado.");
+        const mudancasPorAula = new Map(
+          mudancas.map((mudanca) => [Number(mudanca.idAula), mudanca]),
+        );
+        setAulas((aulasAtuais) =>
+          aulasAtuais.map((registro) => {
+            const mudanca = mudancasPorAula.get(
+              Number(registro.aula?.id_aula),
+            );
+            if (!mudanca) return registro;
+            return {
+              ...registro,
+              aula: {
+                ...registro.aula,
+                data_aula: mudanca.dataAula,
+                hora_inicio: mudanca.horaInicio,
+              },
+            };
+          }),
+        );
+        const aulasCarregadas = await carregarAulas();
+        if (aulasCarregadas) {
+          toast.success(mensagemSucesso, 6000);
+        } else {
+          toast.warning(
+            `${mensagemSucesso} A alteração foi salva, mas não foi possível atualizar a agenda. Recarregue a página para conferir.`,
+            7000,
+          );
+        }
         return true;
       } catch (erro) {
         toast.error(
@@ -183,9 +234,12 @@ export default function useCronogramaAulas() {
         return;
       }
       if (ocupantes.length === 0) {
-        void salvarRemanejamento([
-          { idAula, dataAula: dataAlvo, horaInicio: horaFormatada },
-        ]);
+        const acao = item.aula.data_aula ? "realocada" : "alocada";
+        const mensagemSucesso = `Aula ${descreverAula(item)} ${acao} com sucesso para ${descreverHorario(dataAlvo, horaFormatada)}.`;
+        void salvarRemanejamento(
+          [{ idAula, dataAula: dataAlvo, horaInicio: horaFormatada }],
+          mensagemSucesso,
+        );
         return;
       }
       setConfirmacao({ item, dataAlvo, horaFormatada, ocupantes });
@@ -205,7 +259,15 @@ export default function useCronogramaAulas() {
       dataAula: confirmacao.dataAlvo,
       horaInicio: confirmacao.horaFormatada,
     });
-    const salvo = await salvarRemanejamento(mudancas);
+    const aulasDevolvidas = confirmacao.ocupantes
+      .map(descreverAula)
+      .join(", ");
+    const mensagemDevolucao =
+      confirmacao.ocupantes.length === 1
+        ? "Aula devolvida"
+        : "Aulas devolvidas";
+    const mensagemSucesso = `Aula ${descreverAula(confirmacao.item)} alocada com sucesso para ${descreverHorario(confirmacao.dataAlvo, confirmacao.horaFormatada)}. ${mensagemDevolucao} à fila de pendências: ${aulasDevolvidas}.`;
+    const salvo = await salvarRemanejamento(mudancas, mensagemSucesso);
     if (salvo) setConfirmacao(null);
   }, [confirmacao, salvarRemanejamento]);
 
@@ -215,9 +277,10 @@ export default function useCronogramaAulas() {
         toast.error("Aulas com presença registrada não podem ser desalocadas.");
         return;
       }
-      await salvarRemanejamento([
-        { idAula: item.aula.id_aula, dataAula: null, horaInicio: null },
-      ]);
+      await salvarRemanejamento(
+        [{ idAula: item.aula.id_aula, dataAula: null, horaInicio: null }],
+        `Aula ${descreverAula(item)} devolvida à fila de pendências com sucesso.`,
+      );
     },
     [salvarRemanejamento, toast],
   );
@@ -292,6 +355,7 @@ export default function useCronogramaAulas() {
     semanaTexto,
     mesAnoTexto,
     pendenciasFormatadas,
+    quantidadePendencias,
     obterAulasPorDataHora,
     aoAdicionarAulaRapida,
     aoDeletarAulaPendente,

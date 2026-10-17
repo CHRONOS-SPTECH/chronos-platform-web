@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ArrowDownToLine } from "lucide-react";
 import { formatarDataLocal } from "../../utils/CronogramaUtils";
 
@@ -47,6 +47,37 @@ export { CartaoAula };
 
 export default function CalendarioGrade({ datasDaSemana, obterAulasPorDataHora, aoSoltarCard, aoSelecionar, aoDesalocar }) {
   const [alvoArraste, setAlvoArraste] = useState(null);
+  const gradeRef = useRef(null);
+
+  useEffect(() => {
+    const horaMaisOcupada = HORAS.reduce(
+      (maisOcupada, hora) => {
+        const quantidade = datasDaSemana.reduce(
+          (total, data) =>
+            total +
+            obterAulasPorDataHora(formatarDataLocal(data), hora).length,
+          0,
+        );
+        return quantidade > maisOcupada.quantidade
+          ? { hora, quantidade }
+          : maisOcupada;
+      },
+      { hora: HORAS[0], quantidade: 0 },
+    );
+
+    const grade = gradeRef.current;
+    const linha = grade?.querySelector(
+      `[data-hora="${horaMaisOcupada.hora}"]`,
+    );
+    if (!grade || !linha || horaMaisOcupada.quantidade === 0) return;
+
+    const distancia =
+      grade.scrollTop +
+      linha.getBoundingClientRect().top -
+      grade.getBoundingClientRect().top;
+    grade.scrollTo({ top: distancia, behavior: "smooth" });
+  }, [datasDaSemana, obterAulasPorDataHora]);
+
   return (
     <div className="h-full min-w-0 overflow-x-auto overflow-y-hidden rounded-3xl bg-slate-100 p-2 shadow-xl shadow-slate-300/30 ring-1 ring-slate-300/60">
       <div className="flex h-full min-w-[1200px] flex-col">
@@ -59,9 +90,9 @@ export default function CalendarioGrade({ datasDaSemana, obterAulasPorDataHora, 
             </div>
           ))}
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-b-2xl">
+        <div ref={gradeRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-b-2xl">
           {HORAS.map((hora) => (
-            <div key={hora} className="grid grid-cols-[76px_repeat(7,minmax(150px,1fr))]">
+            <div key={hora} data-hora={hora} className="grid grid-cols-[76px_repeat(7,minmax(150px,1fr))]">
               <div className="border-b border-slate-200/70 bg-slate-200/80 px-2 py-2 text-center font-mono text-xs font-black text-indigo-950">{String(hora).padStart(2, "0")}:00</div>
               {datasDaSemana.map((data) => {
                 const dataISO = formatarDataLocal(data);
