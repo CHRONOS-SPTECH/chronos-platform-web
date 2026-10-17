@@ -7,6 +7,7 @@ import { useToast } from "../alert-toast/ToastProvider";
 export default function ModalUsuario({ isOpen, onClose, onSuccess }) {
   const toast = useToast();
   const [isNovaPessoa, setIsNovaPessoa] = useState(true);
+  const [salvando, setSalvando] = useState(false);
   const [pessoasExistentes, setPessoasExistentes] = useState([]);
   const [novoUsuario, setNovoUsuario] = useState({
     pessoaId: "",
@@ -19,7 +20,7 @@ export default function ModalUsuario({ isOpen, onClose, onSuccess }) {
     senha: "senhaSegura123",
   });
   const inputStyle =
-    "w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-green-500/20 transition-all placeholder:text-gray-400 text-gray-700 disabled:opacity-50";
+    "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#1E7A3C] focus:bg-white focus:ring-2 focus:ring-green-700/10 disabled:opacity-50";
 
   useEffect(() => {
     if (!isNovaPessoa && isOpen) {
@@ -58,33 +59,37 @@ export default function ModalUsuario({ isOpen, onClose, onSuccess }) {
       senha: novoUsuario.senha,
     };
 
+    setSalvando(true);
     try {
       await authService.register(payload);
-      if (onSuccess) onSuccess();
+      if (onSuccess) await onSuccess();
       onClose();
     } catch (error) {
       const msg = error.response?.data?.message || "Erro ao cadastrar usuário";
       toast.error(msg);
+    } finally {
+      setSalvando(false);
     }
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-[2px]" role="presentation">
+      <div role="dialog" aria-modal="true" aria-labelledby="usuario-modal-title" className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl animate-in fade-in zoom-in duration-200">
         <div className="p-8">
           {/* Header */}
-          <div className="flex justify-between items-start mb-6">
+          <div className="-mx-8 -mt-8 mb-6 flex justify-between items-start border-b border-slate-700 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-800 px-8 py-6 text-white">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+              <h2 id="usuario-modal-title" className="text-2xl font-bold text-white tracking-tight">
                 Configurar Usuário
               </h2>
-              <p className="text-gray-400 text-sm font-medium">
+              <p className="text-slate-300 text-sm font-medium">
                 Defina como deseja criar o acesso ao sistema.
               </p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors"
+              disabled={salvando}
+              className="rounded-full p-2 text-slate-300 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50"
             >
               <X size={24} />
             </button>
@@ -232,15 +237,17 @@ export default function ModalUsuario({ isOpen, onClose, onSuccess }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 py-3.5 rounded-2xl text-gray-500 font-bold text-sm hover:bg-gray-50 transition-colors"
+                disabled={salvando}
+                className="flex-1 rounded-xl py-3.5 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="flex-1 py-3.5 rounded-2xl bg-black text-white font-bold text-sm hover:bg-gray-800 shadow-xl shadow-gray-200 transition-all active:scale-95"
+                disabled={salvando}
+                className="flex-1 rounded-xl bg-[#1E7A3C] py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-[#165a2d] active:scale-[0.99] disabled:cursor-wait disabled:opacity-60"
               >
-                Salvar Acesso
+                {salvando ? "Salvando..." : "Salvar Acesso"}
               </button>
             </div>
           </form>

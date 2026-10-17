@@ -1,4 +1,4 @@
-import { Clock, Eye, Link as LinkIcon, MapPin, Pencil, Trash2 } from "lucide-react";
+import { Clock, Eye, MapPin, Pencil, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const STATUS_STYLE = {
@@ -38,8 +38,9 @@ export default function EventoCard({ evento, onExcluir }) {
   const category = evento?.categoria?.nome || evento?.categoria_nome || evento?.categoriaNome;
 
   return (
-    <article className="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200/60 transition-all duration-300 overflow-hidden flex flex-col group">
-      <div className="bg-[#1E7A3C] relative h-24 flex items-start justify-end p-4 transition-all duration-300 group-hover:opacity-95">
+    <article className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-900/10 hover:border-blue-200 transition-all duration-300 overflow-hidden flex flex-col group">
+      <div className="relative flex h-24 items-start justify-end bg-gradient-to-r from-slate-900 via-blue-950 to-slate-800 p-4 transition-all duration-300 group-hover:brightness-110">
+        <span className="absolute left-0 top-0 h-full w-1.5 bg-[#1E7A3C]" />
         <span className={`text-[10px] font-black tracking-wider px-2.5 py-1 rounded-full border bg-white/95 shadow-sm ${STATUS_STYLE[status] || "bg-slate-50 text-slate-600 border-slate-200"}`}>
           {status}
         </span>
@@ -51,7 +52,7 @@ export default function EventoCard({ evento, onExcluir }) {
 
       <div className="p-5 pt-8 flex flex-col flex-1 gap-4">
         <div className="flex flex-col gap-1.5">
-          <h2 className="font-bold text-slate-800 text-sm leading-snug group-hover:text-[#1E7A3C] transition-colors line-clamp-1">
+          <h2 className="font-bold text-slate-800 text-sm leading-snug group-hover:text-blue-800 transition-colors line-clamp-1">
             {getValue(evento, "titulo", "title") || "Evento sem título"}
           </h2>
           <p className="text-slate-400 text-xs leading-relaxed line-clamp-2 h-8">
@@ -62,11 +63,11 @@ export default function EventoCard({ evento, onExcluir }) {
 
         <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100/60">
           <div className="flex flex-col gap-1 min-w-0">
-            <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider flex items-center gap-1"><Clock size={11} className="text-[#1E7A3C] shrink-0" /> Horário</span>
+            <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider flex items-center gap-1"><Clock size={11} className="text-blue-800 shrink-0" /> Horário</span>
             <span className="text-xs font-bold text-slate-600 truncate">{getValue(evento, "hora_inicio_evento", "horaInicioEvento", "hora_inicio")} - {getValue(evento, "hora_fim_evento", "horaFimEvento", "hora_fim")}</span>
           </div>
           <div className="flex flex-col gap-1 min-w-0">
-            <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider flex items-center gap-1"><MapPin size={11} className="text-[#1E7A3C] shrink-0" /> Local</span>
+            <span className="text-[9px] text-slate-400 font-black uppercase tracking-wider flex items-center gap-1"><MapPin size={11} className="text-blue-800 shrink-0" /> Local</span>
             <span className="text-xs font-bold text-slate-600 truncate">{getValue(evento, "local", "local_evento", "localEvento") || "Não informado"}</span>
           </div>
         </div>
@@ -74,11 +75,10 @@ export default function EventoCard({ evento, onExcluir }) {
         {tags.length > 0 && <div className="flex items-center gap-2 mt-1"><span className="text-[10px] font-black text-slate-400 uppercase tracking-wider shrink-0">Tags:</span><div className="flex flex-wrap gap-1">{tags.map((tag) => <span key={tag.label || tag} className={`text-[9px] px-2.5 py-0.5 rounded-md font-black uppercase tracking-wide border ${TAG_STYLE[tag.variant] || TAG_STYLE.gray}`}>{tag.label || tag}</span>)}</div></div>}
 
         <div className="border-t border-slate-100 pt-4 mt-auto flex items-center justify-between">
-          <button onClick={() => navigate(`/eventos/${id}`)} className="text-[#1E7A3C] font-black text-xs uppercase tracking-widest hover:text-[#165a2d] transition-colors focus:outline-none flex items-center gap-1" aria-label={`Ver detalhes de ${evento.titulo}`}><Eye size={14} /> Detalhes</button>
+          <button onClick={() => navigate(`/eventos/${id}`)} className="flex items-center gap-1 text-[#1E7A3C] font-black text-xs uppercase tracking-widest transition-colors hover:text-[#165a2d] focus:outline-none" aria-label={`Ver detalhes de ${evento.titulo}`}><Eye size={14} /> Detalhes</button>
           <div className="flex gap-2">
-            <button onClick={() => navigate(`/eventos/editar/${id}`)} className="border border-slate-200 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl p-2 transition-all active:scale-95 shadow-sm" aria-label={`Editar ${evento.titulo}`}><Pencil size={13} /></button>
+            <button onClick={() => navigate(`/eventos/editar/${id}`)} className="border border-slate-200 text-slate-500 hover:text-blue-700 hover:border-blue-200 hover:bg-blue-50 rounded-xl p-2 transition-all active:scale-95 shadow-sm" aria-label={`Editar ${evento.titulo}`}><Pencil size={13} /></button>
             <button onClick={() => onExcluir(evento)} className="border border-slate-200 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl p-2 transition-all active:scale-95 shadow-sm" aria-label={`Excluir ${evento.titulo}`}><Trash2 size={13} /></button>
-            <button type="button" className="border border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 rounded-xl px-3 py-2 transition-all flex items-center gap-1.5 text-xs font-bold active:scale-95 shadow-sm"><span className="sr-only">Abrir </span>Formulário <LinkIcon size={12} className="text-slate-400" /></button>
           </div>
         </div>
       </div>

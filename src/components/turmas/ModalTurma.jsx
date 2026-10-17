@@ -67,18 +67,19 @@ export default function ModalTurma({
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto custom-scrollbar animate-in fade-in zoom-in-95 duration-300">
+      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto custom-scrollbar animate-in fade-in zoom-in-95 duration-300 border border-slate-200">
+        <div className="absolute inset-x-0 top-0 z-20 h-1.5 rounded-t-3xl bg-[#1E7A3C]" />
         {/* Header */}
-        <div className="sticky top-0 bg-linear-to-b from-white to-slate-50 border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+        <div className="sticky top-0 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-800 border-b border-slate-700 px-6 py-4 flex items-center justify-between text-white">
           <div className="flex items-center gap-3">
-            <div className="bg-[#e8f5e9] p-2 rounded-lg">
-              <BookOpen size={20} className="text-[#00871D]" />
+            <div className="bg-white/10 p-2 rounded-lg shadow-sm">
+              <BookOpen size={20} className="text-blue-200" />
             </div>
             <div>
-              <h2 className="font-bold text-gray-900 text-lg">
+              <h2 className="font-bold text-white text-lg">
                 {valoresPadrao?.id_turma ? "Editar Turma" : "Nova Turma"}
               </h2>
-              <p className="text-xs text-gray-500 font-medium">
+              <p className="text-xs text-slate-300 font-medium">
                 Preencha os dados abaixo
               </p>
             </div>
@@ -86,9 +87,9 @@ export default function ModalTurma({
           <button
             onClick={handleClose}
             disabled={carregando}
-            className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+            className="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50"
           >
-            <X size={20} className="text-gray-400" />
+              <X size={20} className="text-slate-300" />
           </button>
         </div>
 
@@ -106,7 +107,7 @@ export default function ModalTurma({
               onChange={handleChange}
               placeholder="Ex: Turma A - 2024"
               disabled={carregando}
-              className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm disabled:bg-gray-50 disabled:cursor-not-allowed transition-all"
+              className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm disabled:bg-gray-50 disabled:cursor-not-allowed transition-all"
             />
           </div>
 
@@ -121,7 +122,7 @@ export default function ModalTurma({
               value={formData.data_inicio}
               onChange={handleChange}
               disabled={carregando}
-              className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm disabled:bg-gray-50 disabled:cursor-not-allowed transition-all"
+              className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm disabled:bg-gray-50 disabled:cursor-not-allowed transition-all"
             />
           </div>
 
@@ -136,7 +137,7 @@ export default function ModalTurma({
               value={formData.data_encerramento}
               onChange={handleChange}
               disabled={carregando}
-              className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm disabled:bg-gray-50 disabled:cursor-not-allowed transition-all"
+              className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm disabled:bg-gray-50 disabled:cursor-not-allowed transition-all"
             />
           </div>
 
@@ -150,7 +151,7 @@ export default function ModalTurma({
               value={formData.status_turma}
               onChange={handleChange}
               disabled={carregando}
-              className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm disabled:bg-gray-50 disabled:cursor-not-allowed transition-all bg-white"
+              className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm disabled:bg-gray-50 disabled:cursor-not-allowed transition-all bg-white"
             >
               <option value="Não Iniciada">Não Iniciada</option>
               <option value="Em Andamento">Em Andamento</option>

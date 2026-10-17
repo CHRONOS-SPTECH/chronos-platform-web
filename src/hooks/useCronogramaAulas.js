@@ -137,16 +137,6 @@ export default function useCronogramaAulas() {
   const salvarRemanejamento = useCallback(
     async (mudancas, mensagemSucesso) => {
       try {
-        if (
-          mudancas.some(
-            ({ dataAula, horaInicio }) => dataAula && horaInicio,
-          )
-        ) {
-          console.log(
-            "JSON enviado para alocar aula:",
-            JSON.stringify(mudancas, null, 2),
-          );
-        }
         await aulaService.remanejar(mudancas);
         const mudancasPorAula = new Map(
           mudancas.map((mudanca) => [Number(mudanca.idAula), mudanca]),

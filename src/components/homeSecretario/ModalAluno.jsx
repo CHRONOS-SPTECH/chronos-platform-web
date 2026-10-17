@@ -198,11 +198,11 @@ export default function ModalAluno({
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl animate-in fade-in zoom-in duration-200">
+      <div className="bg-white w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl border border-slate-200 shadow-2xl animate-in fade-in zoom-in duration-200">
         <div className="p-8">
-          <div className="flex justify-between items-start mb-6">
+          <div className="-mx-8 -mt-8 mb-6 flex justify-between items-start border-b border-slate-700 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-800 px-8 py-6 text-white">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+              <h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-white">
                 {etapaAtual === 3 ? (
                   <MapPin size={22} />
                 ) : (
