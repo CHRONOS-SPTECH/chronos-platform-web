@@ -10,3 +10,30 @@
 body {
   font-family: "Inter", sans-serif;
 }
+
+.sidebar-scrollbar {
+  scrollbar-color: rgb(255 255 255 / 34%) transparent;
+  scrollbar-width: thin;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  border: 1px solid #075b2a;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 34%);
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgb(255 255 255 / 58%);
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-button {
+  display: none;
+}

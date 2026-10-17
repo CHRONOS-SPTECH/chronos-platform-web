@@ -28,6 +28,13 @@ export default function useSidebar() {
   const location = useLocation();
   const toast = useToast();
   const [abertos, setAbertos] = useState({ 0: true });
+  const [recolhido, setRecolhido] = useState(() => {
+    try {
+      return window.localStorage.getItem("chronos-sidebar-collapsed") === "true";
+    } catch {
+      return false;
+    }
+  });
 
   const dadosSessao = sessionService.getSession();
   const tipoUsuarioSessao = getTipoUsuarioFromSession(dadosSessao);
@@ -91,6 +98,21 @@ export default function useSidebar() {
     }));
   }, []);
 
+  const alternarRecolhimento = useCallback(() => {
+    setRecolhido((recolhidoAtual) => {
+      const novoEstado = !recolhidoAtual;
+      try {
+        window.localStorage.setItem(
+          "chronos-sidebar-collapsed",
+          String(novoEstado),
+        );
+      } catch {
+        // A navegação continua funcionando mesmo se o armazenamento estiver indisponível.
+      }
+      return novoEstado;
+    });
+  }, []);
+
   return {
     config,
     location,
@@ -98,5 +120,7 @@ export default function useSidebar() {
     abertos,
     alternarSecao,
     abrirItemMenu,
+    recolhido,
+    alternarRecolhimento,
   };
 }
