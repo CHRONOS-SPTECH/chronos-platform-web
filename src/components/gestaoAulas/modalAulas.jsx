@@ -21,9 +21,10 @@ export default function ModalCargaLetiva({
 
   return (
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-lg rounded-xl shadow-lg border border-slate-100 overflow-hidden flex flex-col max-h-[80vh]">
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[80vh]">
         {/* Header do Modal */}
-        <div className="p-4 bg-slate-800 text-white flex justify-between items-center shrink-0">
+        <div className="relative p-4 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-800 text-white flex justify-between items-center shrink-0">
+          <span className="absolute inset-x-0 top-0 h-1 bg-[#1E7A3C]" />
           <div className="flex items-center gap-2">
             <FileSpreadsheet size={15} className="text-emerald-400" />
             <h3 className="text-xs font-bold uppercase tracking-wider">
@@ -43,12 +44,12 @@ export default function ModalCargaLetiva({
           {!relatorio ? (
             /* PASSO 1: SELEÇÃO DE ARQUIVO */
             <>
-              <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+              <p className="text-xs text-slate-600 mb-4 leading-relaxed">
                 Insira o arquivo Excel (.xlsx ou .xls) para popular a grade
                 cadastral de aulas, turmas e ementas de forma automatizada.
               </p>
 
-              <div className="border border-slate-200 rounded-lg p-6 flex flex-col items-center justify-center text-center bg-slate-50/60">
+                <div className="border border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center bg-slate-50">
                 {arquivo ? (
                   <>
                     <FileSpreadsheet
@@ -137,18 +138,18 @@ export default function ModalCargaLetiva({
                   {/* Container da tabela com tamanho fixo e scroll */}
                   <div className="border border-slate-200 rounded-lg overflow-y-auto max-h-56 custom-scroll">
                     <table className="w-full text-left text-[11px] border-collapse table-fixed">
-                      <thead className="bg-slate-100 text-slate-500 font-bold uppercase sticky top-0 z-10 shadow-xs">
+                      <thead className="sticky top-0 z-10 bg-slate-900 font-bold uppercase text-white shadow-xs">
                         <tr>
-                          <th className="p-2.5 text-center w-14 bg-slate-100">
+                          <th className="p-2.5 text-center w-14 bg-slate-900 text-white">
                             Linha
                           </th>
-                          <th className="p-2.5 w-1/2 bg-slate-100">
+                          <th className="p-2.5 w-1/2 bg-slate-900 text-white">
                             Turma / Contexto
                           </th>
-                          <th className="p-2.5 bg-slate-100">Motivo do Erro</th>
+                          <th className="p-2.5 bg-slate-900 text-white">Motivo do Erro</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 font-medium text-slate-600 bg-white">
+                      <tbody className="divide-y divide-slate-200 font-medium text-slate-700 bg-white">
                         {relatorio.falhas.map((falha, index) => (
                           <tr
                             key={index}

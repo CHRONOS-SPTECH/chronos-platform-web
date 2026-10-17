@@ -1,34 +1,59 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import Alert from "./AlertToast";
 
 const ToastContext = createContext(null);
 
 export function ToastProvider({ children }) {
   const [toast, setToast] = useState({ type: null, message: null });
+  const timerRef = useRef(null);
 
-  const show = useCallback((type, message, timeout = 4000) => {
-    setToast({ type, message });
-
-    if (timeout > 0) {
-      const timer = setTimeout(
-        () => setToast({ type: null, message: null }),
-        timeout,
-      );
-      return () => clearTimeout(timer);
+  const clearTimer = useCallback(() => {
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
     }
-
-    return undefined;
   }, []);
 
-  const clear = useCallback(() => setToast({ type: null, message: null }), []);
+  const show = useCallback(
+    (type, message, timeout = 4000) => {
+      clearTimer();
+      setToast({ type, message });
 
-  const api = {
-    success: (msg, t) => show("success", msg, t),
-    error: (msg, t) => show("error", msg, t),
-    info: (msg, t) => show("info", msg, t),
-    warning: (msg, t) => show("warning", msg, t),
-    clear,
-  };
+      if (timeout > 0) {
+        timerRef.current = setTimeout(() => {
+          timerRef.current = null;
+          setToast({ type: null, message: null });
+        }, timeout);
+      }
+    },
+    [clearTimer],
+  );
+
+  const clear = useCallback(() => {
+    clearTimer();
+    setToast({ type: null, message: null });
+  }, [clearTimer]);
+
+  useEffect(() => clearTimer, [clearTimer]);
+
+  const api = useMemo(
+    () => ({
+      success: (msg, timeout) => show("success", msg, timeout),
+      error: (msg, timeout) => show("error", msg, timeout),
+      info: (msg, timeout) => show("info", msg, timeout),
+      warning: (msg, timeout) => show("warning", msg, timeout),
+      clear,
+    }),
+    [clear, show],
+  );
 
   return (
     <ToastContext.Provider value={api}>

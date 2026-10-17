@@ -31,6 +31,10 @@ const aulaService = {
     const response = await api.patch("/aulas/remanejar", mudancas);
     return response.data;
   },
+  atualizarAula: async (id, dados) => {
+    const response = await api.patch(`/aulas/${id}`, dados);
+    return response.data;
+  },
   importar: async (formData) => {
     const response = await api.post("/aulas/importar", formData, {
       headers: { "Content-Type": "multipart/form-data" },

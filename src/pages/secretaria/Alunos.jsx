@@ -28,7 +28,6 @@ export default function Alunos() {
     loading,
     error: erro,
     salvando,
-    carregarAlunos,
     salvarAluno,
     excluirAluno,
   } = useAlunos();
@@ -82,16 +81,21 @@ export default function Alunos() {
     }));
   }, [alunos]);
 
-  const onSalvarAluno = async (dadosPessoa, dadosEndereco) => {
+  const onSalvarAluno = async (payload) => {
     try {
       const idAluno = alunoEmEdicao?.id_pessoa || null;
 
-      if (emailJaCadastrado(dadosPessoa.email, idAluno)) {
+      if (emailJaCadastrado(payload.dadosPessoa.email, idAluno)) {
         toast.error("Este e-mail já está cadastrado para outra pessoa.");
         return;
       }
 
-      await salvarAluno(dadosPessoa, dadosEndereco, alunoEmEdicao);
+      await salvarAluno(
+        payload.dadosPessoa,
+        payload.dadosEndereco,
+        alunoEmEdicao,
+        payload.biometria,
+      );
 
       toast.success(
         alunoEmEdicao
@@ -141,15 +145,18 @@ export default function Alunos() {
         />
 
         <main className="flex-1 overflow-y-auto custom-scrollbar">
-          <div className="max-w-375 mx-auto p-8 flex flex-col gap-6">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-100 pb-6">
+          <div className="mx-auto flex max-w-375 flex-col gap-6 p-4 sm:p-8">
+            <div className="flex flex-col gap-5 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
               <ModulosControle moduloAtivo="Alunos" />
-              <button
+              <div className="flex items-center gap-4">
+                <div className="hidden border-l border-slate-200 pl-4 text-right sm:block"><p className="text-2xl font-black text-slate-900">{alunosUi.length}</p><p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">alunos</p></div>
+                <button
                 onClick={() => setModalAlunoAberto(true)}
-                className="flex items-center gap-2 bg-[#1E7A3C] hover:bg-[#165a2d] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-2xl transition-all shadow-md active:scale-[0.98]"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1E7A3C] px-5 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-all hover:bg-[#165a2d] active:scale-[0.98] sm:w-auto"
               >
                 <Plus size={16} /> Novo Aluno
               </button>
+              </div>
             </div>
 
             <div className="flex flex-col gap-5 animate-in fade-in duration-300">
@@ -171,29 +178,30 @@ export default function Alunos() {
                 </div>
               )}
 
-              <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden max-h-95 overflow-y-auto custom-scrollbar relative">
+              <div className="relative max-h-95 overflow-y-auto overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm custom-scrollbar">
+                <div className="sticky top-0 z-20 h-1 bg-[#1E7A3C]" />
                 <table className="w-full border-collapse text-left table-fixed sm:table-auto">
                   <thead>
-                    <tr className="border-b border-slate-100">
-                      <th className="sticky top-0 z-10 p-4 text-[10px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/90 backdrop-blur-sm">
+                    <tr className="border-b border-slate-700 bg-gradient-to-r from-slate-900 to-blue-950">
+                      <th className="sticky top-1 z-10 bg-slate-900 p-4 text-[10px] font-black uppercase tracking-wider text-slate-100 backdrop-blur-sm">
                         Nome / Email
                       </th>
-                      <th className="sticky top-0 z-10 p-4 text-[10px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/90 backdrop-blur-sm">
+                      <th className="sticky top-1 z-10 bg-slate-900 p-4 text-[10px] font-black uppercase tracking-wider text-slate-100 backdrop-blur-sm">
                         CPF
                       </th>
-                      <th className="sticky top-0 z-10 p-4 text-[10px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/90 backdrop-blur-sm">
+                      <th className="sticky top-1 z-10 bg-slate-900 p-4 text-[10px] font-black uppercase tracking-wider text-slate-100 backdrop-blur-sm">
                         Nascimento
                       </th>
-                      <th className="sticky top-0 z-10 p-4 text-[10px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/90 backdrop-blur-sm">
+                      <th className="sticky top-1 z-10 bg-slate-900 p-4 text-[10px] font-black uppercase tracking-wider text-slate-100 backdrop-blur-sm">
                         Vínculo
                       </th>
-                      <th className="sticky top-0 z-10 p-4 text-[10px] font-black text-slate-400 uppercase tracking-wider bg-slate-50/90 backdrop-blur-sm">
+                      <th className="sticky top-1 z-10 bg-slate-900 p-4 text-[10px] font-black uppercase tracking-wider text-slate-100 backdrop-blur-sm">
                         Data Admissão
                       </th>
-                      <th className="sticky top-0 z-10 p-4 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center bg-slate-50/90 backdrop-blur-sm">
+                      <th className="sticky top-1 z-10 bg-slate-900 p-4 text-center text-[10px] font-black uppercase tracking-wider text-slate-100 backdrop-blur-sm">
                         Voluntário
                       </th>
-                      <th className="sticky top-0 z-10 p-4 text-[10px] font-black text-slate-400 uppercase tracking-wider text-right bg-slate-50/90 backdrop-blur-sm">
+                      <th className="sticky top-1 z-10 bg-slate-900 p-4 text-right text-[10px] font-black uppercase tracking-wider text-slate-100 backdrop-blur-sm">
                         Ações
                       </th>
                     </tr>
@@ -202,15 +210,13 @@ export default function Alunos() {
                     {alunosUi.map((alunoUi, index) => (
                       <tr
                         key={alunoUi.id}
-                        className="hover:bg-slate-50/50 transition-colors group"
+                        className="odd:bg-white even:bg-slate-50/70 hover:bg-emerald-50/50 transition-colors group"
                       >
                         <td className="p-4">
                           <div className="flex flex-col">
-                            <span className="font-bold text-sm text-slate-800 group-hover:text-[#1E7A3C] transition-colors">
-                              {alunoUi.nome}
-                            </span>
-                            <span className="text-xs text-slate-400 font-medium mt-0.5">
-                              {alunoUi.email}
+                            <span className="flex items-center gap-3 font-bold text-sm text-slate-800 transition-colors group-hover:text-slate-950">
+                              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-xs font-black text-slate-700 ring-1 ring-slate-200">{alunoUi.nome.slice(0, 1).toUpperCase()}</span>
+                              <span>{alunoUi.nome}<span className="mt-0.5 block text-xs font-medium text-slate-400">{alunoUi.email}</span></span>
                             </span>
                           </div>
                         </td>
@@ -239,7 +245,7 @@ export default function Alunos() {
                         </td>
                         <td className="p-4">
                           <div className="flex gap-1.5 justify-end">
-                            <button className="p-2 border border-slate-100 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all shadow-sm">
+                            <button aria-label={`Visualizar ${alunoUi.nome}`} className="p-2 border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-all shadow-sm">
                               <Eye size={14} />
                             </button>
                             <button
@@ -247,7 +253,8 @@ export default function Alunos() {
                                 setAlunoEmEdicao(alunos[index]);
                                 setModalAlunoAberto(true);
                               }}
-                              className="p-2 border border-slate-100 text-slate-400 hover:text-[#1E7A3C] hover:bg-green-50/50 rounded-xl transition-all shadow-sm"
+                              aria-label={`Editar ${alunoUi.nome}`}
+                              className="p-2 border border-slate-200 text-slate-400 hover:border-blue-200 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all shadow-sm"
                             >
                               <Pencil size={14} />
                             </button>
@@ -255,7 +262,8 @@ export default function Alunos() {
                               onClick={() =>
                                 onExcluirAluno(alunoUi.id, alunoUi.nome)
                               }
-                              className="p-2 border border-slate-100 text-slate-400 hover:text-red-600 hover:bg-red-50/50 rounded-xl transition-all shadow-sm"
+                              aria-label={`Excluir ${alunoUi.nome}`}
+                              className="p-2 border border-slate-200 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all shadow-sm"
                             >
                               <Trash2 size={14} />
                             </button>
@@ -286,6 +294,8 @@ export default function Alunos() {
         mensagem={`Deseja excluir o aluno "${alunoParaExcluir?.nome}"?`}
         onConfirm={confirmarExclusao}
         onCancel={() => setConfirmOpen(false)}
+        variant="danger"
+        confirmText="Excluir aluno"
       />
     </div>
   );
