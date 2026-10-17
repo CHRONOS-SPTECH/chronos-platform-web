@@ -115,6 +115,11 @@ export default function useCronogramaAulas() {
     [aulasFiltradas],
   );
 
+  const quantidadePendencias = useMemo(
+    () => aulas.filter(({ aula }) => aula && !aula.data_aula).length,
+    [aulas],
+  );
+
   const obterAulasPorDataHora = useCallback(
     (data, hora) =>
       aulasFiltradas.filter(({ aula }) => {
@@ -132,7 +137,36 @@ export default function useCronogramaAulas() {
   const salvarRemanejamento = useCallback(
     async (mudancas, mensagemSucesso) => {
       try {
+        if (
+          mudancas.some(
+            ({ dataAula, horaInicio }) => dataAula && horaInicio,
+          )
+        ) {
+          console.log(
+            "JSON enviado para alocar aula:",
+            JSON.stringify(mudancas, null, 2),
+          );
+        }
         await aulaService.remanejar(mudancas);
+        const mudancasPorAula = new Map(
+          mudancas.map((mudanca) => [Number(mudanca.idAula), mudanca]),
+        );
+        setAulas((aulasAtuais) =>
+          aulasAtuais.map((registro) => {
+            const mudanca = mudancasPorAula.get(
+              Number(registro.aula?.id_aula),
+            );
+            if (!mudanca) return registro;
+            return {
+              ...registro,
+              aula: {
+                ...registro.aula,
+                data_aula: mudanca.dataAula,
+                hora_inicio: mudanca.horaInicio,
+              },
+            };
+          }),
+        );
         const aulasCarregadas = await carregarAulas();
         if (aulasCarregadas) {
           toast.success(mensagemSucesso, 6000);
@@ -321,6 +355,7 @@ export default function useCronogramaAulas() {
     semanaTexto,
     mesAnoTexto,
     pendenciasFormatadas,
+    quantidadePendencias,
     obterAulasPorDataHora,
     aoAdicionarAulaRapida,
     aoDeletarAulaPendente,

@@ -28,6 +28,7 @@ export default function CronogramaView() {
     datas,
     datasSemana,
     pendenciasFormatadas,
+    quantidadePendencias,
     semanaTexto,
     mesAnoTexto,
     aoAdicionarAulaRapida,
@@ -81,7 +82,10 @@ export default function CronogramaView() {
                   className="flex h-9 items-center gap-2 rounded-xl bg-indigo-950 px-3 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-400"
                 >
                   <Inbox size={14} className="text-emerald-400" />
-                  Pendências ({pendenciasFormatadas.length})
+                  <span>Pendências</span>
+                  <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-400 px-1.5 py-0.5 text-[10px] font-black leading-none text-indigo-950">
+                    {quantidadePendencias}
+                  </span>
                 </button>
                 <select
                   aria-label="Filtrar por turma"
