@@ -4,8 +4,7 @@ import Acoes from "../../components/homeSecretario/Acoes";
 import Evento from "../../components/homeSecretario/Evento";
 import Header from "../../components/homeSecretario/Header";
 import Sidebar from "../../components/sidebar/SideBar";
-import VisaoGeral from "../../components/homeSecretario/VisaoGeral";
-import DiarioRecente from "../../components/homeSecretario/DiarioRecente";
+import AcompanhamentoSecretaria from "../../components/homeSecretario/AcompanhamentoSecretaria";
 import { useNavigate } from "react-router-dom";
 
 function HomeSecretario() {
@@ -18,10 +17,10 @@ function HomeSecretario() {
       <div className="flex-1 flex flex-col h-screen">
         <Header titulo="Home" icone={Home} />
 
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-6 flex flex-col gap-6">
-            <div className="flex gap-6 items-start justify-between">
-              <div className="flex-1 flex flex-col gap-6">
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="h-full min-h-0 p-4 lg:p-5 flex flex-col gap-4 lg:gap-5">
+            <div className="flex h-full min-h-0 gap-4 lg:gap-5 items-stretch justify-between">
+              <div className="min-w-0 min-h-0 flex-1 flex flex-col gap-4 lg:gap-5">
                 <Acoes
                   acoes={[
                     {
@@ -49,13 +48,12 @@ function HomeSecretario() {
                   ]}
                 />
 
-                {/* <VisaoGeral /> */}
-
-                {/* Componente dinâmico que bate direto no @GetMapping("/detalhadadas") */}
-                <DiarioRecente />
+                <div className="min-h-0 flex-1">
+                  <AcompanhamentoSecretaria />
+                </div>
               </div>
 
-              <div className="w-[500px] shrink-0">
+              <div className="h-full w-[500px] shrink-0 overflow-hidden">
                 <Evento />
               </div>
             </div>
