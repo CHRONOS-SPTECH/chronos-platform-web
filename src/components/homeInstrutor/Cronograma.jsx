@@ -17,7 +17,7 @@ function Cronograma() {
         const dadosSessao = sessionService.getSession();
         if (!dadosSessao) return;
 
-        const instrutorId = dadosSessao?.usuario?.id_usuario;
+        const instrutorId = dadosSessao?.usuario?.pessoa?.id_pessoa || dadosSessao?.usuario?.id_usuario;
         if (!instrutorId) return;
 
         const hoje = getHojeIso();
@@ -30,11 +30,11 @@ function Cronograma() {
         });
         setDataTexto(texto.charAt(0).toUpperCase() + texto.slice(1));
 
-        const aulasDoDia = await aulaService.listarAulasDoDia(
+        const aulasDoDia = await aulaService.listarTodasAulasDoDia(
           instrutorId,
           hoje,
         );
-        setAulas(aulasDoDia);
+        setAulas(aulasDoDia || []);
       } catch (err) {
         console.error("Erro ao buscar aulas:", err);
       }

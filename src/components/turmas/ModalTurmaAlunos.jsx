@@ -1,6 +1,6 @@
 import { BookOpen, LoaderCircle, X } from "lucide-react";
 
-export default function ModalTurmaAlunos({ isOpen, onClose, dadosAlunos, carregando, erro }) {
+export default function ModalTurmaAlunos({ isOpen, onClose, dadosAlunos, carregando, erro, pagina = 0, onMudarPagina }) {
   if (!isOpen) return null;
 
   const alunos = Array.isArray(dadosAlunos)
@@ -9,6 +9,9 @@ export default function ModalTurmaAlunos({ isOpen, onClose, dadosAlunos, carrega
       ? dadosAlunos.alunos
       : [];
   const nomeTurma = dadosAlunos?.nome_turma || dadosAlunos?.nomeTurma;
+  const paginaAtual = dadosAlunos?.pagina ?? pagina;
+  const totalPaginas = dadosAlunos?.total_paginas ?? 1;
+  const podeAvancar = paginaAtual + 1 < totalPaginas;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
@@ -19,7 +22,7 @@ export default function ModalTurmaAlunos({ isOpen, onClose, dadosAlunos, carrega
             <span className="rounded-xl bg-white/10 p-2 text-emerald-300"><BookOpen size={19} /></span>
             <div className="min-w-0">
               <h2 id="turma-alunos-title" className="truncate text-base font-bold">{nomeTurma ? `Alunos — ${nomeTurma}` : "Alunos da turma"}</h2>
-              <p className="mt-0.5 text-xs text-slate-300">{carregando ? "Carregando lista…" : erro ? "Falha ao carregar a lista" : `${alunos.length} alunos matriculados`}</p>
+              <p className="mt-0.5 text-xs text-slate-300">{carregando ? "Carregando lista…" : erro ? "Falha ao carregar a lista" : `Exibindo ${alunos.length} nesta página · ${dadosAlunos?.total_alunos ?? alunos.length} no total`}</p>
             </div>
           </div>
           <button type="button" onClick={onClose} aria-label="Fechar lista de alunos" className="rounded-lg p-2 text-slate-300 transition hover:bg-white/10 hover:text-white"><X size={19} /></button>
@@ -48,7 +51,7 @@ export default function ModalTurmaAlunos({ isOpen, onClose, dadosAlunos, carrega
             <div className="flex h-36 flex-col items-center justify-center text-center"><span className="rounded-full bg-slate-200 p-3 text-slate-500"><BookOpen size={20} /></span><p className="mt-3 text-sm font-semibold text-slate-700">Nenhum aluno encontrado nesta turma.</p></div>
           )}
         </div>
-        <footer className="flex justify-end border-t border-slate-200 bg-white px-5 py-3"><button type="button" onClick={onClose} className="rounded-xl bg-slate-100 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-200">Fechar</button></footer>
+        <footer className="flex items-center justify-between border-t border-slate-200 bg-white px-5 py-3"><div className="flex items-center gap-2 text-xs text-slate-500"><button type="button" disabled={paginaAtual === 0 || carregando} onClick={() => onMudarPagina(paginaAtual - 1)} className="rounded-lg border px-3 py-2 disabled:opacity-40">Anterior</button><span>Página {paginaAtual + 1} de {Math.max(1, totalPaginas)} · {dadosAlunos?.tamanho ?? 20} por página</span><button type="button" disabled={!podeAvancar || carregando} onClick={() => onMudarPagina(paginaAtual + 1)} className="rounded-lg border px-3 py-2 disabled:opacity-40">Próxima</button></div><button type="button" onClick={onClose} className="rounded-xl bg-slate-100 px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-200">Fechar</button></footer>
       </section>
     </div>
   );

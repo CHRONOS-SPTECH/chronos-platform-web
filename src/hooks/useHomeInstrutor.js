@@ -24,8 +24,9 @@ export default function useHomeInstrutor() {
       const dadosSessao = sessionService.getSession();
       if (!dadosSessao?.usuario) return;
 
-      const aulasHoje = await aulaService.listarAulasDoDia(
-        dadosSessao.usuario.id_usuario,
+      const instrutorId = dadosSessao.usuario.pessoa?.id_pessoa || dadosSessao.usuario.id_usuario;
+      const aulasHoje = await aulaService.listarTodasAulasDoDia(
+        instrutorId,
         getHojeIso(),
       );
 
@@ -44,8 +45,9 @@ export default function useHomeInstrutor() {
       const dadosSessao = sessionService.getSession();
       if (!dadosSessao?.usuario) return;
 
-      const aulasHoje = await aulaService.listarAulasDoDia(
-        dadosSessao.usuario.id_usuario,
+      const instrutorId = dadosSessao.usuario.pessoa?.id_pessoa || dadosSessao.usuario.id_usuario;
+      const aulasHoje = await aulaService.listarTodasAulasDoDia(
+        instrutorId,
         getHojeIso(),
       );
 

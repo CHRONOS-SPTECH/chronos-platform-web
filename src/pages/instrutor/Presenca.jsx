@@ -22,6 +22,9 @@ function Presenca() {
     turma,
     aula,
     alunos,
+    pagina,
+    setPagina,
+    paginacao,
     carregando,
     error,
     alternarPresenca,
@@ -147,6 +150,9 @@ function Presenca() {
                 onTogglePresenca={alternarPresenca}
                 onSalvarChamada={salvarChamada}
                 carregando={carregando}
+                pagina={pagina}
+                paginacao={paginacao}
+                onMudarPagina={setPagina}
               />
             )}
           </div>

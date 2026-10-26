@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import alunoService from "../services/alunoService";
+import { PAGE_SIZE } from "../config/pagination";
 
 export default function useAlunos() {
   const [alunos, setAlunos] = useState([]);
+  const [pagina, setPagina] = useState(0);
+  const [tamanhoPagina, setTamanhoPagina] = useState(PAGE_SIZE);
+  const [paginacao, setPaginacao] = useState({ totalElements: 0, totalPages: 0, number: 0, last: true });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [salvando, setSalvando] = useState(false);
@@ -12,8 +16,15 @@ export default function useAlunos() {
       setLoading(true);
       setError("");
 
-      const dados = await alunoService.listarAlunos();
-      setAlunos(Array.isArray(dados) ? dados : []);
+      const dados = await alunoService.listarAlunos({ page: pagina, size: tamanhoPagina });
+      const conteudo = Array.isArray(dados?.content) ? dados.content : Array.isArray(dados) ? dados : [];
+      setAlunos(conteudo);
+      setPaginacao({
+        totalElements: dados?.totalElements ?? conteudo.length,
+        totalPages: dados?.totalPages ?? 1,
+        number: dados?.number ?? pagina,
+        last: dados?.last ?? true,
+      });
     } catch (err) {
       console.error("Erro ao carregar alunos (hook):", err);
       setError(
@@ -22,7 +33,7 @@ export default function useAlunos() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [pagina, tamanhoPagina]);
 
   useEffect(() => {
     carregarAlunos();
@@ -61,11 +72,7 @@ export default function useAlunos() {
           }
         }
 
-        setAlunos((listaAtualAlunos) =>
-          listaAtualAlunos.map((aluno) =>
-            aluno.id_pessoa === id ? alunoFinal : aluno,
-          ),
-        );
+        await carregarAlunos();
         return alunoFinal;
       } else {
         const possuiBiometria =
@@ -87,7 +94,7 @@ export default function useAlunos() {
           alunoFinal.endereco = enderecoCriado;
         }
 
-        setAlunos((listaAtualAlunos) => [alunoFinal, ...listaAtualAlunos]);
+        await carregarAlunos();
         return alunoFinal;
       }
     } catch (err) {
@@ -101,9 +108,7 @@ export default function useAlunos() {
   const excluirAluno = async (idPessoa) => {
     try {
       await alunoService.excluirAluno(idPessoa);
-      setAlunos((listaAtualAlunos) =>
-        listaAtualAlunos.filter((item) => item.id_pessoa !== idPessoa),
-      );
+      await carregarAlunos();
     } catch (err) {
       console.error("Erro ao excluir aluno (hook):", err);
       throw err;
@@ -112,6 +117,14 @@ export default function useAlunos() {
 
   return {
     alunos,
+    pagina,
+    setPagina,
+    tamanhoPagina,
+    definirTamanhoPagina: (tamanho) => {
+      setPagina(0);
+      setTamanhoPagina(tamanho);
+    },
+    paginacao,
     loading,
     error,
     carregando: loading,

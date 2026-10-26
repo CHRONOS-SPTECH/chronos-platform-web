@@ -19,6 +19,8 @@ export default function Turmas() {
   const [turmaParaExcluir, setTurmaParaExcluir] = useState(null);
   const [carregandoAlunos, setCarregandoAlunos] = useState(false);
   const [erroAlunos, setErroAlunos] = useState("");
+  const [paginaAlunos, setPaginaAlunos] = useState(0);
+  const [idTurmaAlunos, setIdTurmaAlunos] = useState(null);
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("Todas");
 
@@ -51,11 +53,27 @@ export default function Turmas() {
   };
 
   const onVer = async (turma) => {
+    setPaginaAlunos(0);
+    setIdTurmaAlunos(turma.id);
     setIsModalAbertoAlunosTurma(true);
     setCarregandoAlunos(true);
     setErroAlunos("");
     try {
-      await buscarAlunos(turma.id);
+      await buscarAlunos(turma.id, 0);
+    } catch (err) {
+      setErroAlunos(err?.response?.data?.message || "Não foi possível carregar os alunos desta turma.");
+    } finally {
+      setCarregandoAlunos(false);
+    }
+  };
+
+  const mudarPaginaAlunos = async (pagina) => {
+    if (pagina < 0 || !idTurmaAlunos || pagina >= (dadosAlunosPorTurma?.total_paginas ?? Infinity)) return;
+    setPaginaAlunos(pagina);
+    setCarregandoAlunos(true);
+    setErroAlunos("");
+    try {
+      await buscarAlunos(idTurmaAlunos, pagina);
     } catch (err) {
       setErroAlunos(err?.response?.data?.message || "Não foi possível carregar os alunos desta turma.");
     } finally {
@@ -182,6 +200,8 @@ export default function Turmas() {
           carregando={carregandoAlunos}
           erro={erroAlunos}
           dadosAlunos={dadosAlunosPorTurma}
+          pagina={paginaAlunos}
+          onMudarPagina={mudarPaginaAlunos}
         />
 
         <ConfirmDialog

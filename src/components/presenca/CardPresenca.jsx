@@ -12,6 +12,9 @@ function CardPresenca({
   onTogglePresenca,
   onSalvarChamada,
   carregando,
+  pagina,
+  paginacao,
+  onMudarPagina,
 }) {
   const navigate = useNavigate();
   const toast = useToast();
@@ -55,6 +58,14 @@ function CardPresenca({
           onTogglePresenca={onTogglePresenca}
           visualizarChamada={chamadaJaFeita}
         />
+        <div className="flex items-center justify-between border-t border-slate-100 px-4 py-3 text-xs text-slate-500">
+          <span>{paginacao?.totalElements ?? alunos.length} alunos</span>
+          <div className="flex items-center gap-2">
+            <button type="button" disabled={pagina === 0 || carregando} onClick={() => onMudarPagina(pagina - 1)} className="rounded-lg border px-3 py-1.5 disabled:opacity-40">Anterior</button>
+            <span>Página {(paginacao?.number ?? pagina) + 1} de {Math.max(1, paginacao?.totalPages ?? 1)}</span>
+            <button type="button" disabled={paginacao?.last || carregando} onClick={() => onMudarPagina(pagina + 1)} className="rounded-lg border px-3 py-1.5 disabled:opacity-40">Próxima</button>
+          </div>
+        </div>
       </div>
 
       {/* Botões de Ação */}

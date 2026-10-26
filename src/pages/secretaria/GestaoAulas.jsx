@@ -28,6 +28,11 @@ export default function GestaoAulasView() {
     carregandoImportacao,
     carregandoDados,
     aulasFiltradas,
+    pagina,
+    setPagina,
+    tamanhoPagina,
+    definirTamanhoPagina,
+    paginacao,
     confirmacaoAberta,
     setConfirmacaoAberta,
     abrirConfirmacaoExclusao,
@@ -244,6 +249,19 @@ export default function GestaoAulasView() {
                   )}
                 </tbody>
               </table>
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center justify-between border-t border-slate-100 bg-white px-4 py-3 text-xs text-slate-500">
+            <span>{paginacao.totalElements} aulas cadastradas</span>
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-2">Por página
+                <select value={tamanhoPagina} onChange={(evento) => definirTamanhoPagina(Number(evento.target.value))} className="rounded-lg border border-slate-200 bg-white px-2 py-1.5">
+                  {[10, 20, 50].map((tamanho) => <option key={tamanho} value={tamanho}>{tamanho}</option>)}
+                </select>
+              </label>
+              <button type="button" disabled={pagina === 0 || carregandoDados} onClick={() => setPagina(pagina - 1)} className="rounded-lg border px-3 py-1.5 disabled:opacity-40">Anterior</button>
+              <span>Página {(paginacao.number ?? pagina) + 1} de {Math.max(1, paginacao.totalPages)}</span>
+              <button type="button" disabled={paginacao.last || carregandoDados} onClick={() => setPagina(pagina + 1)} className="rounded-lg border px-3 py-1.5 disabled:opacity-40">Próxima</button>
             </div>
           </div>
         </main>

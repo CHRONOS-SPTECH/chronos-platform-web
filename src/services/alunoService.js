@@ -1,5 +1,6 @@
 // alunoService.js
 import api from "./api";
+import { PAGE_SIZE } from "../config/pagination";
 
 // Função auxiliar para converter Blob em Base64 nativamente no navegador
 const blobParaBase64 = (blob) => {
@@ -12,13 +13,17 @@ const blobParaBase64 = (blob) => {
 };
 
 const alunoService = {
-  listarAlunos: async () => {
-    const response = await api.get("/pessoas/details");
+  listarAlunos: async ({ page = 0, size = PAGE_SIZE, sort = "nome,asc" } = {}) => {
+    const response = await api.get("/alunos", {
+      params: { page, size, sort },
+    });
     return response.data;
   },
 
-  listarAlunosPorTurma: async (idTurma) => {
-    const response = await api.get(`/turmas/${idTurma}/alunos`);
+  listarAlunosPorTurma: async (idTurma, { page = 0, size = PAGE_SIZE, sort = "pessoa.nome,asc" } = {}) => {
+    const response = await api.get(`/turmas/${idTurma}/alunos`, {
+      params: { page, size, sort },
+    });
     return response.data;
   },
 

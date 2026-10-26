@@ -51,7 +51,7 @@ export default function useCronogramaAulas() {
   const carregarAulas = useCallback(async () => {
     setCarregando(true);
     try {
-      setAulas((await aulaService.listarAulasDetalhadas()) || []);
+      setAulas((await aulaService.listarTodasAulasDetalhadas()) || []);
       return true;
     } catch (erro) {
       console.error("Erro ao carregar aulas:", erro);

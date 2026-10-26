@@ -11,7 +11,7 @@ export default function DiarioRecente() {
     async function buscarAulas() {
       try {
         setLoading(true);
-        const aulasDetalhadas = await aulaService.listarAulasDetalhadas();
+        const aulasDetalhadas = await aulaService.listarTodasAulasDetalhadas();
 
         if (Array.isArray(aulasDetalhadas)) {
           const aulasInvertidas = [...aulasDetalhadas].reverse();

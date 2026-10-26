@@ -82,9 +82,9 @@ export default function useTurmas() {
     }
   };
 
-  async function buscarAlunos(id) {
+  async function buscarAlunos(id, pagina = 0, tamanho) {
     try {
-      const alunosTurma = await turmaService.buscarAlunosPorTurma(id);
+      const alunosTurma = await turmaService.buscarAlunosPorTurma(id, { page: pagina, ...(tamanho ? { size: tamanho } : {}) });
       setDadosAlunosPorTurma(alunosTurma);
       return alunosTurma;
     } catch (err) {

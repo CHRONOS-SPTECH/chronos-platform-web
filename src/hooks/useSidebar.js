@@ -55,16 +55,17 @@ export default function useSidebar() {
 
           const hoje = getHojeIso();
           const aulasHoje =
-            (await aulaService.listarAulasDoDia(
-              dadosSessao.usuario.id_usuario,
+            (await aulaService.listarTodasAulasDoDia(
+              dadosSessao.usuario.pessoa?.id_pessoa || dadosSessao.usuario.id_usuario,
               hoje,
             )) || [];
 
-          const aulaEmAberto = aulasHoje.find(
+          const listaAulasHoje = aulasHoje;
+          const aulaEmAberto = listaAulasHoje.find(
             (itemAula) =>
               !Boolean(itemAula?.chamadaFeita ?? itemAula?.aula?.chamadaFeita),
           );
-          const aulaParaAbrir = aulaEmAberto || aulasHoje[0];
+          const aulaParaAbrir = aulaEmAberto || listaAulasHoje[0];
 
           if (aulaParaAbrir?.aula?.id_turma && aulaParaAbrir?.aula?.id_aula) {
             navigate(

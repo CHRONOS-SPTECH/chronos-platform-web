@@ -1,4 +1,5 @@
 import api from "./api";
+import { PAGE_SIZE } from "../config/pagination";
 
 const STATUS_LABELS_VALIDOS = [
 	"Não Iniciada",
@@ -81,8 +82,10 @@ const turmaService = {
 		return response.data;
 	},
 
-	buscarAlunosPorTurma: async (id) => {
-		const response = await api.get(`/turmas/${id}/alunosPorTurma`);
+	buscarAlunosPorTurma: async (id, { page = 0, size = PAGE_SIZE, sort = "pessoa.nome,asc" } = {}) => {
+		const response = await api.get(`/turmas/${id}/alunosPorTurma`, {
+			params: { page, size, sort },
+		});
 		return response.data;
 	},
 

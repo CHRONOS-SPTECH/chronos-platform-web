@@ -32,6 +32,11 @@ export default function Alunos() {
 
   const {
     alunos,
+    pagina,
+    setPagina,
+    tamanhoPagina,
+    definirTamanhoPagina,
+    paginacao,
     loading,
     error: erro,
     salvando,
@@ -158,7 +163,7 @@ export default function Alunos() {
               <div className="flex items-center gap-4">
                 <div className="hidden border-l border-slate-200 pl-4 text-right sm:block">
                   <p className="text-2xl font-black text-slate-900">
-                    {alunosUi.length}
+                    {paginacao.totalElements}
                   </p>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
                     alunos
@@ -179,7 +184,7 @@ export default function Alunos() {
                   Quadro Geral de Alunos
                 </h2>
                 <span className="text-xs font-bold text-slate-400">
-                  {alunosUi.length} alunos cadastrados
+                  {paginacao.totalElements} alunos cadastrados
                 </span>
               </div>
 
@@ -262,6 +267,9 @@ export default function Alunos() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
+                      {alunosUi.length === 0 && (
+                        <tr><td colSpan={7} className="p-10 text-center text-sm text-slate-500">Nenhum aluno encontrado.</td></tr>
+                      )}
                       {alunosUi.map((alunoUi, index) => (
                         <tr
                           key={alunoUi.id}
@@ -338,6 +346,21 @@ export default function Alunos() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
+              {!loading && !erro && (
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs text-slate-500">
+                  <span>Exibindo {alunosUi.length} de {paginacao.totalElements} alunos</span>
+                  <div className="flex items-center gap-3">
+                    <label className="flex items-center gap-2">Por página
+                      <select value={tamanhoPagina} onChange={(event) => definirTamanhoPagina(Number(event.target.value))} className="rounded-lg border border-slate-200 bg-white px-2 py-1.5">
+                        {[10, 20, 50].map((tamanho) => <option key={tamanho} value={tamanho}>{tamanho}</option>)}
+                      </select>
+                    </label>
+                    <button type="button" disabled={pagina === 0 || loading} onClick={() => setPagina(pagina - 1)} className="rounded-lg border border-slate-200 px-3 py-1.5 disabled:opacity-40">Anterior</button>
+                    <span>Página {(paginacao.number ?? pagina) + 1} de {Math.max(1, paginacao.totalPages)}</span>
+                    <button type="button" disabled={paginacao.last || loading} onClick={() => setPagina(pagina + 1)} className="rounded-lg border border-slate-200 px-3 py-1.5 disabled:opacity-40">Próxima</button>
+                  </div>
                 </div>
               )}
             </div>

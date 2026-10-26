@@ -5,6 +5,7 @@ import aulaService from "../services/aulaService";
 import turmaService from "../services/turmaService";
 import pessoaService from "../services/pessoaService";
 import temaService from "../services/temaService";
+import { PAGE_SIZE } from "../config/pagination";
 
 export default function useGestaoAulas() {
   const toast = useToast();
@@ -24,6 +25,9 @@ export default function useGestaoAulas() {
   const [aulaParaExcluir, setAulaParaExcluir] = useState(null);
   const [confirmacaoAberta, setConfirmacaoAberta] = useState(false);
   const [carregandoDados, setCarregandoDados] = useState(false);
+  const [pagina, setPagina] = useState(0);
+  const [tamanhoPagina, setTamanhoPagina] = useState(PAGE_SIZE);
+  const [paginacao, setPaginacao] = useState({ totalElements: 0, totalPages: 0, number: 0, last: true, size: PAGE_SIZE });
 
   const carregarDados = useCallback(async () => {
     setCarregandoDados(true);
@@ -31,13 +35,17 @@ export default function useGestaoAulas() {
     try {
       const [aulasDetalhadas, turmasDisponiveis, pessoas, temasDisponiveis] =
         await Promise.all([
-          aulaService.listarAulasDetalhadas(),
+          idTurmaSelecionada
+            ? aulaService.listarAulasDaTurma(idTurmaSelecionada, { page: pagina, size: tamanhoPagina })
+            : aulaService.listarAulasDetalhadas({ page: pagina, size: tamanhoPagina }),
           turmaService.listarTurmas(),
           pessoaService.listarPessoas(),
           temaService.listarTemas(),
         ]);
 
-      setAulas(aulasDetalhadas || []);
+      const registros = Array.isArray(aulasDetalhadas?.content) ? aulasDetalhadas.content : Array.isArray(aulasDetalhadas) ? aulasDetalhadas : [];
+      setAulas(registros);
+      setPaginacao({ totalElements: aulasDetalhadas?.totalElements ?? registros.length, totalPages: aulasDetalhadas?.totalPages ?? 1, number: aulasDetalhadas?.number ?? pagina, last: aulasDetalhadas?.last ?? true, size: aulasDetalhadas?.size ?? tamanhoPagina });
       setTurmas(turmasDisponiveis || []);
       setProfessores(
         (pessoas || []).filter((pessoa) => pessoa.tipo_vinculo_id === 4),
@@ -49,7 +57,7 @@ export default function useGestaoAulas() {
     } finally {
       setCarregandoDados(false);
     }
-  }, [toast]);
+  }, [idTurmaSelecionada, pagina, tamanhoPagina, toast]);
 
   useEffect(() => {
     carregarDados();
@@ -170,17 +178,30 @@ export default function useGestaoAulas() {
     });
   }, [anoSelecionado, aulas, idTurmaSelecionada, termoBusca]);
 
+  const atualizarFiltro = useCallback((setter) => (valor) => {
+    setPagina(0);
+    setter(valor);
+  }, []);
+
   return {
     aulas,
     turmas,
     professores,
     temas,
     termoBusca,
-    setTermoBusca,
+    setTermoBusca: atualizarFiltro(setTermoBusca),
     idTurmaSelecionada,
-    setIdTurmaSelecionada,
+    setIdTurmaSelecionada: atualizarFiltro(setIdTurmaSelecionada),
     anoSelecionado,
-    setAnoSelecionado,
+    setAnoSelecionado: atualizarFiltro(setAnoSelecionado),
+    pagina,
+    setPagina,
+    tamanhoPagina,
+    definirTamanhoPagina: (tamanho) => {
+      setPagina(0);
+      setTamanhoPagina(tamanho);
+    },
+    paginacao,
     arquivoSelecionado,
     aoSelecionarArquivo,
     limparArquivoSelecionado,

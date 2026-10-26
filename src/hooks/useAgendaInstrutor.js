@@ -48,7 +48,7 @@ export default function useAgendaInstrutor() {
       setCarregando(true);
       setErro("");
 
-      const aulasDetalhadas = await aulaService.listarAulasDetalhadas();
+      const aulasDetalhadas = await aulaService.listarTodasAulasDetalhadas();
       const aulasFiltradas = aulasDetalhadas.filter(
         (item) => item.aula.id_instrutor === instrutorInfo.id,
       );
