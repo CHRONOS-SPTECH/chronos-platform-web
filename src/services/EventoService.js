@@ -2,22 +2,6 @@ import api from "./api";
 
 const unwrap = (response) => response.data?.data ?? response.data;
 
-const getFromAvailableRoute = async (routes) => {
-  let lastError;
-
-  for (const route of routes) {
-    try {
-      return unwrap(await api.get(route));
-    } catch (error) {
-      lastError = error;
-      const status = error?.response?.status;
-      if (status !== 404 && status !== 403) throw error;
-    }
-  }
-
-  throw lastError;
-};
-
 const eventoService = {
   getEventos: async () => unwrap(await api.get("/eventos")),
 
@@ -33,16 +17,9 @@ const eventoService = {
     return unwrap(response);
   },
 
-  getCategorias: async () =>
-    getFromAvailableRoute([
-      "/categorias",
-      "/categorias-atividade",
-      "/categoria-atividade",
-      "/categoriaAtividade",
-    ]),
+  getCategorias: async () => unwrap(await api.get("/categorias-atividade")),
 
-  getSecretarias: async () =>
-    getFromAvailableRoute(["/secretarias", "/secretaria"]),
+  getSecretarias: async () => unwrap(await api.get("/secretarias")),
 };
 
 export default eventoService;
