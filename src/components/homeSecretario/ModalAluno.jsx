@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { Camera, GraduationCap, MapPin, X, Loader2 } from "lucide-react";
+import Camera from "lucide-react/icons/camera";
+import GraduationCap from "lucide-react/icons/graduation-cap";
+import MapPin from "lucide-react/icons/map-pin";
+import X from "lucide-react/icons/x";
+import Loader2 from "lucide-react/icons/loader-circle";
 import cepService from "../../services/cepService";
 import { useToast } from "../alert-toast/ToastProvider";
 import ModalBiometriaAluno from "../reconhecimento-facial/ModalBiometriaAluno";

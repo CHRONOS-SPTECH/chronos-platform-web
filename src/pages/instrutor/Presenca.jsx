@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  ClipboardList,
-  CalendarDays,
-  Clock,
-  GraduationCap,
-  ArrowLeft,
-} from "lucide-react";
+import ClipboardList from "lucide-react/icons/clipboard-list";
+import CalendarDays from "lucide-react/icons/calendar-days";
+import Clock from "lucide-react/icons/clock";
+import GraduationCap from "lucide-react/icons/graduation-cap";
+import ArrowLeft from "lucide-react/icons/arrow-left";
 import Header from "../../components/homeSecretario/Header";
 import Sidebar from "../../components/sidebar/SideBar";
 import CardPresenca from "../../components/presenca/CardPresenca";

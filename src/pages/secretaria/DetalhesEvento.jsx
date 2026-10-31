@@ -7,7 +7,12 @@
 
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, CalendarPlus, Clock, MapPin, Pencil, Trash2 } from "lucide-react";
+import ArrowLeft from "lucide-react/icons/arrow-left";
+import CalendarPlus from "lucide-react/icons/calendar-plus";
+import Clock from "lucide-react/icons/clock";
+import MapPin from "lucide-react/icons/map-pin";
+import Pencil from "lucide-react/icons/pencil";
+import Trash2 from "lucide-react/icons/trash-2";
 import { useNavigate, useParams } from "react-router-dom";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";

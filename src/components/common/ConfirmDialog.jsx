@@ -1,4 +1,4 @@
-import { AlertTriangle } from "lucide-react";
+import AlertTriangle from "lucide-react/icons/triangle-alert";
 
 function ConfirmDialog({
   aberto,

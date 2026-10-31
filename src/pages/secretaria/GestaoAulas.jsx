@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { Search, Layers, Trash2 } from "lucide-react";
+import Search from "lucide-react/icons/search";
+import Layers from "lucide-react/icons/layers";
+import Trash2 from "lucide-react/icons/trash-2";
 
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";

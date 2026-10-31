@@ -1,4 +1,6 @@
-import { CalendarBlank, CaretRight, Info } from "@phosphor-icons/react";
+import { CalendarBlank } from "@phosphor-icons/react/dist/csr/CalendarBlank";
+import { CaretRight } from "@phosphor-icons/react/dist/csr/CaretRight";
+import { Info } from "@phosphor-icons/react/dist/csr/Info";
 
 const eventos = [
   {

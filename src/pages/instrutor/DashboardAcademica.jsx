@@ -1,5 +1,6 @@
-import { Home } from "lucide-react";
-import { Users, Info } from "@phosphor-icons/react";
+import Home from "lucide-react/icons/house";
+import { Users } from "@phosphor-icons/react/dist/csr/Users";
+import { Info } from "@phosphor-icons/react/dist/csr/Info";
 
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";

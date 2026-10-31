@@ -1,4 +1,8 @@
-import { Clock, Eye, MapPin, Pencil, Trash2 } from "lucide-react";
+import Clock from "lucide-react/icons/clock";
+import Eye from "lucide-react/icons/eye";
+import MapPin from "lucide-react/icons/map-pin";
+import Pencil from "lucide-react/icons/pencil";
+import Trash2 from "lucide-react/icons/trash-2";
 import { useNavigate } from "react-router-dom";
 
 const STATUS_STYLE = {

@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { CalendarPlus, Plus, Search, SlidersHorizontal } from "lucide-react";
+import CalendarPlus from "lucide-react/icons/calendar-plus";
+import Plus from "lucide-react/icons/plus";
+import Search from "lucide-react/icons/search";
+import SlidersHorizontal from "lucide-react/icons/sliders-horizontal";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";

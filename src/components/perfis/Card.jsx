@@ -1,4 +1,6 @@
-import { UserRound, GraduationCap, ClipboardList } from "lucide-react";
+import UserRound from "lucide-react/icons/user-round";
+import GraduationCap from "lucide-react/icons/graduation-cap";
+import ClipboardList from "lucide-react/icons/clipboard-list";
 import { useNavigate } from "react-router-dom";
 import sessionService from "../../services/sessionService";
 

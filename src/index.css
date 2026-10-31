@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 
 @layer base {
@@ -9,6 +8,27 @@
 
 body {
   font-family: "Inter", sans-serif;
+}
+
+.login-screen {
+  animation: login-arrive 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes login-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-screen {
+    animation: none;
+  }
 }
 
 .sidebar-scrollbar {

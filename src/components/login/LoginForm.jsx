@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Input from "../Input";
 import Button from "../Button";
 import authService from "../../services/authService";
+import { preloadPostLoginPages } from "../../provider/preloadPages";
 
 function LoginForm({ onForgotPassword, onStatusChange }) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,9 +39,8 @@ function LoginForm({ onForgotPassword, onStatusChange }) {
         message: "Acesso autorizado! Entrando...",
       });
 
-      setTimeout(() => {
-        window.location.href = "/perfis";
-      }, 1000);
+      preloadPostLoginPages();
+      navigate("/perfis", { replace: true });
     } catch (err) {
       const errorMsg =
         err.response?.data?.message || "E-mail ou senha incorretos.";

@@ -3,7 +3,10 @@ import Sidebar from "../components/sidebar/SideBar";
 import Profile from "../components/homeSecretario/Profile";
 import Acoes from "../components/homeSecretario/Acoes";
 import Evento from "../components/homeSecretario/Evento";
-import { Home, LayoutGrid, Users, UserSearch } from "lucide-react";
+import Home from "lucide-react/icons/house";
+import LayoutGrid from "lucide-react/icons/layout-grid";
+import Users from "lucide-react/icons/users";
+import UserSearch from "lucide-react/icons/user-search";
 
 const vitalidade = {
   stats: [

@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { X, PlusCircle, Trash2, GripVertical, Inbox } from "lucide-react";
+import X from "lucide-react/icons/x";
+import PlusCircle from "lucide-react/icons/circle-plus";
+import Trash2 from "lucide-react/icons/trash-2";
+import GripVertical from "lucide-react/icons/grip-vertical";
+import Inbox from "lucide-react/icons/inbox";
 
 export default function BancoPendencias({
   estaAberto,

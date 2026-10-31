@@ -1,12 +1,10 @@
 import { useMemo, useState } from "react";
-import {
-  BookOpen,
-  Plus,
-  Eye,
-  Pencil,
-  Trash2,
-  LoaderCircle,
-} from "lucide-react";
+import BookOpen from "lucide-react/icons/book-open";
+import Plus from "lucide-react/icons/plus";
+import Eye from "lucide-react/icons/eye";
+import Pencil from "lucide-react/icons/pencil";
+import Trash2 from "lucide-react/icons/trash-2";
+import LoaderCircle from "lucide-react/icons/loader-circle";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
 import ModulosControle from "../../components/turmas/ModuloControle";

@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { Calendar, User, BookOpen } from "lucide-react";
+import Calendar from "lucide-react/icons/calendar";
+import User from "lucide-react/icons/user";
+import BookOpen from "lucide-react/icons/book-open";
 import aulaService from "../../services/aulaService";
 import { formatarDataBr } from "../../utils/DateUtils";
 

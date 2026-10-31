@@ -1,4 +1,6 @@
-import { BookOpen, LoaderCircle, X } from "lucide-react";
+import BookOpen from "lucide-react/icons/book-open";
+import LoaderCircle from "lucide-react/icons/loader-circle";
+import X from "lucide-react/icons/x";
 
 export default function ModalTurmaAlunos({ isOpen, onClose, dadosAlunos, carregando, erro, pagina = 0, onMudarPagina }) {
   if (!isOpen) return null;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { X } from "lucide-react";
+import X from "lucide-react/icons/x";
 
 const campo =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700";

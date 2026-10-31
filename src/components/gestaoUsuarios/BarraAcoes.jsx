@@ -1,4 +1,5 @@
-import { Search, UserPlus } from "lucide-react";
+import Search from "lucide-react/icons/search";
+import UserPlus from "lucide-react/icons/user-plus";
 
 export default function BarraAcoes({ onNovoClick }) {
   return (

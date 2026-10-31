@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { Home } from "lucide-react";
-import { Play, Calendar, Users } from "@phosphor-icons/react";
+import Home from "lucide-react/icons/house";
+import { Play } from "@phosphor-icons/react/dist/csr/Play";
+import { Calendar } from "@phosphor-icons/react/dist/csr/Calendar";
+import { Users } from "@phosphor-icons/react/dist/csr/Users";
 
 import Acoes from "../../components/homeSecretario/Acoes";
 import Evento from "../../components/homeSecretario/Evento";

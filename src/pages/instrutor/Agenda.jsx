@@ -1,5 +1,8 @@
 import React from "react";
-import { Calendar, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import Calendar from "lucide-react/icons/calendar";
+import Clock from "lucide-react/icons/clock";
+import ChevronLeft from "lucide-react/icons/chevron-left";
+import ChevronRight from "lucide-react/icons/chevron-right";
 
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";

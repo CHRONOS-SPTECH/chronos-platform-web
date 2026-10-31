@@ -1,4 +1,5 @@
-import { AlertTriangle, X } from "lucide-react";
+import AlertTriangle from "lucide-react/icons/triangle-alert";
+import X from "lucide-react/icons/x";
 
 export default function ConfirmDeleteModal({ aberto, evento, carregando, onConfirm, onCancel }) {
   if (!aberto) return null;

@@ -1,10 +1,8 @@
-import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Home,
-  LayoutGrid,
-} from "lucide-react";
+import ChevronDown from "lucide-react/icons/chevron-down";
+import ChevronLeft from "lucide-react/icons/chevron-left";
+import ChevronRight from "lucide-react/icons/chevron-right";
+import Home from "lucide-react/icons/house";
+import LayoutGrid from "lucide-react/icons/layout-grid";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import useSidebar from "../../hooks/useSidebar";

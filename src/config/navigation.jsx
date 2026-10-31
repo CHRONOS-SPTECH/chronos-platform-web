@@ -1,15 +1,13 @@
-import {
-  BookOpenCheck,
-  CalendarDays,
-  CalendarRange,
-  ClipboardCheck,
-  GraduationCap,
-  LayoutDashboard,
-  UserCog,
-  UserCheck,
-  Users,
-  UsersRound,
-} from "lucide-react";
+import BookOpenCheck from "lucide-react/icons/book-open-check";
+import CalendarDays from "lucide-react/icons/calendar-days";
+import CalendarRange from "lucide-react/icons/calendar-range";
+import ClipboardCheck from "lucide-react/icons/clipboard-check";
+import GraduationCap from "lucide-react/icons/graduation-cap";
+import LayoutDashboard from "lucide-react/icons/layout-dashboard";
+import UserCog from "lucide-react/icons/user-cog";
+import UserCheck from "lucide-react/icons/user-check";
+import Users from "lucide-react/icons/users";
+import UsersRound from "lucide-react/icons/users-round";
 
 export const MENU_CONFIG = {
   instrutor: {

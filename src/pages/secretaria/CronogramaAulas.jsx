@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { Calendar, Inbox, ChevronLeft, ChevronRight } from "lucide-react";
+import Calendar from "lucide-react/icons/calendar";
+import Inbox from "lucide-react/icons/inbox";
+import ChevronLeft from "lucide-react/icons/chevron-left";
+import ChevronRight from "lucide-react/icons/chevron-right";
 import useCronogramaAulas from "../../hooks/useCronogramaAulas";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";

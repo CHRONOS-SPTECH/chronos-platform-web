@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, Play, Clock } from "@phosphor-icons/react";
+import { Check } from "@phosphor-icons/react/dist/csr/Check";
+import { Play } from "@phosphor-icons/react/dist/csr/Play";
+import { Clock } from "@phosphor-icons/react/dist/csr/Clock";
 import aulaService from "../../services/aulaService";
 import sessionService from "../../services/sessionService";
 import { getHojeIso } from "../../utils/DateUtils";

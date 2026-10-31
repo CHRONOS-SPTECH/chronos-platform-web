@@ -1,5 +1,7 @@
 import React from "react";
-import { CheckCircle, AlertCircle, Clock } from "lucide-react";
+import CheckCircle from "lucide-react/icons/circle-check-big";
+import AlertCircle from "lucide-react/icons/circle-alert";
+import Clock from "lucide-react/icons/clock";
 
 export default function AgendaGrade({ datasDaSemana, aulas }) {
   const diasNome = [

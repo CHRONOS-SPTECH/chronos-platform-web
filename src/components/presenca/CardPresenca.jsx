@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import TabelaAlunos from "./TabelaAlunos";
 import ModalConfirmacao from "./ModalConfirmacao";
 import { useToast } from "../alert-toast/ToastProvider";
-import { BookOpen } from "lucide-react";
+import BookOpen from "lucide-react/icons/book-open";
 import aulaService from "../../services/aulaService";
 
 function CardPresenca({

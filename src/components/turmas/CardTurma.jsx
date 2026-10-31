@@ -1,4 +1,8 @@
-import { BookOpen, Calendar, Eye, Pencil, Trash2 } from "lucide-react";
+import BookOpen from "lucide-react/icons/book-open";
+import Calendar from "lucide-react/icons/calendar";
+import Eye from "lucide-react/icons/eye";
+import Pencil from "lucide-react/icons/pencil";
+import Trash2 from "lucide-react/icons/trash-2";
 
 function CardTurma({ turma, onVer, onEditar, onExcluir }) {
   const status = String(turma.status || "").toLowerCase();

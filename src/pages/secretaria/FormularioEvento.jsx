@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { ArrowLeft, CalendarPlus, Save } from "lucide-react";
+import ArrowLeft from "lucide-react/icons/arrow-left";
+import CalendarPlus from "lucide-react/icons/calendar-plus";
+import Save from "lucide-react/icons/save";
 import { useNavigate, useParams } from "react-router-dom";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";

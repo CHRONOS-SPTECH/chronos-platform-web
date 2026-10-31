@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { BookOpen, Plus, Search, SlidersHorizontal } from "lucide-react";
+import BookOpen from "lucide-react/icons/book-open";
+import Plus from "lucide-react/icons/plus";
+import Search from "lucide-react/icons/search";
+import SlidersHorizontal from "lucide-react/icons/sliders-horizontal";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
 import ModulosControle from "../../components/turmas/ModuloControle";

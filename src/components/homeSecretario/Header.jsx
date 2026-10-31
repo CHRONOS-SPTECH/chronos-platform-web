@@ -1,4 +1,7 @@
-import { House, Calendar, SignOut, UsersThree } from "@phosphor-icons/react";
+import { House } from "@phosphor-icons/react/dist/csr/House";
+import { Calendar } from "@phosphor-icons/react/dist/csr/Calendar";
+import { SignOut } from "@phosphor-icons/react/dist/csr/SignOut";
+import { UsersThree } from "@phosphor-icons/react/dist/csr/UsersThree";
 import Profile from "./Profile";
 import useHeader from "../../hooks/useHeader";
 

@@ -1,12 +1,10 @@
-import {
-  User,
-  Mail,
-  ShieldCheck,
-  Calendar,
-  Eye,
-  Pencil,
-  Trash2,
-} from "lucide-react";
+import User from "lucide-react/icons/user";
+import Mail from "lucide-react/icons/mail";
+import ShieldCheck from "lucide-react/icons/shield-check";
+import Calendar from "lucide-react/icons/calendar";
+import Eye from "lucide-react/icons/eye";
+import Pencil from "lucide-react/icons/pencil";
+import Trash2 from "lucide-react/icons/trash-2";
 
 function CardUsuario({ usuario }) {
   return (

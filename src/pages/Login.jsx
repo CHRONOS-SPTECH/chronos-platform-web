@@ -34,7 +34,7 @@ function Login() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-[#FDFDFD] font-['Inter']">
+    <div className="login-screen flex h-screen w-full bg-[#FDFDFD] font-['Inter']">
       <div className="hidden lg:flex lg:w-1/2 bg-[#0F172A] relative items-center justify-center overflow-hidden">
         <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#2bab56] rounded-full blur-[120px] opacity-40"></div>
         <div className="absolute bottom-[-5%] left-[-5%] w-[400px] h-[400px] bg-[#297141] rounded-full blur-[100px] opacity-30"></div>

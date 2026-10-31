@@ -1,4 +1,7 @@
-import { CircleAlert, CircleCheck, Info, TriangleAlert } from "lucide-react";
+import CircleAlert from "lucide-react/icons/circle-alert";
+import CircleCheck from "lucide-react/icons/circle-check";
+import Info from "lucide-react/icons/info";
+import TriangleAlert from "lucide-react/icons/triangle-alert";
 
 function Alert({ type, message }) {
   if (!message) return null;

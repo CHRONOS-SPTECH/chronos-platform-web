@@ -1,11 +1,9 @@
 import React from "react";
-import {
-  X,
-  FileSpreadsheet,
-  CloudUpload,
-  Info,
-  AlertTriangle,
-} from "lucide-react";
+import X from "lucide-react/icons/x";
+import FileSpreadsheet from "lucide-react/icons/file-spreadsheet";
+import CloudUpload from "lucide-react/icons/cloud-upload";
+import Info from "lucide-react/icons/info";
+import AlertTriangle from "lucide-react/icons/triangle-alert";
 
 export default function ModalCargaLetiva({
   isOpen,

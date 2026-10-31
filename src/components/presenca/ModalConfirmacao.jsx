@@ -1,4 +1,4 @@
-import { UserCircle } from "lucide-react";
+import UserCircle from "lucide-react/icons/circle-user";
 
 function ModalConfirmacao({
   aberto,

@@ -1,5 +1,7 @@
 import React from "react";
-import { UserCircle, X, Award } from "lucide-react";
+import UserCircle from "lucide-react/icons/circle-user";
+import X from "lucide-react/icons/x";
+import Award from "lucide-react/icons/award";
 import {
   formatarDataBr,
   formatarTelefone,

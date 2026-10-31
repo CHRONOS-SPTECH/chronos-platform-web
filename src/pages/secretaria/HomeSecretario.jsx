@@ -1,10 +1,12 @@
-import { Home, UserPlus, Users, CalendarPlus } from "lucide-react";
+import Home from "lucide-react/icons/house";
+import UserPlus from "lucide-react/icons/user-plus";
+import Users from "lucide-react/icons/users";
+import CalendarPlus from "lucide-react/icons/calendar-plus";
 
 import Acoes from "../../components/homeSecretario/Acoes";
 import Evento from "../../components/homeSecretario/Evento";
 import Header from "../../components/homeSecretario/Header";
 import Sidebar from "../../components/sidebar/SideBar";
-import VisaoGeral from "../../components/homeSecretario/VisaoGeral";
 import DiarioRecente from "../../components/homeSecretario/DiarioRecente";
 import { useNavigate } from "react-router-dom";
 
@@ -48,8 +50,6 @@ function HomeSecretario() {
                     },
                   ]}
                 />
-
-                {/* <VisaoGeral /> */}
 
                 {/* Componente dinâmico que bate direto no @GetMapping("/detalhadadas") */}
                 <DiarioRecente />

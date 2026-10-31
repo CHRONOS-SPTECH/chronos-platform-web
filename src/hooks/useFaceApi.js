@@ -1,42 +1,69 @@
-import { useState, useEffect, useCallback } from "react";
-import * as faceapi from "face-api.js";
+import { useState, useEffect, useCallback, useRef } from "react";
+
+let modelosCarregando;
+
+async function carregarModelos() {
+  if (!modelosCarregando) {
+    modelosCarregando = import("face-api.js")
+      .then(async (faceapi) => {
+        const modelUrl = `${import.meta.env.BASE_URL}models`;
+        await Promise.all([
+          faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl),
+          faceapi.nets.faceLandmark68Net.loadFromUri(modelUrl),
+          faceapi.nets.faceRecognitionNet.loadFromUri(modelUrl),
+        ]);
+        return faceapi;
+      })
+      .catch((error) => {
+        modelosCarregando = null;
+        throw error;
+      });
+  }
+
+  return modelosCarregando;
+}
 
 export const useFaceApi = () => {
   const [modelsLoaded, setModelsLoaded] = useState(false);
   const [loadingError, setLoadingError] = useState(null);
+  const faceApiRef = useRef(null);
 
-  // 1. Carrega os modelos estáticos da pasta /public/models
   useEffect(() => {
+    let active = true;
+
     const loadModels = async () => {
       try {
-        const MODEL_URL = `${import.meta.env.BASE_URL}models`;
-        await Promise.all([
-          faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-          faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-          faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-        ]);
-        setModelsLoaded(true);
+        const faceapi = await carregarModelos();
+        if (active) {
+          faceApiRef.current = faceapi;
+          setModelsLoaded(true);
+        }
       } catch (error) {
         console.error("Erro ao carregar modelos do face-api:", {
           modeloUrl: `${import.meta.env.BASE_URL}models`,
           mensagem: error?.message,
           erro: error,
         });
-        setLoadingError(
-          "Não foi possível carregar o módulo de biometria facial.",
-        );
+        if (active) {
+          setLoadingError(
+            "Não foi possível carregar o módulo de biometria facial.",
+          );
+        }
       }
     };
 
     loadModels();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
-  // 2. Função para analisar um elemento de vídeo ou canvas
   const detectFace = useCallback(
     async (videoElement) => {
-      if (!modelsLoaded || !videoElement) return null;
+      const faceapi = faceApiRef.current;
+      if (!modelsLoaded || !faceapi || !videoElement) return null;
 
-      // Detecta 1 rosto, pega os pontos e gera a "digital" (descriptor)
       return await faceapi
         .detectSingleFace(
           videoElement,

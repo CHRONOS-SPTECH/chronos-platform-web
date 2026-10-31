@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Camera, Check, X } from "lucide-react";
+import Camera from "lucide-react/icons/camera";
+import Check from "lucide-react/icons/check";
+import X from "lucide-react/icons/x";
 import { CapturaBiometrica } from "./CapturaBiometrica";
 
 export default function ModalBiometriaAluno({

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { UserCircle } from "lucide-react";
+import UserCircle from "lucide-react/icons/circle-user";
 import CardDetalhes from "./CardDetalhes";
 
 function TabelaAlunos({ alunos, onTogglePresenca, visualizarChamada }) {

@@ -1,4 +1,6 @@
-import { X, UserPlus, UserCheck } from "lucide-react";
+import X from "lucide-react/icons/x";
+import UserPlus from "lucide-react/icons/user-plus";
+import UserCheck from "lucide-react/icons/user-check";
 import { useState, useEffect } from "react";
 import authService from "../../services/authService";
 import { useToast } from "../alert-toast/ToastProvider";
