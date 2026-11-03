@@ -1,9 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import BookOpen from "lucide-react/icons/book-open";
 import Plus from "lucide-react/icons/plus";
-import Eye from "lucide-react/icons/eye";
-import Pencil from "lucide-react/icons/pencil";
-import Trash2 from "lucide-react/icons/trash-2";
+import Search from "lucide-react/icons/search";
 import LoaderCircle from "lucide-react/icons/loader-circle";
 import Sidebar from "../../components/sidebar/SideBar";
 import Header from "../../components/homeSecretario/Header";
@@ -12,14 +10,11 @@ import ModalAluno from "../../components/homeSecretario/ModalAluno";
 import useAlunos from "../../hooks/useAlunos";
 import { useToast } from "../../components/alert-toast/ToastProvider";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
-import { formatarCPF, formatarDataBr } from "../../utils/DateUtils";
-
-const BADGE_VINCULO = {
-  Membro: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  Provacionista: "bg-amber-50 text-amber-700 border-amber-200",
-  "Publico Externo": "bg-slate-50 text-slate-700 border-slate-200",
-  "Membro Força Viva": "bg-blue-50 text-blue-700 border-blue-200",
-};
+import { formatarDataBr } from "../../utils/DateUtils";
+import pessoaService from "../../services/pessoaService";
+import PessoaDetalhesModal from "../../components/pessoas/PessoaDetalhesModal";
+import ModalBiometriaAluno from "../../components/reconhecimento-facial/ModalBiometriaAluno";
+import { AlunosTable, PublicoExternoTable } from "../../components/pessoas/AlunosTable";
 
 export default function Alunos() {
   const toast = useToast();
@@ -27,6 +22,12 @@ export default function Alunos() {
   const [alunoEmEdicao, setAlunoEmEdicao] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [alunoParaExcluir, setAlunoParaExcluir] = useState(null);
+  const [publicoExterno, setPublicoExterno] = useState(false);
+  const [termoBusca, setTermoBusca] = useState("");
+  const [pessoaDetalhada, setPessoaDetalhada] = useState(null);
+  const [carregandoDetalhes, setCarregandoDetalhes] = useState(false);
+  const [pessoaParaBiometria, setPessoaParaBiometria] = useState(null);
+  const [salvandoBiometria, setSalvandoBiometria] = useState(false);
 
   const {
     alunos,
@@ -39,8 +40,9 @@ export default function Alunos() {
     error: erro,
     salvando,
     salvarAluno,
-    excluirAluno,
-  } = useAlunos();
+    inativarPessoa,
+    atualizarBiometria,
+  } = useAlunos({ publicoExterno });
 
   const emailJaCadastrado = (email, idAlunoIgnorado = null) => {
     const emailNormalizado = String(email || "")
@@ -50,7 +52,7 @@ export default function Alunos() {
 
     return alunos.some(
       (aluno) =>
-        aluno.id_pessoa !== idAlunoIgnorado &&
+        String(aluno.id_pessoa) !== String(idAlunoIgnorado) &&
         String(aluno.email).trim().toLowerCase() === emailNormalizado,
     );
   };
@@ -63,12 +65,11 @@ export default function Alunos() {
     cpf: aluno.cpf || "",
     bolsista: Boolean(aluno.bolsista),
     url_foto_perfil: aluno.url_foto_perfil || "",
-    tipo_vinculo_id: aluno.vinculo?.id_tipo_vinculo || 2,
+    foto_biometrica: aluno.url_foto_perfil || null,
+    tipo_vinculo_id: aluno.tipo_vinculo_id || aluno.vinculo?.id_tipo_vinculo || "",
     data_nascimento: aluno.data_nascimento || "",
     data_ingresso: aluno.data_ingresso || "",
     data_membro: aluno.data_membro || "",
-    data_saida: aluno.data_saida || "",
-    id_endereco: aluno.endereco?.id || aluno.endereco?.id_endereco || null,
     cep: aluno.endereco?.cep || "",
     logradouro: aluno.endereco?.logradouro || "",
     numero: aluno.endereco?.numero || "",
@@ -77,19 +78,58 @@ export default function Alunos() {
     cidade: aluno.endereco?.cidade || "",
     uf: aluno.endereco?.uf || "",
   });
+  const valoresPadraoModal = useMemo(
+    () => (alunoEmEdicao ? mapAlunoParaForm(alunoEmEdicao) : undefined),
+    [alunoEmEdicao],
+  );
 
   const alunosUi = useMemo(() => {
+    const termo = termoBusca.trim().toLocaleLowerCase("pt-BR");
     return alunos.map((aluno) => ({
       id: aluno.id_pessoa,
       nome: aluno.nome || "Não informado",
       email: aluno.email || "Não informado",
-      cpf: formatarCPF(aluno.cpf || ""),
+      telefone: aluno.telefone || "Não informado",
+      cpf: aluno.cpf || "Não informado",
       dataNascimento: formatarDataBr(aluno.data_nascimento),
-      vinculo: aluno.vinculo?.nome_vinculo || "Não informado",
-      dataMembro: formatarDataBr(aluno.data_membro || aluno.data_ingresso),
-      voluntario: Boolean(aluno.bolsista),
-    }));
-  }, [alunos]);
+      dataIngresso: formatarDataBr(aluno.data_ingresso),
+      dataMembro: formatarDataBr(aluno.data_membro),
+      dataSaida: formatarDataBr(aluno.data_saida),
+      vinculo: aluno.tipo_vinculo_nome || "Não informado",
+      tipoVinculoId: aluno.tipo_vinculo_id,
+      tipoVinculoNome: aluno.tipo_vinculo_nome || "Não informado",
+      bolsista: aluno.bolsista,
+      percentualPresenca: aluno.percentual_presenca ?? null,
+      turmasAtuais: Array.isArray(aluno.turmas_atuais) ? aluno.turmas_atuais : [],
+      raw: aluno,
+      pessoa: aluno,
+    })).filter(({ nome, email, telefone, cpf, vinculo }) =>
+      !termo || [nome, email, telefone, cpf, vinculo].some((valor) => String(valor).toLocaleLowerCase("pt-BR").includes(termo)),
+    );
+  }, [alunos, termoBusca]);
+
+  const abrirEdicao = async (pessoa) => {
+    try {
+      const dadosCompletos = await pessoaService.buscarPessoaDetalhada(pessoa.id_pessoa);
+      setAlunoEmEdicao(dadosCompletos);
+      setModalAlunoAberto(true);
+    } catch (error) {
+      console.error(error);
+      toast.error("Não foi possível carregar os dados para edição.");
+    }
+  };
+
+  const abrirDetalhes = async (pessoa) => {
+    setCarregandoDetalhes(true);
+    try {
+      setPessoaDetalhada(await pessoaService.buscarPessoaDetalhada(pessoa.id_pessoa));
+    } catch (error) {
+      console.error(error);
+      toast.error("Não foi possível carregar os detalhes da pessoa.");
+    } finally {
+      setCarregandoDetalhes(false);
+    }
+  };
 
   const onSalvarAluno = async (payload) => {
     try {
@@ -102,36 +142,32 @@ export default function Alunos() {
 
       await salvarAluno(
         payload.dadosPessoa,
-        payload.dadosEndereco,
         alunoEmEdicao,
         payload.biometria,
+        payload.idTurma,
       );
 
-      toast.success(
-        alunoEmEdicao
-          ? "Aluno atualizado com sucesso!"
-          : "Aluno cadastrado com sucesso!",
-      );
+      toast.success(alunoEmEdicao ? "Cadastro atualizado com sucesso!" : publicoExterno ? "Pessoa cadastrada com sucesso!" : "Aluno cadastrado e matriculado com sucesso!");
       fecharModalAluno();
     } catch (error) {
       console.error(error);
-      toast.error(error?.response?.data?.message || "Erro ao salvar aluno.");
+      toast.error(error?.response?.data?.message || error.message || "Erro ao salvar o cadastro.");
     }
   };
 
-  const onExcluirAluno = async (idPessoa, nome) => {
+  const solicitarInativacao = (idPessoa, nome) => {
     setAlunoParaExcluir({ id: idPessoa, nome });
     setConfirmOpen(true);
   };
 
-  const confirmarExclusao = async () => {
+  const confirmarInativacao = async () => {
     if (!alunoParaExcluir) return setConfirmOpen(false);
     try {
-      await excluirAluno(alunoParaExcluir.id);
-      toast.success(`Aluno "${alunoParaExcluir.nome}" excluído.`);
+      await inativarPessoa(alunoParaExcluir.id);
+      toast.success(`Pessoa "${alunoParaExcluir.nome}" inativada.`);
     } catch (error) {
       console.error(error);
-      toast.error("Erro ao excluir aluno.");
+      toast.error("Erro ao inativar pessoa.");
     } finally {
       setConfirmOpen(false);
       setAlunoParaExcluir(null);
@@ -141,6 +177,22 @@ export default function Alunos() {
   const fecharModalAluno = () => {
     setModalAlunoAberto(false);
     setAlunoEmEdicao(null);
+  };
+
+  const salvarBiometria = async (captura) => {
+    if (!pessoaParaBiometria) return;
+    setSalvandoBiometria(true);
+    try {
+      await atualizarBiometria(pessoaParaBiometria.id_pessoa, captura);
+      toast.success("Biometria atualizada com sucesso.");
+      setPessoaParaBiometria(null);
+    } catch (error) {
+      console.error(error);
+      toast.error(error?.response?.data?.message || "Não foi possível atualizar a biometria.");
+      throw error;
+    } finally {
+      setSalvandoBiometria(false);
+    }
   };
 
   return (
@@ -156,7 +208,7 @@ export default function Alunos() {
 
         <main className="flex-1 overflow-y-auto custom-scrollbar">
           <div className="mx-auto flex max-w-375 flex-col gap-6 p-4 sm:p-8">
-            <div className="flex flex-col gap-5 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div className="flex flex-col gap-5 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 lg:flex-row lg:items-center lg:justify-between">
               <ModulosControle moduloAtivo="Alunos" />
               <div className="flex items-center gap-4">
                 <div className="hidden border-l border-slate-200 pl-4 text-right sm:block">
@@ -164,26 +216,48 @@ export default function Alunos() {
                     {paginacao.totalElements}
                   </p>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                    alunos
+                    {publicoExterno ? "pessoas" : "alunos"}
                   </p>
                 </div>
                 <button
                   onClick={() => setModalAlunoAberto(true)}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1E7A3C] px-5 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-all hover:bg-[#165a2d] active:scale-[0.98] sm:w-auto"
                 >
-                  <Plus size={16} /> Novo Aluno
+                  <Plus size={16} /> {publicoExterno ? "Nova Pessoa" : "Novo Aluno"}
                 </button>
               </div>
             </div>
 
             <div className="flex flex-col gap-5 animate-in fade-in duration-300">
-              <div className="flex items-center justify-between px-1">
-                <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest">
-                  Quadro Geral de Alunos
-                </h2>
+              <div className="flex flex-col gap-1 px-1 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h2 className="text-lg font-black text-slate-800">
+                    {publicoExterno ? "Público Externo" : "Alunos matriculados"}
+                  </h2>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {publicoExterno ? "Pessoas ativas com vínculo de Público Externo." : "Pessoas ativas com vínculo elegível e matrícula em turma."}
+                  </p>
+                </div>
                 <span className="text-xs font-bold text-slate-400">
-                  {paginacao.totalElements} alunos cadastrados
+                  {paginacao.totalElements} {publicoExterno ? "pessoas" : "alunos"} cadastrados
                 </span>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <label className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-100 sm:max-w-xl">
+                  <Search size={18} className="shrink-0 text-slate-400" aria-hidden="true" />
+                  <input value={termoBusca} onChange={(event) => setTermoBusca(event.target.value)} placeholder={`Buscar ${publicoExterno ? "pessoa" : "aluno"} por nome, e-mail, CPF ou vínculo`} aria-label={`Buscar ${publicoExterno ? "pessoa" : "aluno"}`} className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400" />
+                </label>
+                <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                  <span className="text-xs font-bold text-slate-500">Exibir na tabela:</span>
+                  <div className="flex w-fit shrink-0 items-center gap-1 rounded-xl border border-slate-200 bg-white p-1" role="tablist" aria-label="Conteúdo exibido na tabela">
+                  {[{ label: "Alunos", active: false }, { label: "Público Externo", active: true }].map((tab) => (
+                    <button key={tab.label} type="button" role="tab" aria-selected={publicoExterno === tab.active} aria-controls="people-records-table" onClick={() => { setPublicoExterno(tab.active); setPagina(0); setTermoBusca(""); }} className={`rounded-lg px-3 py-2 text-xs font-bold transition-all ${publicoExterno === tab.active ? "bg-slate-900 text-white shadow-sm" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}>
+                      {tab.label}
+                    </button>
+                  ))}
+                  </div>
+                </div>
               </div>
 
               {loading && (
@@ -236,119 +310,17 @@ export default function Alunos() {
               )}
 
               {!loading && !erro && (
-                <div className="relative max-h-95 overflow-y-auto overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm custom-scrollbar">
-                  <div className="sticky top-0 z-20 h-1 bg-[#1E7A3C]" />
-                  <table className="w-full border-collapse text-left table-fixed sm:table-auto">
-                    <thead>
-                      <tr className="border-b border-slate-700 bg-gradient-to-r from-slate-900 to-blue-950">
-                        <th className="sticky top-1 z-10 bg-slate-900 p-4 text-[10px] font-black uppercase tracking-wider text-slate-100 backdrop-blur-sm">
-                          Nome / Email
-                        </th>
-                        <th className="sticky top-1 z-10 bg-slate-900 p-4 text-[10px] font-black uppercase tracking-wider text-slate-100 backdrop-blur-sm">
-                          CPF
-                        </th>
-                        <th className="sticky top-1 z-10 bg-slate-900 p-4 text-[10px] font-black uppercase tracking-wider text-slate-100 backdrop-blur-sm">
-                          Nascimento
-                        </th>
-                        <th className="sticky top-1 z-10 bg-slate-900 p-4 text-[10px] font-black uppercase tracking-wider text-slate-100 backdrop-blur-sm">
-                          Vínculo
-                        </th>
-                        <th className="sticky top-1 z-10 bg-slate-900 p-4 text-[10px] font-black uppercase tracking-wider text-slate-100 backdrop-blur-sm">
-                          Data Admissão
-                        </th>
-                        <th className="sticky top-1 z-10 bg-slate-900 p-4 text-center text-[10px] font-black uppercase tracking-wider text-slate-100 backdrop-blur-sm">
-                          Voluntário
-                        </th>
-                        <th className="sticky top-1 z-10 bg-slate-900 p-4 text-right text-[10px] font-black uppercase tracking-wider text-slate-100 backdrop-blur-sm">
-                          Ações
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {alunosUi.length === 0 && (
-                        <tr><td colSpan={7} className="p-10 text-center text-sm text-slate-500">Nenhum aluno encontrado.</td></tr>
-                      )}
-                      {alunosUi.map((alunoUi, index) => (
-                        <tr
-                          key={alunoUi.id}
-                          className="odd:bg-white even:bg-slate-50/70 hover:bg-emerald-50/50 transition-colors group"
-                        >
-                          <td className="p-4">
-                            <div className="flex flex-col">
-                              <span className="flex items-center gap-3 font-bold text-sm text-slate-800 transition-colors group-hover:text-slate-950">
-                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-xs font-black text-slate-700 ring-1 ring-slate-200">
-                                  {alunoUi.nome.slice(0, 1).toUpperCase()}
-                                </span>
-                                <span>
-                                  {alunoUi.nome}
-                                  <span className="mt-0.5 block text-xs font-medium text-slate-400">
-                                    {alunoUi.email}
-                                  </span>
-                                </span>
-                              </span>
-                            </div>
-                          </td>
-                          <td className="p-4 text-xs font-semibold text-slate-600">
-                            {alunoUi.cpf}
-                          </td>
-                          <td className="p-4 text-xs font-semibold text-slate-600">
-                            {alunoUi.dataNascimento}
-                          </td>
-                          <td className="p-4">
-                            <span
-                              className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border ${BADGE_VINCULO[alunoUi.vinculo] || "bg-slate-50 text-slate-600 border-slate-200"}`}
-                            >
-                              {alunoUi.vinculo}
-                            </span>
-                          </td>
-                          <td className="p-4 text-xs font-semibold text-slate-600">
-                            {alunoUi.dataMembro}
-                          </td>
-                          <td className="p-4">
-                            <div className="flex justify-center">
-                              <span
-                                className={`w-2.5 h-2.5 rounded-full ${alunoUi.voluntario ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" : "bg-slate-300"}`}
-                              />
-                            </div>
-                          </td>
-                          <td className="p-4">
-                            <div className="flex gap-1.5 justify-end">
-                              <button
-                                aria-label={`Visualizar ${alunoUi.nome}`}
-                                className="p-2 border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-all shadow-sm"
-                              >
-                                <Eye size={14} />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setAlunoEmEdicao(alunos[index]);
-                                  setModalAlunoAberto(true);
-                                }}
-                                aria-label={`Editar ${alunoUi.nome}`}
-                                className="p-2 border border-slate-200 text-slate-400 hover:border-blue-200 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all shadow-sm"
-                              >
-                                <Pencil size={14} />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  onExcluirAluno(alunoUi.id, alunoUi.nome)
-                                }
-                                aria-label={`Excluir ${alunoUi.nome}`}
-                                className="p-2 border border-slate-200 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all shadow-sm"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              <div id="people-records-table" role="tabpanel" className="max-h-[68vh] overflow-auto rounded-3xl border border-slate-200 bg-white shadow-sm custom-scrollbar">
+                  {publicoExterno ? (
+                    <PublicoExternoTable pessoas={alunosUi} mensagemVazia={termoBusca ? "Nenhum resultado nesta página." : "Nenhuma pessoa de Público Externo cadastrada."} onDetalhes={abrirDetalhes} onEditar={abrirEdicao} onInativar={solicitarInativacao} />
+                  ) : (
+                    <AlunosTable alunos={alunosUi} mensagemVazia={termoBusca ? "Nenhum resultado nesta página." : "Nenhum aluno nesta lista. Para aparecer aqui, a pessoa precisa estar ativa, ter vínculo elegível e possuir matrícula em uma turma."} onDetalhes={abrirDetalhes} onEditar={abrirEdicao} onBiometria={setPessoaParaBiometria} onInativar={solicitarInativacao} />
+                  )}
                 </div>
               )}
               {!loading && !erro && (
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs text-slate-500">
-                  <span>Exibindo {alunosUi.length} de {paginacao.totalElements} alunos</span>
+                  <span>Exibindo {alunosUi.length} de {paginacao.totalElements} {publicoExterno ? "pessoas" : "alunos"}</span>
                   <div className="flex items-center gap-3">
                     <label className="flex items-center gap-2">Por página
                       <select value={tamanhoPagina} onChange={(event) => definirTamanhoPagina(Number(event.target.value))} className="rounded-lg border border-slate-200 bg-white px-2 py-1.5">
@@ -366,23 +338,31 @@ export default function Alunos() {
         </main>
       </div>
 
+      <PessoaDetalhesModal pessoa={pessoaDetalhada} carregando={carregandoDetalhes} onClose={() => setPessoaDetalhada(null)} />
+
+      <ModalBiometriaAluno
+        isOpen={Boolean(pessoaParaBiometria)}
+        onClose={() => { if (!salvandoBiometria) setPessoaParaBiometria(null); }}
+        onConfirmar={salvarBiometria}
+        carregando={salvandoBiometria}
+      />
+
       <ModalAluno
         isOpen={modalAlunoAberto}
+        publicoExterno={publicoExterno}
         onClose={fecharModalAluno}
         onSalvar={onSalvarAluno}
         carregando={salvando}
-        valoresPadrao={
-          alunoEmEdicao ? mapAlunoParaForm(alunoEmEdicao) : undefined
-        }
+        valoresPadrao={valoresPadraoModal}
       />
       <ConfirmDialog
         aberto={confirmOpen}
-        titulo="Confirmar Exclusão"
-        mensagem={`Deseja excluir o aluno "${alunoParaExcluir?.nome}"?`}
-        onConfirm={confirmarExclusao}
+        titulo="Confirmar inativação"
+        mensagem={`Deseja inativar "${alunoParaExcluir?.nome}"? O histórico será preservado.`}
+        onConfirm={confirmarInativacao}
         onCancel={() => setConfirmOpen(false)}
         variant="danger"
-        confirmText="Excluir aluno"
+        confirmText="Inativar"
       />
     </div>
   );

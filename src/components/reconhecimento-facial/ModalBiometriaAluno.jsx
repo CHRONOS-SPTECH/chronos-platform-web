@@ -10,6 +10,7 @@ export default function ModalBiometriaAluno({
   onConfirmar,
   modoVisualizacao = false,
   fotoInicial = null,
+  carregando = false,
 }) {
   const [fotoCapturada, setFotoCapturada] = useState(null);
 
@@ -24,10 +25,14 @@ export default function ModalBiometriaAluno({
     onClose();
   };
 
-  const confirmar = () => {
-    if (!fotoCapturada) return;
-    onConfirmar(fotoCapturada);
-    setFotoCapturada(null);
+  const confirmar = async () => {
+    if (!fotoCapturada || carregando) return;
+    try {
+      await onConfirmar(fotoCapturada);
+      setFotoCapturada(null);
+    } catch {
+      // O chamador exibe o erro e mantém a captura disponível para nova tentativa.
+    }
   };
 
   return (
@@ -50,6 +55,7 @@ export default function ModalBiometriaAluno({
           <button
             type="button"
             onClick={fechar}
+            disabled={carregando}
             className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
             aria-label="Fechar captura de foto"
           >
@@ -73,6 +79,7 @@ export default function ModalBiometriaAluno({
           <button
             type="button"
             onClick={fechar}
+            disabled={carregando}
             className="flex-1 rounded-2xl py-3 text-sm font-bold text-slate-500 transition-colors hover:bg-slate-50"
           >
             Fechar
@@ -81,11 +88,11 @@ export default function ModalBiometriaAluno({
             <button
               type="button"
               onClick={confirmar}
-              disabled={!fotoCapturada}
+              disabled={!fotoCapturada || carregando}
               className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-green-700 py-3 text-sm font-bold text-white transition-colors hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Check size={16} />
-              Confirmar foto
+              {carregando ? "Salvando biometria..." : "Confirmar foto"}
             </button>
           )}
         </div>

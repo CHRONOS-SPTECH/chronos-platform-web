@@ -5,25 +5,25 @@ import MapPin from "lucide-react/icons/map-pin";
 import X from "lucide-react/icons/x";
 import Loader2 from "lucide-react/icons/loader-circle";
 import cepService from "../../services/cepService";
+import pessoaService from "../../services/pessoaService";
+import turmaService from "../../services/turmaService";
 import { useToast } from "../alert-toast/ToastProvider";
 import ModalBiometriaAluno from "../reconhecimento-facial/ModalBiometriaAluno";
 
 const TOTAL_ETAPAS = 3;
 
 const dadosIniciaisFormulario = {
-  nome: "Natalia Silva",
-  email: "nath@gmail.com",
-  telefone: "1199999-9999",
-  genero: "Feminino",
-  cpf: "11111111111",
-  bolsista: true,
+  nome: "",
+  email: "",
+  telefone: "",
+  genero: "",
+  cpf: "",
+  bolsista: false,
   url_foto_perfil: "",
-  tipo_vinculo_id: 4,
-  data_nascimento: "2000-05-15",
-  data_ingresso: "2022-03-01",
-  data_membro: "2022-06-01",
-  data_saida: "",
-  id_endereco: null,
+  tipo_vinculo_id: "",
+  data_nascimento: "",
+  data_ingresso: "",
+  data_membro: "",
   cep: "",
   logradouro: "",
   numero: "",
@@ -41,51 +41,67 @@ export default function ModalAluno({
   onSalvar,
   carregando = false,
   valoresPadrao,
+  publicoExterno = false,
 }) {
   const toast = useToast();
   const [formulario, setFormulario] = useState(dadosIniciaisFormulario);
   const [etapaAtual, setEtapaAtual] = useState(1);
-  const [buscandoCep, setBuscandoCep] = useState(false);
   const [modalBiometriaAberto, setModalBiometriaAberto] = useState(false);
   const [modoVisualizacaoFoto, setModoVisualizacaoFoto] = useState(false);
+  const [tiposVinculo, setTiposVinculo] = useState([]);
+  const [turmas, setTurmas] = useState([]);
+  const [idTurma, setIdTurma] = useState("");
+  const [buscandoCep, setBuscandoCep] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    pessoaService.listarTiposVinculo().then(setTiposVinculo).catch((error) => {
+      console.error("Erro ao carregar tipos de vínculo:", error);
+      toast.error("Não foi possível carregar os tipos de vínculo.");
+    });
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || publicoExterno || valoresPadrao) return;
+    turmaService.listarTurmas().then(setTurmas).catch((error) => {
+      console.error("Erro ao carregar turmas:", error);
+      toast.error("Não foi possível carregar as turmas para matrícula.");
+    });
+  }, [isOpen, publicoExterno, valoresPadrao]);
 
   useEffect(() => {
     if (!isOpen) return;
     setFormulario({ ...dadosIniciaisFormulario, ...(valoresPadrao || {}) });
     setEtapaAtual(1);
+    setIdTurma("");
     setModalBiometriaAberto(false);
     setModoVisualizacaoFoto(false);
   }, [isOpen, valoresPadrao]);
 
   useEffect(() => {
-    const cepNumeros = formulario.cep.replace(/\D/g, "");
-
-    if (cepNumeros.length === 8) {
-      const buscarViaCep = async () => {
-        try {
-          setBuscandoCep(true);
-          const resultado = await cepService.buscarEnderecoPorCep(cepNumeros);
-
-          if (!resultado.erro) {
-            setFormulario((anterior) => ({
-              ...anterior,
-              logradouro: resultado.logradouro || "",
-              bairro: resultado.bairro || "",
-              cidade: resultado.localidade || "",
-              uf: resultado.uf || "",
-            }));
-          } else {
-            toast.error("CEP não encontrado.");
-          }
-        } catch (erro) {
-          console.error("Erro ao consultar CEP:", erro);
-        } finally {
-          setBuscandoCep(false);
-        }
-      };
-
-      buscarViaCep();
-    }
+    const cep = formulario.cep.replace(/\D/g, "");
+    if (cep.length !== 8) return;
+    let cancelada = false;
+    setBuscandoCep(true);
+    cepService.buscarEnderecoPorCep(cep).then((resultado) => {
+      if (cancelada) return;
+      if (resultado.erro) {
+        toast.error("CEP não encontrado.");
+        return;
+      }
+      setFormulario((atual) => ({
+        ...atual,
+        logradouro: resultado.logradouro || "",
+        bairro: resultado.bairro || "",
+        cidade: resultado.localidade || "",
+        uf: resultado.uf || "",
+      }));
+    }).catch((error) => {
+      if (!cancelada) console.error("Erro ao consultar CEP:", error);
+    }).finally(() => {
+      if (!cancelada) setBuscandoCep(false);
+    });
+    return () => { cancelada = true; };
   }, [formulario.cep]);
 
   if (!isOpen) return null;
@@ -125,7 +141,7 @@ export default function ModalAluno({
       !formulario.email.trim() ||
       !formulario.telefone.trim()
     ) {
-      toast.error("Por favor, preencha Nome, E-mail e Telefone.");
+      toast.error("Preencha Nome, E-mail e Telefone.");
       return false;
     }
     return true;
@@ -142,6 +158,45 @@ export default function ModalAluno({
 
   const enviarDadosFinais = () => {
     if (!onSalvar) return;
+    if (!formulario.tipo_vinculo_id) {
+      toast.error("Selecione o Tipo de Vínculo.");
+      setEtapaAtual(2);
+      return;
+    }
+    if (!publicoExterno && !valoresPadrao && !idTurma) {
+      toast.error("Selecione uma turma para matricular o aluno.");
+      setEtapaAtual(2);
+      return;
+    }
+
+    const tipoSelecionado = tiposVinculo.find((tipo) => String(tipo.id_tipo_vinculo) === String(formulario.tipo_vinculo_id));
+    const nomeVinculo = String(tipoSelecionado?.nome_vinculo || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const vinculoPermitido = valoresPadrao || (publicoExterno
+      ? nomeVinculo === "publico externo"
+      : ["provacionista", "membro", "membro forca viva"].includes(nomeVinculo));
+    if (!vinculoPermitido) {
+      toast.error(publicoExterno ? "Selecione o vínculo Público Externo." : "Selecione um vínculo elegível para aluno.");
+      setEtapaAtual(2);
+      return;
+    }
+
+    const cep = formulario.cep.replace(/\D/g, "");
+    const enderecoIniciado = [formulario.cep, formulario.logradouro, formulario.numero, formulario.bairro, formulario.cidade, formulario.uf].some((value) => String(value || "").trim());
+    const enderecoCompleto = cep.length === 8 && [formulario.logradouro, formulario.numero, formulario.bairro, formulario.cidade, formulario.uf].every((value) => String(value || "").trim());
+    if (enderecoIniciado && !enderecoCompleto) {
+      toast.error("Complete os campos obrigatórios do endereço ou deixe-o vazio.");
+      setEtapaAtual(3);
+      return;
+    }
+    const endereco = enderecoCompleto ? {
+      cep,
+      logradouro: formulario.logradouro.trim(),
+      numero: formulario.numero.trim(),
+      complemento: formulario.complemento.trim() || null,
+      bairro: formulario.bairro.trim(),
+      cidade: formulario.cidade.trim(),
+      uf: formulario.uf.trim().toUpperCase(),
+    } : null;
 
     const dadosPessoa = {
       nome: formulario.nome.trim(),
@@ -155,36 +210,12 @@ export default function ModalAluno({
       data_nascimento: formulario.data_nascimento || null,
       data_ingresso: formulario.data_ingresso || null,
       data_membro: formulario.data_membro || null,
-      data_saida: formulario.data_saida || null,
+      ...(endereco ? { endereco } : {}),
     };
-
-    const cepLimpo = formulario.cep.replace(/\D/g, "");
-
-    // Validação local rigorosa com base no DTO (se faltar algum campo essencial, envia nulo)
-    const temEnderecoCompleto =
-      cepLimpo.length === 8 &&
-      formulario.logradouro.trim() &&
-      formulario.numero.trim() &&
-      formulario.bairro.trim() &&
-      formulario.cidade.trim() &&
-      formulario.uf.trim();
-
-    const dadosEndereco = temEnderecoCompleto
-      ? {
-          id: formulario.id_endereco || null,
-          cep: cepLimpo,
-          logradouro: formulario.logradouro.trim(),
-          numero: formulario.numero.trim(),
-          complemento: formulario.complemento.trim(),
-          bairro: formulario.bairro.trim(),
-          cidade: formulario.cidade.trim(),
-          uf: formulario.uf.trim().toUpperCase(),
-        }
-      : null; // Se estiver incompleto ou vazio, o back-end não receberá a requisição de endereço
 
     onSalvar({
       dadosPessoa,
-      dadosEndereco,
+      idTurma: publicoExterno ? null : idTurma,
       biometria: {
         imagemBlob: formulario.foto_biometrica_blob,
         tamanhoImagem: formulario.tamanho_foto_biometrica,
@@ -198,20 +229,17 @@ export default function ModalAluno({
       ? "Dados Pessoais"
       : etapaAtual === 2
         ? "Informações Complementares"
-        : "Endereço (Opcional)";
+        : "Endereço";
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl border border-slate-200 shadow-2xl animate-in fade-in zoom-in duration-200">
-        <div className="p-8">
-          <div className="-mx-8 -mt-8 mb-6 flex justify-between items-start border-b border-slate-700 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-800 px-8 py-6 text-white">
+      <div className="flex max-h-[90dvh] w-full max-w-3xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl animate-in fade-in zoom-in duration-200">
+        <div className="flex min-h-0 flex-1 flex-col p-6 sm:p-8">
+          <div className="-mx-6 -mt-6 mb-5 flex shrink-0 items-start justify-between border-b border-slate-700 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-800 px-6 py-5 text-white sm:-mx-8 sm:-mt-8 sm:px-8">
             <div>
-              <h2 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-white">
-                {etapaAtual === 3 ? (
-                  <MapPin size={22} />
-                ) : (
-                  <GraduationCap size={22} />
-                )}
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-300">{valoresPadrao ? "Editar cadastro" : publicoExterno ? "Nova pessoa" : "Novo aluno"}</p>
+              <h2 className="mt-1 flex items-center gap-2 text-xl font-bold tracking-tight text-white sm:text-2xl">
+                {etapaAtual === 3 ? <MapPin size={22} /> : <GraduationCap size={22} />}
                 {tituloEtapa}
               </h2>
               <p className="text-gray-400 text-sm font-medium">
@@ -220,28 +248,27 @@ export default function ModalAluno({
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors"
+              className="rounded-xl border border-white/15 p-2 text-slate-200 transition-colors hover:bg-white/10"
             >
               <X size={24} />
             </button>
           </div>
 
-          <div className="flex items-center gap-3 mb-6">
+          <div className="mb-4 flex shrink-0 items-center gap-3">
             <div
               className={`h-1.5 flex-1 rounded-full ${etapaAtual >= 1 ? "bg-green-600" : "bg-gray-200"}`}
             />
             <div
               className={`h-1.5 flex-1 rounded-full ${etapaAtual >= 2 ? "bg-green-600" : "bg-gray-200"}`}
             />
-            <div
-              className={`h-1.5 flex-1 rounded-full ${etapaAtual >= 3 ? "bg-green-600" : "bg-gray-200"}`}
-            />
+            <div className={`h-1.5 flex-1 rounded-full ${etapaAtual >= 3 ? "bg-green-600" : "bg-gray-200"}`} />
           </div>
 
           <form
             onSubmit={(e) => e.preventDefault()}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            className="flex min-h-0 flex-1 flex-col"
           >
+            <div className="custom-scrollbar grid min-h-0 flex-1 grid-cols-1 content-start gap-4 overflow-y-auto px-1 py-1 md:grid-cols-2">
             {etapaAtual === 1 && (
               <>
                 <div className="md:col-span-2 flex flex-col gap-1.5">
@@ -327,7 +354,7 @@ export default function ModalAluno({
 
             {etapaAtual === 2 && (
               <>
-                <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                {!valoresPadrao && <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <div className="rounded-xl bg-green-100 p-2 text-green-700">
@@ -371,7 +398,7 @@ export default function ModalAluno({
                       </button>
                     </div>
                   </div>
-                </div>
+                </div>}
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
                     Tipo de Vínculo
@@ -382,12 +409,27 @@ export default function ModalAluno({
                     onChange={lidarComMudancaInput}
                     className={estiloInput}
                   >
-                    <option value={1}>Público Externo</option>
-                    <option value={2}>Provacionista</option>
-                    <option value={3}>Membro</option>
-                    <option value={4}>Membro Força Viva</option>
+                    <option value="">Selecione</option>
+                    {tiposVinculo.filter((tipo) => {
+                      if (valoresPadrao) return true;
+                      const nome = String(tipo.nome_vinculo || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                      return publicoExterno ? nome === "publico externo" : ["provacionista", "membro", "membro forca viva"].includes(nome);
+                    }).map((tipo) => (
+                      <option key={tipo.id_tipo_vinculo} value={tipo.id_tipo_vinculo}>
+                        {tipo.nome_vinculo}
+                      </option>
+                    ))}
                   </select>
                 </div>
+                {!publicoExterno && !valoresPadrao && (
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1" htmlFor="turma-matricula">Turma</label>
+                    <select id="turma-matricula" value={idTurma} onChange={(event) => setIdTurma(event.target.value)} className={estiloInput}>
+                      <option value="">Selecione a turma</option>
+                      {turmas.map((turma) => <option key={turma.id_turma} value={turma.id_turma}>{turma.nome_turma}</option>)}
+                    </select>
+                  </div>
+                )}
                 <div className="md:col-span-2 flex items-center gap-2 px-1 py-2">
                   <input
                     id="bolsista"
@@ -401,7 +443,7 @@ export default function ModalAluno({
                     htmlFor="bolsista"
                     className="text-sm text-gray-600 font-medium"
                   >
-                    Aluno Bolsista
+                    Bolsista
                   </label>
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -428,122 +470,52 @@ export default function ModalAluno({
                     className={estiloInput}
                   />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
-                    Data de Saída
-                  </label>
-                  <input
-                    name="data_saida"
-                    type="date"
-                    value={formulario.data_saida}
-                    onChange={lidarComMudancaInput}
-                    className={estiloInput}
-                  />
-                </div>
               </>
             )}
 
             {etapaAtual === 3 && (
               <>
-                <div className="md:col-span-2 rounded-2xl bg-green-50 border border-green-100 px-4 py-3 text-sm text-green-700 flex items-center gap-2">
-                  {buscandoCep && (
-                    <Loader2 className="animate-spin" size={16} />
-                  )}
-                  Os campos de endereço serão preenchidos sozinhos após
-                  preencher o CEP com 8 números.
+                <div className="md:col-span-2 flex items-center gap-2 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                  {buscandoCep && <Loader2 size={16} className="animate-spin" />}
+                  Endereço opcional. Informe o CEP para preencher os dados automaticamente.
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
-                    CEP
-                  </label>
-                  <input
-                    name="cep"
-                    value={formulario.cep}
-                    onChange={lidarComMudancaInput}
-                    maxLength={8}
-                    className={estiloInput}
-                    placeholder="00000000"
-                  />
+                  <label htmlFor="cep" className="text-[10px] font-black uppercase tracking-widest text-gray-400">CEP</label>
+                  <input id="cep" name="cep" value={formulario.cep} onChange={lidarComMudancaInput} maxLength={8} className={estiloInput} placeholder="00000000" />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
-                    Número
-                  </label>
-                  <input
-                    name="numero"
-                    value={formulario.numero}
-                    onChange={lidarComMudancaInput}
-                    className={estiloInput}
-                    placeholder="123"
-                  />
+                  <label htmlFor="numero" className="text-[10px] font-black uppercase tracking-widest text-gray-400">Número</label>
+                  <input id="numero" name="numero" value={formulario.numero} onChange={lidarComMudancaInput} className={estiloInput} />
                 </div>
                 <div className="md:col-span-2 flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
-                    Logradouro
-                  </label>
-                  <input
-                    name="logradouro"
-                    value={formulario.logradouro}
-                    onChange={lidarComMudancaInput}
-                    className={estiloInput}
-                    placeholder="Rua, Avenida..."
-                  />
+                  <label htmlFor="logradouro" className="text-[10px] font-black uppercase tracking-widest text-gray-400">Logradouro</label>
+                  <input id="logradouro" name="logradouro" value={formulario.logradouro} onChange={lidarComMudancaInput} className={estiloInput} />
                 </div>
                 <div className="md:col-span-2 flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
-                    Complemento
-                  </label>
-                  <input
-                    name="complemento"
-                    value={formulario.complemento}
-                    onChange={lidarComMudancaInput}
-                    className={estiloInput}
-                    placeholder="Apto, Bloco..."
-                  />
+                  <label htmlFor="complemento" className="text-[10px] font-black uppercase tracking-widest text-gray-400">Complemento</label>
+                  <input id="complemento" name="complemento" value={formulario.complemento} onChange={lidarComMudancaInput} className={estiloInput} />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
-                    Bairro
-                  </label>
-                  <input
-                    name="bairro"
-                    value={formulario.bairro}
-                    onChange={lidarComMudancaInput}
-                    className={estiloInput}
-                  />
+                  <label htmlFor="bairro" className="text-[10px] font-black uppercase tracking-widest text-gray-400">Bairro</label>
+                  <input id="bairro" name="bairro" value={formulario.bairro} onChange={lidarComMudancaInput} className={estiloInput} />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
-                    Cidade
-                  </label>
-                  <input
-                    name="cidade"
-                    value={formulario.cidade}
-                    onChange={lidarComMudancaInput}
-                    className={estiloInput}
-                  />
+                  <label htmlFor="cidade" className="text-[10px] font-black uppercase tracking-widest text-gray-400">Cidade</label>
+                  <input id="cidade" name="cidade" value={formulario.cidade} onChange={lidarComMudancaInput} className={estiloInput} />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
-                    UF
-                  </label>
-                  <input
-                    name="uf"
-                    value={formulario.uf}
-                    onChange={lidarComMudancaInput}
-                    maxLength={2}
-                    className={estiloInput}
-                    placeholder="SP"
-                  />
+                  <label htmlFor="uf" className="text-[10px] font-black uppercase tracking-widest text-gray-400">UF</label>
+                  <input id="uf" name="uf" value={formulario.uf} onChange={lidarComMudancaInput} maxLength={2} className={estiloInput} />
                 </div>
               </>
             )}
 
-            <div className="md:col-span-2 flex gap-3 mt-2">
+            </div>
+            <div className="mt-4 flex shrink-0 gap-3 border-t border-slate-200 bg-white pt-4">
               <button
                 type="button"
                 onClick={etapaAtual === 1 ? onClose : voltar}
-                className="flex-1 py-3.5 rounded-2xl text-gray-500 font-bold text-sm hover:bg-gray-50 transition-colors"
+                className="flex-1 rounded-xl border border-slate-300 bg-white py-3 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:opacity-50"
               >
                 {etapaAtual === 1 ? "Cancelar" : "Voltar"}
               </button>
@@ -553,13 +525,13 @@ export default function ModalAluno({
                   etapaAtual < TOTAL_ETAPAS ? avancar : enviarDadosFinais
                 }
                 disabled={carregando || buscandoCep}
-                className="flex-1 py-3.5 rounded-2xl bg-black text-white font-bold text-sm hover:bg-gray-800 transition-all active:scale-95 disabled:opacity-70"
+                className="flex-1 rounded-xl bg-emerald-700 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-emerald-800 active:scale-[0.99] disabled:cursor-wait disabled:opacity-60"
               >
                 {etapaAtual < TOTAL_ETAPAS
                   ? "Próxima Etapa"
                   : carregando
                     ? "Salvando..."
-                    : "Salvar Aluno"}
+                    : publicoExterno ? "Salvar Pessoa" : "Salvar Aluno"}
               </button>
             </div>
           </form>
