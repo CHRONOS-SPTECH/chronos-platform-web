@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BookOpen from "lucide-react/icons/book-open";
 import X from "lucide-react/icons/x";
 import { useToast } from "../alert-toast/ToastProvider";
@@ -18,7 +18,29 @@ export default function ModalTurma({
     status_turma: "Não Iniciada",
   };
 
-  const [formData, setFormData] = useState(valoresPadrao || valoresIniciais);
+  const [formData, setFormData] = useState(valoresIniciais);
+  useEffect(() => {
+    if (!isOpen) return;
+    setFormData(
+      valoresPadrao
+        ? {
+            ...valoresPadrao,
+            status_turma:
+              valoresPadrao.status_turma ||
+              valoresPadrao.statusTurma ||
+              "Não Iniciada",
+            data_inicio: String(
+              valoresPadrao.data_inicio || valoresPadrao.dataInicio || "",
+            ).slice(0, 10),
+            data_encerramento: String(
+              valoresPadrao.data_encerramento ||
+                valoresPadrao.dataEncerramento ||
+                "",
+            ).slice(0, 10),
+          }
+        : valoresIniciais,
+    );
+  }, [isOpen, valoresPadrao]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -35,6 +57,17 @@ export default function ModalTurma({
     }
     if (!formData.data_inicio) {
       toast.error("Data de início é obrigatória");
+      return false;
+    }
+    if (formData.nome_turma.trim().length > 100) {
+      toast.error("O nome da turma deve ter até 100 caracteres.");
+      return false;
+    }
+    if (
+      formData.data_encerramento &&
+      formData.data_encerramento < formData.data_inicio
+    ) {
+      toast.error("A data de encerramento não pode ser anterior ao início.");
       return false;
     }
     return true;
@@ -90,7 +123,7 @@ export default function ModalTurma({
             disabled={carregando}
             className="rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50"
           >
-              <X size={20} className="text-slate-300" />
+            <X size={20} className="text-slate-300" />
           </button>
         </div>
 
@@ -104,6 +137,7 @@ export default function ModalTurma({
             <input
               type="text"
               name="nome_turma"
+              maxLength={100}
               value={formData.nome_turma}
               onChange={handleChange}
               placeholder="Ex: Turma A - 2024"
@@ -142,23 +176,10 @@ export default function ModalTurma({
             />
           </div>
 
-          {/* Status */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold text-gray-700">
-              Status *
-            </label>
-            <select
-              name="status_turma"
-              value={formData.status_turma}
-              onChange={handleChange}
-              disabled={carregando}
-              className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm disabled:bg-gray-50 disabled:cursor-not-allowed transition-all bg-white"
-            >
-              <option value="Não Iniciada">Não Iniciada</option>
-              <option value="Em Andamento">Em Andamento</option>
-              <option value="Concluída">Concluída</option>
-            </select>
-          </div>
+          <p className="rounded-lg border border-blue-100 bg-blue-50 p-3 text-xs text-blue-800">
+            O status é controlado pelas ações da turma para preservar o
+            histórico acadêmico.
+          </p>
 
           {/* Informação */}
           <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 mt-4">

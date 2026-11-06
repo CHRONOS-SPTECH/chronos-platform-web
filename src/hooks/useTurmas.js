@@ -70,9 +70,13 @@ export default function useTurmas() {
   const excluirTurma = async (idTurma) => {
     try {
       setError("");
-      await turmaService.excluirTurma(idTurma);
+      const atualizada = await turmaService.inativarTurma(idTurma);
       setTurmas((listaAtualTurmas) =>
-        listaAtualTurmas.filter((item) => getTurmaId(item) !== idTurma),
+        listaAtualTurmas.map((item) =>
+          getTurmaId(item) === idTurma
+            ? { ...item, status_turma: atualizada.status_turma || "INATIVA" }
+            : item,
+        ),
       );
     } catch (err) {
       console.error("Erro ao excluir turma (hook):", err);
@@ -84,7 +88,10 @@ export default function useTurmas() {
 
   async function buscarAlunos(id, pagina = 0, tamanho) {
     try {
-      const alunosTurma = await turmaService.buscarAlunosPorTurma(id, { page: pagina, ...(tamanho ? { size: tamanho } : {}) });
+      const alunosTurma = await turmaService.buscarAlunosPorTurma(id, {
+        page: pagina,
+        ...(tamanho ? { size: tamanho } : {}),
+      });
       setDadosAlunosPorTurma(alunosTurma);
       return alunosTurma;
     } catch (err) {
