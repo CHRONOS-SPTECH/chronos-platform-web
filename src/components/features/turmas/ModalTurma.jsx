@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import BookOpen from "lucide-react/icons/book-open";
 import X from "lucide-react/icons/x";
-import { useToast } from "../alert-toast/ToastProvider";
+import { useToast } from "../../feedback/ToastProvider";
 
 export default function ModalTurma({
   isOpen,

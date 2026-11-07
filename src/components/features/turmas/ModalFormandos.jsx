@@ -4,8 +4,8 @@ import Check from "lucide-react/icons/check";
 import CircleX from "lucide-react/icons/circle-x";
 import GraduationCap from "lucide-react/icons/graduation-cap";
 import LoaderCircle from "lucide-react/icons/loader-circle";
-import turmaService from "../../services/turmaService";
-import { useToast } from "../alert-toast/ToastProvider";
+import turmaService from "../../../services/turmaService";
+import { useToast } from "../../feedback/ToastProvider";
 
 export default function ModalFormandos({ turma, onClose }) {
   const toast = useToast();

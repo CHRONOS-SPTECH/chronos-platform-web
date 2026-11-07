@@ -1,12 +1,12 @@
 import React from "react";
 import Calendar from "lucide-react/icons/calendar";
-import Clock from "lucide-react/icons/clock";
 import ChevronLeft from "lucide-react/icons/chevron-left";
 import ChevronRight from "lucide-react/icons/chevron-right";
 
-import Sidebar from "../../components/sidebar/SideBar";
-import Header from "../../components/homeSecretario/Header";
-import AgendaGrade from "../../components/agendaInstrutor/AgendaGrade";
+import Sidebar from "../../components/layout/Sidebar";
+import Header from "../../components/layout/Header";
+import { EmptyState, LoadingState } from "../../components/ui/DataState";
+import AgendaGrade from "../../components/features/agenda/AgendaGrade";
 import useAgendaInstrutor from "../../hooks/useAgendaInstrutor";
 
 export default function AgendaInstrutorView() {
@@ -69,26 +69,11 @@ export default function AgendaInstrutorView() {
 
         <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
           {carregando ? (
-            <div className="flex flex-col items-center justify-center p-12 text-slate-400 bg-white rounded-2xl border border-slate-200/60 shadow-sm text-sm font-semibold gap-3 h-64">
-              <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-              <span>Buscando dados no sistema...</span>
-            </div>
+            <LoadingState message="Buscando dados da agenda..." />
           ) : aulas.length > 0 ? (
             <AgendaGrade datasDaSemana={datasDaSemana} aulas={aulas} />
           ) : (
-            <div className="max-w-md mx-auto text-center p-10 text-slate-400 bg-white rounded-2xl border border-dashed border-slate-300 shadow-xs flex flex-col items-center justify-center gap-3 my-12">
-              <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 text-slate-300">
-                <Clock size={24} />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-slate-800">
-                  Sem compromissos
-                </h3>
-                <p className="text-xs text-slate-400 mt-1">
-                  Você não possui nenhuma aula agendada no sistema.
-                </p>
-              </div>
-            </div>
+            <EmptyState title="Sem compromissos" description="Você não possui nenhuma aula agendada no sistema." />
           )}
         </div>
       </div>

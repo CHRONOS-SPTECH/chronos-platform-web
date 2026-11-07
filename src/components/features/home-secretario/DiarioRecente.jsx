@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import Calendar from "lucide-react/icons/calendar";
 import User from "lucide-react/icons/user";
 import BookOpen from "lucide-react/icons/book-open";
-import aulaService from "../../services/aulaService";
-import { formatarDataBr } from "../../utils/DateUtils";
+import aulaService from "../../../services/aulaService";
+import { formatarDataBr } from "../../../utils/DateUtils";
 
 export default function DiarioRecente() {
   const [aulas, setAulas] = useState([]);

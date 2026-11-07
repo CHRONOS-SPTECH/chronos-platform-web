@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import ArrowDownToLine from "lucide-react/icons/arrow-down-to-line";
-import { formatarDataLocal } from "../../utils/CronogramaUtils";
+import { formatarDataLocal } from "../../../utils/CronogramaUtils";
 
 const DIAS = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
 const HORAS = Array.from({ length: 18 }, (_, i) => i + 6);

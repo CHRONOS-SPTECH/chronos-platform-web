@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import LoginForm from "../components/login/LoginForm";
-import ForgotForm from "../components/login/ForgotForm";
-import { useToast } from "../components/alert-toast/ToastProvider";
+import LoginForm from "../components/features/autenticacao/LoginForm";
+import ForgotForm from "../components/features/autenticacao/ForgotForm";
+import { useToast } from "../components/feedback/ToastProvider";
 import logoChronos from "../assets/logoChronos.svg";
 import authService from "../services/authService";
 

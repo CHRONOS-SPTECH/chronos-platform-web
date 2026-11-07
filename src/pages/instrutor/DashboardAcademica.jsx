@@ -2,10 +2,11 @@ import Home from "lucide-react/icons/house";
 import { Users } from "@phosphor-icons/react/dist/csr/Users";
 import { Info } from "@phosphor-icons/react/dist/csr/Info";
 
-import Sidebar from "../../components/sidebar/SideBar";
-import Header from "../../components/homeSecretario/Header";
-import AgeChart from "../../components/charts/AgeChart";
+import Sidebar from "../../components/layout/Sidebar";
+import Header from "../../components/layout/Header";
+import AgeChart from "../../components/features/dashboard/AgeChart";
 import useDashboardAcademica from "../../hooks/useDashboardAcademica";
+import { LoadingState } from "../../components/ui/DataState";
 
 function DashboardAcademica() {
   const {
@@ -25,8 +26,8 @@ function DashboardAcademica() {
 
   if (carregando) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-[#F8FAFC]">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-green-700"></div>
+      <div className="flex h-screen items-center justify-center bg-[#F8FAFC] p-6">
+        <div className="w-full max-w-lg"><LoadingState message="Carregando indicadores acadêmicos..." /></div>
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useToast } from "../components/alert-toast/ToastProvider";
+import { useToast } from "../components/feedback/ToastProvider";
 import aulaService from "../services/aulaService";
 import pessoaService from "../services/pessoaService";
 import temaService from "../services/temaService";

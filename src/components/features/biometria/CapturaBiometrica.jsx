@@ -1,5 +1,5 @@
 import React from "react";
-import { useCapturaBiometrica } from "../../hooks/useCapturaBiometrica";
+import { useCapturaBiometrica } from "../../../hooks/useCapturaBiometrica";
 
 export const CapturaBiometrica = ({ aoCapturarFoto }) => {
   const {

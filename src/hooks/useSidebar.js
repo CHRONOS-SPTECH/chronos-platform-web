@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { MENU_CONFIG } from "../config/navigation";
 import aulaService from "../services/aulaService";
 import sessionService from "../services/sessionService";
-import { useToast } from "../components/alert-toast/ToastProvider";
+import { useToast } from "../components/feedback/ToastProvider";
 import { getHojeIso } from "../utils/DateUtils";
 
 const getTipoUsuarioFromSession = (dadosSessao) => {

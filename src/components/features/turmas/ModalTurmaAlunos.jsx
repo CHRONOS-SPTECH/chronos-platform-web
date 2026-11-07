@@ -3,8 +3,8 @@ import BookOpen from "lucide-react/icons/book-open";
 import LoaderCircle from "lucide-react/icons/loader-circle";
 import X from "lucide-react/icons/x";
 import Trash2 from "lucide-react/icons/trash-2";
-import matriculaTurmaService from "../../services/matriculaTurmaService";
-import { useToast } from "../alert-toast/ToastProvider";
+import matriculaTurmaService from "../../../services/matriculaTurmaService";
+import { useToast } from "../../feedback/ToastProvider";
 
 export default function ModalTurmaAlunos({
   isOpen,

@@ -5,10 +5,11 @@ import CalendarDays from "lucide-react/icons/calendar-days";
 import Clock from "lucide-react/icons/clock";
 import GraduationCap from "lucide-react/icons/graduation-cap";
 import ArrowLeft from "lucide-react/icons/arrow-left";
-import Header from "../../components/homeSecretario/Header";
-import Sidebar from "../../components/sidebar/SideBar";
-import CardPresenca from "../../components/presenca/CardPresenca";
+import Header from "../../components/layout/Header";
+import Sidebar from "../../components/layout/Sidebar";
+import CardPresenca from "../../components/features/presenca/CardPresenca";
 import usePresenca from "../../hooks/usePresenca";
+import { LoadingState } from "../../components/ui/DataState";
 
 function Presenca() {
   const { idTurma: identificadorTurma, idAula: identificadorAula } =
@@ -34,8 +35,8 @@ function Presenca() {
 
   if (carregando) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#F8FAFC]">
-        <div className="animate-spin rounded-full h-10 w-10 border-4 border-[#1E7A3C] border-t-transparent"></div>
+      <div className="flex h-screen items-center justify-center bg-[#F8FAFC] p-6">
+        <div className="w-full max-w-lg"><LoadingState message="Carregando chamada..." /></div>
       </div>
     );
   }

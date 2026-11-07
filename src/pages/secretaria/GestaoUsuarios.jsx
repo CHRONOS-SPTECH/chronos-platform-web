@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import Users from "lucide-react/icons/users";
-import Sidebar from "../../components/sidebar/SideBar";
-import Header from "../../components/homeSecretario/Header";
+import Sidebar from "../../components/layout/Sidebar";
+import Header from "../../components/layout/Header";
 
-import BarraAcoes from "../../components/gestaoUsuarios/BarraAcoes";
-import CardUsuario from "../../components/gestaoUsuarios/CardUsuarios";
-import Paginacao from "../../components/gestaoUsuarios/Paginacao";
-import ModalUsuario from "../../components/gestaoUsuarios/ModalUsuario";
+import BarraAcoes from "../../components/features/usuarios/BarraAcoes";
+import CardUsuario from "../../components/features/usuarios/CardUsuarios";
+import Paginacao from "../../components/features/usuarios/Paginacao";
+import ModalUsuario from "../../components/features/usuarios/ModalUsuario";
 import useUsuarios from "../../hooks/useUsuarios";
+import { EmptyState, ErrorState, LoadingState } from "../../components/ui/DataState";
 
 function GestaoUsuarios() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { usuarios, carregarUsuarios } = useUsuarios();
+  const { usuarios, carregando, erro, carregarUsuarios } = useUsuarios();
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#F8FAFC]">
@@ -35,11 +36,19 @@ function GestaoUsuarios() {
                 <div className="col-span-1 text-right">Ações</div>
               </div>
 
-              <div className="flex flex-col gap-3">
-              {usuarios.map((user) => (
-                <CardUsuario key={user.id_usuario || user.id || user.email_login} usuario={user} />
-              ))}
-              </div>
+              {carregando ? (
+                <LoadingState message="Carregando usuários..." />
+              ) : erro ? (
+                <ErrorState message={erro} onRetry={carregarUsuarios} />
+              ) : usuarios.length === 0 ? (
+                <EmptyState title="Nenhum usuário cadastrado" description="Cadastre um usuário para liberar o acesso ao sistema." />
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {usuarios.map((user) => (
+                    <CardUsuario key={user.id_usuario || user.id || user.email_login} usuario={user} />
+                  ))}
+                </div>
+              )}
             </div>
 
             <Paginacao totalItens={usuarios.length} />

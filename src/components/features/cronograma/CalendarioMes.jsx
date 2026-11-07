@@ -1,5 +1,5 @@
 import React from "react";
-import { formatarDataLocal } from "../../utils/CronogramaUtils";
+import { formatarDataLocal } from "../../../utils/CronogramaUtils";
 import { CartaoAula } from "./CalendarioGrade";
 
 const DIAS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];

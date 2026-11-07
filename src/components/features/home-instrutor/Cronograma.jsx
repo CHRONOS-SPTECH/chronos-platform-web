@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Check } from "@phosphor-icons/react/dist/csr/Check";
 import { Play } from "@phosphor-icons/react/dist/csr/Play";
 import { Clock } from "@phosphor-icons/react/dist/csr/Clock";
-import aulaService from "../../services/aulaService";
-import sessionService from "../../services/sessionService";
-import { getHojeIso } from "../../utils/DateUtils";
+import aulaService from "../../../services/aulaService";
+import sessionService from "../../../services/sessionService";
+import { getHojeIso } from "../../../utils/DateUtils";
 
 function Cronograma() {
   const navigate = useNavigate();

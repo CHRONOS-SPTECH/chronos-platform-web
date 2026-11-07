@@ -3,7 +3,7 @@ import UserRound from "lucide-react/icons/user-round";
 import MapPin from "lucide-react/icons/map-pin";
 import GraduationCap from "lucide-react/icons/graduation-cap";
 import Fingerprint from "lucide-react/icons/fingerprint";
-import { formatarCPF, formatarDataBr } from "../../utils/DateUtils";
+import { formatarCPF, formatarDataBr } from "../../../utils/DateUtils";
 
 const valor = (item) => item === null || item === undefined || item === "" ? "Não informado" : item;
 

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Input from "../Input";
-import Button from "../Button";
-import authService from "../../services/authService";
-import { preloadPostLoginPages } from "../../provider/preloadPages";
+import Input from "../../ui/Input";
+import Button from "../../ui/Button";
+import authService from "../../../services/authService";
+import { preloadPostLoginPages } from "../../../provider/preloadPages";
 
 function LoginForm({ onForgotPassword, onStatusChange }) {
   const navigate = useNavigate();

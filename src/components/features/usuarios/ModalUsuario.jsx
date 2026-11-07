@@ -2,9 +2,9 @@ import X from "lucide-react/icons/x";
 import UserPlus from "lucide-react/icons/user-plus";
 import UserCheck from "lucide-react/icons/user-check";
 import { useState, useEffect } from "react";
-import authService from "../../services/authService";
-import { useToast } from "../alert-toast/ToastProvider";
-// import pessoaService from "../../services/pessoaService"; // Importe seu serviço de busca de pessoas
+import authService from "../../../services/authService";
+import { useToast } from "../../feedback/ToastProvider";
+// import pessoaService from "../../../services/pessoaService"; // Importe seu serviço de busca de pessoas
 
 export default function ModalUsuario({ isOpen, onClose, onSuccess }) {
   const toast = useToast();

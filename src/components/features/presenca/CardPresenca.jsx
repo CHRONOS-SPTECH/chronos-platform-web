@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import TabelaAlunos from "./TabelaAlunos";
 import ModalConfirmacao from "./ModalConfirmacao";
-import { useToast } from "../alert-toast/ToastProvider";
+import { useToast } from "../../feedback/ToastProvider";
 import BookOpen from "lucide-react/icons/book-open";
-import aulaService from "../../services/aulaService";
+import aulaService from "../../../services/aulaService";
 
 function CardPresenca({
   alunos,

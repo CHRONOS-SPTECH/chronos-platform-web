@@ -4,12 +4,12 @@ import { Play } from "@phosphor-icons/react/dist/csr/Play";
 import { Calendar } from "@phosphor-icons/react/dist/csr/Calendar";
 import { Users } from "@phosphor-icons/react/dist/csr/Users";
 
-import Acoes from "../../components/homeSecretario/Acoes";
-import Evento from "../../components/homeSecretario/Evento";
-import Header from "../../components/homeSecretario/Header";
-import Sidebar from "../../components/sidebar/SideBar";
-import Cronograma from "../../components/homeInstrutor/Cronograma";
-import { useToast } from "../../components/alert-toast/ToastProvider";
+import Acoes from "../../components/features/home-secretario/Acoes";
+import Evento from "../../components/features/home-secretario/Evento";
+import Header from "../../components/layout/Header";
+import Sidebar from "../../components/layout/Sidebar";
+import Cronograma from "../../components/features/home-instrutor/Cronograma";
+import { useToast } from "../../components/feedback/ToastProvider";
 import useHomeInstrutor from "../../hooks/useHomeInstrutor";
 
 function HomeInstrutor() {

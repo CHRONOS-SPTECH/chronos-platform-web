@@ -4,11 +4,11 @@ import GraduationCap from "lucide-react/icons/graduation-cap";
 import MapPin from "lucide-react/icons/map-pin";
 import X from "lucide-react/icons/x";
 import Loader2 from "lucide-react/icons/loader-circle";
-import cepService from "../../services/cepService";
-import pessoaService from "../../services/pessoaService";
-import turmaService from "../../services/turmaService";
-import { useToast } from "../alert-toast/ToastProvider";
-import ModalBiometriaAluno from "../reconhecimento-facial/ModalBiometriaAluno";
+import cepService from "../../../services/cepService";
+import pessoaService from "../../../services/pessoaService";
+import turmaService from "../../../services/turmaService";
+import { useToast } from "../../feedback/ToastProvider";
+import ModalBiometriaAluno from "../biometria/ModalBiometriaAluno";
 
 const TOTAL_ETAPAS = 3;
 

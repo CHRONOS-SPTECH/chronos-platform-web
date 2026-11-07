@@ -3,18 +3,19 @@ import BookOpen from "lucide-react/icons/book-open";
 import Plus from "lucide-react/icons/plus";
 import Search from "lucide-react/icons/search";
 import LoaderCircle from "lucide-react/icons/loader-circle";
-import Sidebar from "../../components/sidebar/SideBar";
-import Header from "../../components/homeSecretario/Header";
-import ModulosControle from "../../components/turmas/ModuloControle";
-import ModalAluno from "../../components/homeSecretario/ModalAluno";
+import Sidebar from "../../components/layout/Sidebar";
+import Header from "../../components/layout/Header";
+import ModulosControle from "../../components/features/turmas/ModuloControle";
+import ModalAluno from "../../components/features/pessoas/ModalAluno";
 import useAlunos from "../../hooks/useAlunos";
-import { useToast } from "../../components/alert-toast/ToastProvider";
-import ConfirmDialog from "../../components/common/ConfirmDialog";
+import { useToast } from "../../components/feedback/ToastProvider";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import { formatarDataBr } from "../../utils/DateUtils";
 import pessoaService from "../../services/pessoaService";
-import PessoaDetalhesModal from "../../components/pessoas/PessoaDetalhesModal";
-import ModalBiometriaAluno from "../../components/reconhecimento-facial/ModalBiometriaAluno";
-import { AlunosTable, PublicoExternoTable } from "../../components/pessoas/AlunosTable";
+import PessoaDetalhesModal from "../../components/features/pessoas/PessoaDetalhesModal";
+import ModalBiometriaAluno from "../../components/features/biometria/ModalBiometriaAluno";
+import { AlunosTable, PublicoExternoTable } from "../../components/features/pessoas/AlunosTable";
+import { ErrorState } from "../../components/ui/DataState";
 
 export default function Alunos() {
   const toast = useToast();
@@ -303,11 +304,7 @@ export default function Alunos() {
                   </div>
                 </div>
               )}
-              {!loading && erro && (
-                <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  {erro}
-                </div>
-              )}
+              {!loading && erro && <ErrorState message={erro} />}
 
               {!loading && !erro && (
               <div id="people-records-table" role="tabpanel" className="max-h-[68vh] overflow-auto rounded-3xl border border-slate-200 bg-white shadow-sm custom-scrollbar">

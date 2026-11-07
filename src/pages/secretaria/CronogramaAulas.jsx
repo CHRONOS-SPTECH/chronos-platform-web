@@ -4,13 +4,13 @@ import Inbox from "lucide-react/icons/inbox";
 import ChevronLeft from "lucide-react/icons/chevron-left";
 import ChevronRight from "lucide-react/icons/chevron-right";
 import useCronogramaAulas from "../../hooks/useCronogramaAulas";
-import Sidebar from "../../components/sidebar/SideBar";
-import Header from "../../components/homeSecretario/Header";
-import BancoPendencias from "../../components/cronograma/BancoPendencias";
-import CalendarioGrade from "../../components/cronograma/CalendarioGrade";
-import CalendarioMes from "../../components/cronograma/CalendarioMes";
-import AulaDialog from "../../components/cronograma/AulaDialog";
-import ConfirmDialog from "../../components/common/ConfirmDialog";
+import Sidebar from "../../components/layout/Sidebar";
+import Header from "../../components/layout/Header";
+import BancoPendencias from "../../components/features/cronograma/BancoPendencias";
+import CalendarioGrade from "../../components/features/cronograma/CalendarioGrade";
+import CalendarioMes from "../../components/features/cronograma/CalendarioMes";
+import AulaDialog from "../../components/features/cronograma/AulaDialog";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
 
 export default function CronogramaView() {
   const [menuAberto, setMenuAberto] = useState(false);

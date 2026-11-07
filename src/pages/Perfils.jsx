@@ -1,5 +1,5 @@
 import logoCronos from "../assets/logoChronos.svg";
-import Card from "../components/perfis/Card";
+import Card from "../components/features/autenticacao/Card";
 import usePerfis from "../hooks/usePerfis";
 
 function Perfils() {

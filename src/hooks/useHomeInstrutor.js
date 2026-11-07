@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useToast } from "../components/alert-toast/ToastProvider";
+import { useToast } from "../components/feedback/ToastProvider";
 import aulaService from "../services/aulaService";
 import sessionService from "../services/sessionService";
 import { getHojeIso } from "../utils/DateUtils";

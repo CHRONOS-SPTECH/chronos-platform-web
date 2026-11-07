@@ -5,7 +5,7 @@ import UsersRound from "lucide-react/icons/users-round";
 import TrendingUp from "lucide-react/icons/trending-up";
 import ClipboardList from "lucide-react/icons/clipboard-list";
 import LoaderCircle from "lucide-react/icons/loader-circle";
-import turmaService from "../../services/turmaService";
+import turmaService from "../../../services/turmaService";
 
 const dataBr = (valor) => {
   if (!valor) return "—";

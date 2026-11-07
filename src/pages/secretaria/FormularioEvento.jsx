@@ -3,11 +3,11 @@ import ArrowLeft from "lucide-react/icons/arrow-left";
 import CalendarPlus from "lucide-react/icons/calendar-plus";
 import Save from "lucide-react/icons/save";
 import { useNavigate, useParams } from "react-router-dom";
-import Sidebar from "../../components/sidebar/SideBar";
-import Header from "../../components/homeSecretario/Header";
+import Sidebar from "../../components/layout/Sidebar";
+import Header from "../../components/layout/Header";
 import eventoService from "../../services/EventoService";
 import turmaService from "../../services/turmaService";
-import { useToast } from "../../components/alert-toast/ToastProvider";
+import { useToast } from "../../components/feedback/ToastProvider";
 import { getEventoDraft, saveEventoDraft } from "../../utils/eventoDraftStorage";
 
 const INITIAL_FORM = {

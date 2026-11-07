@@ -4,13 +4,14 @@ import Plus from "lucide-react/icons/plus";
 import Search from "lucide-react/icons/search";
 import SlidersHorizontal from "lucide-react/icons/sliders-horizontal";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../../components/sidebar/SideBar";
-import Header from "../../components/homeSecretario/Header";
-import ModulosControle from "../../components/turmas/ModuloControle";
-import EventoCard from "../../components/eventos/EventoCard";
-import ConfirmDialog from "../../components/common/ConfirmDialog";
+import Sidebar from "../../components/layout/Sidebar";
+import Header from "../../components/layout/Header";
+import ModulosControle from "../../components/features/turmas/ModuloControle";
+import EventoCard from "../../components/features/eventos/EventoCard";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import eventoService from "../../services/EventoService";
-import { useToast } from "../../components/alert-toast/ToastProvider";
+import { useToast } from "../../components/feedback/ToastProvider";
+import { EmptyState, ErrorState, LoadingState } from "../../components/ui/DataState";
 
 const getId = (evento) => evento?.id_evento ?? evento?.idEvento ?? evento?.id;
 const getErrorMessage = (error, fallback) => error?.response?.data?.message || error?.response?.data?.erro || fallback;
@@ -85,9 +86,9 @@ export default function Eventos() {
               <label className="relative flex items-center sm:w-52"><SlidersHorizontal size={15} className="pointer-events-none absolute left-3 text-slate-400" /><select value={filtroStatus} onChange={(event) => setFiltroStatus(event.target.value)} className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm font-semibold text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"><option>Todos</option><option>Pendentes</option><option>Oficializados</option><option>Cancelados</option></select></label>
             </div>
           </section>
-          {loading && <div className="rounded-2xl border border-slate-100 bg-white p-8 text-center text-sm font-semibold text-slate-500">Carregando eventos...</div>}
-          {!loading && error && <div className="flex items-center justify-between rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"><span>{error}</span><button onClick={carregarEventos} className="font-bold underline">Tentar novamente</button></div>}
-          {!loading && !error && eventosFiltrados.length === 0 && <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center"><p className="font-semibold text-slate-700">{eventos.length ? "Nenhum evento corresponde aos filtros" : "Nenhum evento cadastrado"}</p><p className="mt-1 text-sm text-slate-500">Tente outra busca ou crie um novo evento.</p></div>}
+          {loading && <LoadingState message="Carregando eventos..." />}
+          {!loading && error && <ErrorState message={error} onRetry={carregarEventos} />}
+          {!loading && !error && eventosFiltrados.length === 0 && <EmptyState title={eventos.length ? "Nenhum evento corresponde aos filtros" : "Nenhum evento cadastrado"} description="Tente outra busca ou crie um novo evento." />}
           {!loading && !error && eventosFiltrados.length > 0 && <div className="grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 xl:grid-cols-3">{eventosFiltrados.map((evento) => <EventoCard key={getId(evento)} evento={evento} onExcluir={setEventoSelecionado} />)}</div>}
         </main>
         <ConfirmDialog aberto={Boolean(eventoSelecionado)} titulo="Excluir evento?" mensagem={`Deseja realmente excluir o evento “${eventoSelecionado?.titulo || ""}”? Essa ação não poderá ser desfeita.`} carregando={excluindo} onConfirm={confirmarExclusao} onCancel={() => setEventoSelecionado(null)} confirmText="Excluir evento" variant="danger" />

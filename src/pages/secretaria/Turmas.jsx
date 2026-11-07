@@ -3,21 +3,21 @@ import BookOpen from "lucide-react/icons/book-open";
 import Plus from "lucide-react/icons/plus";
 import Search from "lucide-react/icons/search";
 import SlidersHorizontal from "lucide-react/icons/sliders-horizontal";
-import Sidebar from "../../components/sidebar/SideBar";
-import Header from "../../components/homeSecretario/Header";
-import ModulosControle from "../../components/turmas/ModuloControle";
-import CardTurma from "../../components/turmas/CardTurma";
-import ModalTurma from "../../components/turmas/ModalTurma";
+import Sidebar from "../../components/layout/Sidebar";
+import Header from "../../components/layout/Header";
+import ModulosControle from "../../components/features/turmas/ModuloControle";
+import CardTurma from "../../components/features/turmas/CardTurma";
+import ModalTurma from "../../components/features/turmas/ModalTurma";
 import useTurmas from "../../hooks/useTurmas";
-import { useToast } from "../../components/alert-toast/ToastProvider";
-import ConfirmDialog from "../../components/common/ConfirmDialog";
-import ModalAlunosPorTurma from "../../components/turmas/ModalTurmaAlunos";
+import { useToast } from "../../components/feedback/ToastProvider";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
+import ModalAlunosPorTurma from "../../components/features/turmas/ModalTurmaAlunos";
 import turmaService from "../../services/turmaService";
-import ModalMatriculas from "../../components/turmas/ModalMatriculas";
-import ModalDetalhesTurma from "../../components/turmas/ModalDetalhesTurma";
-import ModalFormandos from "../../components/turmas/ModalFormandos";
+import ModalMatriculas from "../../components/features/turmas/ModalMatriculas";
+import ModalDetalhesTurma from "../../components/features/turmas/ModalDetalhesTurma";
+import ModalFormandos from "../../components/features/turmas/ModalFormandos";
 import LoaderCircle from "lucide-react/icons/loader-circle";
-import RefreshCw from "lucide-react/icons/refresh-cw";
+import { EmptyState, ErrorState } from "../../components/ui/DataState";
 
 function CartaoCarregando({ indice }) {
   const cabecalhos = [
@@ -316,32 +316,9 @@ export default function Turmas() {
                 </div>
               </div>
 
-              {!loading && error && (
-                <div
-                  role="alert"
-                  className="flex flex-col gap-3 rounded-2xl border border-red-100 bg-red-50 px-4 py-4 text-sm text-red-700 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <span>{error}</span>
-                  <button
-                    type="button"
-                    onClick={carregarTurmas}
-                    className="inline-flex items-center justify-center gap-2 self-start rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-bold text-red-800 hover:bg-red-100 sm:self-auto"
-                  >
-                    <RefreshCw size={14} /> Tentar novamente
-                  </button>
-                </div>
-              )}
+              {!loading && error && <ErrorState message={error} onRetry={carregarTurmas} />}
 
-              {!loading && !error && turmasFiltradas.length === 0 && (
-                <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
-                  <p className="font-semibold text-slate-700">
-                    Nenhuma turma encontrada
-                  </p>
-                  <p className="mt-1 text-sm text-slate-500">
-                    Ajuste a busca ou o filtro de status.
-                  </p>
-                </div>
-              )}
+              {!loading && !error && turmasFiltradas.length === 0 && <EmptyState title="Nenhuma turma encontrada" description="Ajuste a busca ou o filtro de status." />}
               {loading ? (
                 <section
                   aria-busy="true"

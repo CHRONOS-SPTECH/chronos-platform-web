@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import X from "lucide-react/icons/x";
 import Search from "lucide-react/icons/search";
 import UserPlus from "lucide-react/icons/user-plus";
-import matriculaTurmaService from "../../services/matriculaTurmaService";
-import turmaService from "../../services/turmaService";
-import { useToast } from "../alert-toast/ToastProvider";
+import matriculaTurmaService from "../../../services/matriculaTurmaService";
+import turmaService from "../../../services/turmaService";
+import { useToast } from "../../feedback/ToastProvider";
 
 export default function ModalMatriculas({ turma, onClose, onConcluido }) {
   const toast = useToast();

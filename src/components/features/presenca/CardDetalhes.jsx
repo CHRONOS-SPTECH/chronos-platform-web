@@ -6,7 +6,7 @@ import {
   formatarDataBr,
   formatarTelefone,
   formatarCPF,
-} from "../../utils/DateUtils";
+} from "../../../utils/DateUtils";
 
 function CardDetalhes({ aluno, isOpen, onClose }) {
   const dadosCompletos = aluno || {};

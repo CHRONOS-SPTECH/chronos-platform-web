@@ -14,11 +14,12 @@ import MapPin from "lucide-react/icons/map-pin";
 import Pencil from "lucide-react/icons/pencil";
 import Trash2 from "lucide-react/icons/trash-2";
 import { useNavigate, useParams } from "react-router-dom";
-import Sidebar from "../../components/sidebar/SideBar";
-import Header from "../../components/homeSecretario/Header";
-import ConfirmDialog from "../../components/common/ConfirmDialog";
+import Sidebar from "../../components/layout/Sidebar";
+import Header from "../../components/layout/Header";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
+import { LoadingState } from "../../components/ui/DataState";
 import eventoService from "../../services/EventoService";
-import { useToast } from "../../components/alert-toast/ToastProvider";
+import { useToast } from "../../components/feedback/ToastProvider";
 import { getEventoDraft } from "../../utils/eventoDraftStorage";
 
 const getValue = (event, ...keys) => keys.map((key) => event?.[key]).find((value) => value !== undefined && value !== null && value !== "") || "Não informado";
@@ -76,7 +77,7 @@ export default function DetalhesEvento() {
     try { await eventoService.deleteEvento(id); toast.success("Evento excluído com sucesso."); navigate("/eventos", { replace: true }); } catch (error) { toast.error(getErrorMessage(error, "Não foi possível excluir o evento.")); } finally { setExcluindo(false); }
   };
 
-  if (loading) return <PageShell><p className="text-sm text-slate-500">Carregando evento...</p></PageShell>;
+  if (loading) return <PageShell><LoadingState message="Carregando evento..." /></PageShell>;
   if (!evento) return <PageShell><p className="rounded-2xl bg-red-50 p-4 text-sm text-red-700">Evento não encontrado.</p></PageShell>;
   const tags = Array.isArray(evento.tags) ? evento.tags : [];
   const draft = getEventoDraft(id);

@@ -3,12 +3,12 @@ import Search from "lucide-react/icons/search";
 import Layers from "lucide-react/icons/layers";
 import Trash2 from "lucide-react/icons/trash-2";
 
-import Sidebar from "../../components/sidebar/SideBar";
-import Header from "../../components/homeSecretario/Header";
-import ModalCargaLetiva from "../../components/gestaoAulas/modalAulas";
-import ConfirmDialog from "../../components/common/ConfirmDialog";
+import Sidebar from "../../components/layout/Sidebar";
+import Header from "../../components/layout/Header";
+import ModalCargaLetiva from "../../components/features/aulas/modalAulas";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import useGestaoAulas from "../../hooks/useGestaoAulas";
-import AulaDialog from "../../components/cronograma/AulaDialog";
+import AulaDialog from "../../components/features/cronograma/AulaDialog";
 
 export default function GestaoAulasView() {
   const {

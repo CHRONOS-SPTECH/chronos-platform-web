@@ -3,11 +3,11 @@ import UserPlus from "lucide-react/icons/user-plus";
 import Users from "lucide-react/icons/users";
 import CalendarPlus from "lucide-react/icons/calendar-plus";
 
-import Acoes from "../../components/homeSecretario/Acoes";
-import Evento from "../../components/homeSecretario/Evento";
-import Header from "../../components/homeSecretario/Header";
-import Sidebar from "../../components/sidebar/SideBar";
-import DiarioRecente from "../../components/homeSecretario/DiarioRecente";
+import Acoes from "../../components/features/home-secretario/Acoes";
+import Evento from "../../components/features/home-secretario/Evento";
+import Header from "../../components/layout/Header";
+import Sidebar from "../../components/layout/Sidebar";
+import DiarioRecente from "../../components/features/home-secretario/DiarioRecente";
 import { useNavigate } from "react-router-dom";
 
 function HomeSecretario() {
