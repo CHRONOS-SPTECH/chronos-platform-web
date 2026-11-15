@@ -19,6 +19,9 @@ const GestaoUsuarios = lazy(() => import("../pages/secretaria/GestaoUsuarios"));
 const DashboardAcademica = lazy(
   () => import("../pages/instrutor/DashboardAcademica"),
 );
+const DashboardEngajamento = lazy(
+  () => import("../pages/instrutor/DashboardEngajamento"),
+);
 const Eventos = lazy(() => import("../pages/secretaria/Eventos"));
 const DetalhesEvento = lazy(
   () => import("../pages/secretaria/DetalhesEvento"),
@@ -144,6 +147,10 @@ export const routes = createBrowserRouter([
   {
     path: "/dashboard-academica",
     element: <PrivateRoute element={lazyPage(DashboardAcademica)} />,
+  },
+  {
+    path: "/engajamento-atividades",
+    element: <PrivateRoute element={lazyPage(DashboardEngajamento)} />,
   },
   {
     path: "/gestao-aulas",

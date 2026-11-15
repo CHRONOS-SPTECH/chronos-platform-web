@@ -9,4 +9,6 @@ export const dashboardService = {
   getGenero: () => api.get("/dashboard/genero").then((res) => res.data),
   getFaixaEtaria: () =>
     api.get("/dashboard/faixa-etaria").then((res) => res.data),
+  getEngajamentoAtividades: () =>
+    api.get("/dashboard/engajamento-atividades").then((res) => res.data),
 };

@@ -1,3 +1,4 @@
+import Activity from "lucide-react/icons/activity";
 import BookOpenCheck from "lucide-react/icons/book-open-check";
 import CalendarDays from "lucide-react/icons/calendar-days";
 import CalendarRange from "lucide-react/icons/calendar-range";
@@ -63,6 +64,11 @@ export const MENU_CONFIG = {
             rota: "/dashboard-academica",
             icone: <LayoutDashboard size={16} />,
           },
+          {
+            nome: "Engajamento das Atividades",
+            rota: "/engajamento-atividades",
+            icone: <Activity size={16} />,
+          },
         ],
       },
       {
@@ -97,7 +103,11 @@ export const MENU_CONFIG = {
             rota: "/dashboard-academica",
             icone: <LayoutDashboard size={16} />,
           },
-          // { nome: "Engajamento das Atividades", rota: "/engajamento-atividades" },
+          {
+            nome: "Engajamento das Atividades",
+            rota: "/engajamento-atividades",
+            icone: <Activity size={16} />,
+          },
         ],
       },
       {
