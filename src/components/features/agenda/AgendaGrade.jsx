@@ -2,6 +2,7 @@ import React from "react";
 import CheckCircle from "lucide-react/icons/circle-check-big";
 import AlertCircle from "lucide-react/icons/circle-alert";
 import Clock from "lucide-react/icons/clock";
+import { formatarDataLocal } from "../../../utils/CronogramaUtils";
 
 export default function AgendaGrade({ datasDaSemana, aulas }) {
   const diasNome = [
@@ -23,7 +24,7 @@ export default function AgendaGrade({ datasDaSemana, aulas }) {
 
           const dataStringISO =
             dataObj instanceof Date && !isNaN(dataObj)
-              ? dataObj.toISOString().split("T")[0]
+              ? formatarDataLocal(dataObj)
               : null;
 
           const dataFormatada =

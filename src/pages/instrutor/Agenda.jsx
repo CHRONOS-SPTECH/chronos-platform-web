@@ -16,6 +16,7 @@ export default function AgendaInstrutorView() {
     datasDaSemana,
     aulas,
     carregando,
+    erro,
     instrutorInfo,
     semanaTexto,
     mesAnoTexto,
@@ -41,8 +42,7 @@ export default function AgendaInstrutorView() {
 
           <div className="flex items-center gap-3 bg-slate-50/80 border border-slate-200 p-1 rounded-xl shadow-2xs">
             <button
-              onClick={() => semana > 1 && setSemana(semana - 1)}
-              disabled={semana <= 1}
+              onClick={() => setSemana(semana - 1)}
               className="w-8 h-8 flex items-center justify-center bg-transparent border-0 cursor-pointer text-slate-500 hover:text-slate-800 hover:bg-white rounded-lg transition-all disabled:opacity-30"
             >
               <ChevronLeft size={16} strokeWidth={2.5} />
@@ -58,8 +58,7 @@ export default function AgendaInstrutorView() {
             </div>
 
             <button
-              onClick={() => semana < 52 && setSemana(semana + 1)}
-              disabled={semana >= 52}
+              onClick={() => setSemana(semana + 1)}
               className="w-8 h-8 flex items-center justify-center bg-transparent border-0 cursor-pointer text-slate-500 hover:text-slate-800 hover:bg-white rounded-lg transition-all disabled:opacity-30"
             >
               <ChevronRight size={16} strokeWidth={2.5} />
@@ -70,6 +69,8 @@ export default function AgendaInstrutorView() {
         <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
           {carregando ? (
             <LoadingState message="Buscando dados da agenda..." />
+          ) : erro ? (
+            <EmptyState title="Não foi possível carregar a agenda" description={erro} />
           ) : aulas.length > 0 ? (
             <AgendaGrade datasDaSemana={datasDaSemana} aulas={aulas} />
           ) : (

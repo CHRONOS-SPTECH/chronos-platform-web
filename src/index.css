@@ -57,3 +57,30 @@ body {
 .sidebar-scrollbar::-webkit-scrollbar-button {
   display: none;
 }
+
+.custom-scrollbar {
+  scrollbar-color: rgb(148 163 184 / 55%) transparent;
+  scrollbar-width: thin;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgb(148 163 184 / 55%);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgb(100 116 139 / 75%);
+}
+
+.custom-scrollbar::-webkit-scrollbar-button {
+  display: none;
+}
