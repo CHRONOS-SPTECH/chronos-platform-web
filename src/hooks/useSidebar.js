@@ -74,7 +74,7 @@ export default function useSidebar() {
             return;
           }
 
-          toast.error("Nenhuma aula agendada para hoje.");
+          toast.info("Nenhuma aula agendada para hoje.");
           return;
         } catch (erro) {
           console.error("Erro ao abrir a chamada do dia:", erro);

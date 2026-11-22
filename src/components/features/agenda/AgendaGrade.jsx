@@ -1,121 +1,111 @@
-import React from "react";
-import CheckCircle from "lucide-react/icons/circle-check-big";
 import AlertCircle from "lucide-react/icons/circle-alert";
+import ArrowUpRight from "lucide-react/icons/arrow-up-right";
+import CheckCircle from "lucide-react/icons/circle-check-big";
 import Clock from "lucide-react/icons/clock";
-import { formatarDataLocal } from "../../../utils/CronogramaUtils";
+import GraduationCap from "lucide-react/icons/graduation-cap";
 
-export default function AgendaGrade({ datasDaSemana, aulas }) {
-  const diasNome = [
-    "Segunda",
-    "Terça",
-    "Quarta",
-    "Quinta",
-    "Sexta",
-    "Sábado",
-    "Domingo",
-  ];
+function chamadaFoiFeita(item) {
+  return Boolean(item?.chamadaFeita ?? item?.aula?.chamadaFeita);
+}
+
+export default function AgendaGrade({ aulas, onSelecionarAula, textoVazio }) {
+  if (!aulas.length) {
+    return (
+      <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 px-5 py-10 text-center">
+        <p className="text-sm font-semibold text-slate-700">{textoVazio}</p>
+        <p className="mt-1 text-xs text-slate-500">
+          Escolha outro dia ou altere o filtro para consultar suas aulas.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full bg-white rounded-2xl border border-slate-200/70 p-5 shadow-xs overflow-x-auto scrollbar-thin">
-      <div className="grid grid-cols-7 gap-4 min-w-[1400px] items-start pb-2">
-        {diasNome.map((nomeDia, index) => {
-          const dataObj =
-            datasDaSemana && datasDaSemana[index] ? datasDaSemana[index] : null;
-
-          const dataStringISO =
-            dataObj instanceof Date && !isNaN(dataObj)
-              ? formatarDataLocal(dataObj)
-              : null;
-
-          const dataFormatada =
-            dataObj instanceof Date && !isNaN(dataObj)
-              ? `${String(dataObj.getDate()).padStart(2, "0")}/${String(dataObj.getMonth() + 1).padStart(2, "0")}`
-              : "--/--";
-
-          const aulasDoDia = aulas
-            .filter(
-              (item) =>
-                item.aula.data_aula &&
-                item.aula.data_aula.split("T")[0] === dataStringISO,
-            )
-            .sort((a, b) =>
-              a.aula.hora_inicio.localeCompare(b.aula.hora_inicio),
-            );
+    <div className="flex flex-col gap-3">
+      {aulas
+        .slice()
+        .sort((a, b) =>
+          (a?.aula?.hora_inicio || "").localeCompare(b?.aula?.hora_inicio || ""),
+        )
+        .map((item) => {
+          const aula = item?.aula || {};
+          const chamadaConcluida = chamadaFoiFeita(item);
+          const idTurma = aula.id_turma ?? item?.turma?.id_turma;
+          const idAula = aula.id_aula;
+          const horario = aula.hora_inicio
+            ? aula.hora_inicio.slice(0, 5)
+            : "--:--";
 
           return (
-            <div key={nomeDia} className="flex flex-col gap-3 h-full">
-              <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-3 flex flex-col items-center justify-center text-center">
-                <span className="font-bold text-slate-700 text-[11px] uppercase tracking-wider">
-                  {nomeDia}
-                </span>
-                <span className="text-[10px] text-indigo-600 font-black bg-indigo-50 border border-indigo-100/40 px-2 py-0.5 rounded-md mt-1.5">
-                  {dataFormatada}
-                </span>
-              </div>
-
-              <div className="flex flex-col gap-2.5 min-h-[440px] rounded-xl bg-slate-50/40 p-2 border border-dashed border-slate-200">
-                {aulasDoDia.length > 0 ? (
-                  aulasDoDia.map((item) => (
-                    <div
-                      key={item.aula.id_aula}
-                      className="bg-white border-y border-r border-l-[4px] border-l-indigo-500 border-slate-200/80 p-3.5 rounded-xl shadow-xs flex flex-col justify-between hover:shadow-sm transition-all text-left"
-                    >
-                      <div className="flex items-center justify-between gap-2 w-full">
-                        <div className="flex items-center gap-1.5 text-slate-600 font-mono text-[10px] font-bold">
-                          <Clock size={11} className="text-slate-400" />
-                          <span>{item.aula.hora_inicio.substring(0, 5)}</span>
-                        </div>
-                        <span
-                          className="text-[8.5px] font-black bg-slate-100 text-slate-700 border border-slate-200/60 px-1.5 py-0.5 rounded uppercase tracking-wide truncate max-w-[75px]"
-                          title={item.turma.nome_turma}
-                        >
-                          {item.turma.nome_turma}
-                        </span>
-                      </div>
-
-                      <h4
-                        className="text-[11px] font-bold text-slate-800 leading-snug mt-2.5 line-clamp-3 break-words"
-                        title={item.tema.titulo_tema}
-                      >
-                        {item.tema.titulo_tema}
-                      </h4>
-
-                      <div className="mt-3.5 pt-2 border-t border-slate-100 flex items-center justify-between">
-                        <span
-                          className="text-[9px] text-slate-400 font-semibold tracking-wide uppercase truncate max-w-[65px]"
-                          title={item.materia.nome}
-                        >
-                          {item.materia.nome}
-                        </span>
-
-                        <div
-                          className={`p-0.5 rounded-md border ${
-                            item.chamadaFeita
-                              ? "bg-emerald-50 border-emerald-200 text-emerald-600"
-                              : "bg-amber-50 border-amber-200 text-amber-600"
-                          }`}
-                        >
-                          {item.chamadaFeita ? (
-                            <CheckCircle size={11} strokeWidth={2.5} />
-                          ) : (
-                            <AlertCircle size={11} strokeWidth={2.5} />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))
+            <button
+              key={idAula}
+              type="button"
+              onClick={() => onSelecionarAula(idTurma, idAula)}
+              disabled={!idTurma || !idAula}
+              className="group flex w-full flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:border-emerald-300 hover:shadow-md hover:shadow-slate-900/5 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-row sm:items-center sm:p-5"
+              aria-label={`${chamadaConcluida ? "Consultar chamada" : "Fazer chamada"} da aula ${item?.tema?.titulo_tema || ""}, às ${horario}`}
+            >
+              <div
+                className={`flex size-12 shrink-0 items-center justify-center rounded-2xl ${
+                  chamadaConcluida
+                    ? "bg-emerald-50 text-emerald-700"
+                    : "bg-amber-50 text-amber-700"
+                }`}
+              >
+                {chamadaConcluida ? (
+                  <CheckCircle size={22} />
                 ) : (
-                  <div className="flex-1 flex items-center justify-center p-4">
-                    <span className="text-[10px] font-semibold text-slate-400/80 italic tracking-wide">
-                      Sem aulas
-                    </span>
-                  </div>
+                  <AlertCircle size={22} />
                 )}
               </div>
-            </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="mb-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <h4 className="truncate text-sm font-bold text-slate-900 group-hover:text-emerald-800 sm:text-base">
+                    {item?.tema?.titulo_tema || "Aula sem tema"}
+                  </h4>
+                  <span
+                    className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
+                      chamadaConcluida
+                        ? "border-emerald-100 bg-emerald-50 text-emerald-700"
+                        : "border-amber-100 bg-amber-50 text-amber-700"
+                    }`}
+                  >
+                    {chamadaConcluida ? "Chamada realizada" : "Chamada pendente"}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                  <span className="inline-flex items-center gap-1.5">
+                    <GraduationCap size={14} />
+                    {item?.turma?.nome_turma || `Turma ${idTurma || "—"}`}
+                  </span>
+                  {item?.materia?.nome && (
+                    <span>{item.materia.nome}</span>
+                  )}
+                  {aula.hora_fim && (
+                    <span>
+                      {horario}–{aula.hora_fim.slice(0, 5)}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-3 sm:border-0 sm:pt-0">
+                <span className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-700">
+                  <Clock size={15} className="text-slate-400" />
+                  {horario}
+                </span>
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-800">
+                  {chamadaConcluida ? "Ver chamada" : "Fazer chamada"}
+                  <ArrowUpRight
+                    size={15}
+                    className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  />
+                </span>
+              </div>
+            </button>
           );
         })}
-      </div>
     </div>
   );
 }

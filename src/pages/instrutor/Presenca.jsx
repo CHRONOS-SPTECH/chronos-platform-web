@@ -10,6 +10,7 @@ import Sidebar from "../../components/layout/Sidebar";
 import CardPresenca from "../../components/features/presenca/CardPresenca";
 import usePresenca from "../../hooks/usePresenca";
 import { LoadingState } from "../../components/ui/DataState";
+import { parseDataLocal } from "../../utils/CronogramaUtils";
 
 function Presenca() {
   const { idTurma: identificadorTurma, idAula: identificadorAula } =
@@ -32,6 +33,10 @@ function Presenca() {
     idTurma: identificadorTurma,
     idAula: identificadorAula,
   });
+  const chamadaConcluida = Boolean(
+    aula?.chamadaFeita ?? aula?.aula?.chamadaFeita,
+  );
+  const dataAula = parseDataLocal(aula?.aula?.data_aula);
 
   if (carregando) {
     return (
@@ -56,14 +61,14 @@ function Presenca() {
           {/* Ações de Navegação */}
           <div className="px-8 pt-4">
             <button
-              onClick={() => navigate("/instrutor")}
+              onClick={() => navigate("/minha-agenda")}
               className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-600 transition-colors group"
             >
               <ArrowLeft
                 size={16}
                 className="group-hover:-translate-x-0.5 transition-transform"
               />
-              Voltar para o Início
+              Voltar para a agenda
             </button>
           </div>
 
@@ -91,11 +96,11 @@ function Presenca() {
                 <CalendarDays size={18} className="text-slate-400" />
                 <div className="flex flex-col">
                   <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider leading-none">
-                    Iniciada em
+                    Data da aula
                   </span>
                   <span className="text-xs font-bold text-slate-600 mt-0.5">
-                    {turma?.data_inicio
-                      ? new Date(turma.data_inicio).toLocaleDateString(
+                    {dataAula
+                      ? dataAula.toLocaleDateString(
                           "pt-BR",
                           {
                             day: "2-digit",
@@ -128,10 +133,19 @@ function Presenca() {
 
             {/* Status do Registro */}
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full text-xs font-black uppercase tracking-wider">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-
-                {aula?.chamadaFeita ? "Concluída" : aula?.aula?.statusAula}
+              <span
+                className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-black uppercase tracking-wider ${
+                  chamadaConcluida
+                    ? "border-emerald-100 bg-emerald-50 text-emerald-700"
+                    : "border-amber-100 bg-amber-50 text-amber-700"
+                }`}
+              >
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    chamadaConcluida ? "bg-emerald-500" : "bg-amber-500"
+                  }`}
+                />
+                {chamadaConcluida ? "Chamada realizada" : "Chamada pendente"}
               </span>
             </div>
           </div>
@@ -143,16 +157,23 @@ function Presenca() {
                 Nenhum aluno matriculado nesta turma.
               </div>
             ) : (
-              <CardPresenca
-                alunos={alunos}
-                dadosAula={aula}
-                onTogglePresenca={alternarPresenca}
-                onSalvarChamada={salvarChamada}
-                carregando={carregando}
-                pagina={pagina}
-                paginacao={paginacao}
-                onMudarPagina={setPagina}
-              />
+              <>
+                {chamadaConcluida && (
+                  <div className="mb-4 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
+                    Você está consultando uma chamada já realizada. As presenças não podem ser alteradas.
+                  </div>
+                )}
+                <CardPresenca
+                  alunos={alunos}
+                  dadosAula={aula}
+                  onTogglePresenca={alternarPresenca}
+                  onSalvarChamada={salvarChamada}
+                  carregando={carregando}
+                  pagina={pagina}
+                  paginacao={paginacao}
+                  onMudarPagina={setPagina}
+                />
+              </>
             )}
           </div>
         </main>
