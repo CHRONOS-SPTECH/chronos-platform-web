@@ -3,13 +3,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import aulaService from "../services/aulaService";
 import sessionService from "../services/sessionService";
 import {
+  adicionarDias,
   calcularDatasDaSemana,
   obterTextoSemanaDoMes,
-  obterSemanaAtualDoAno,
 } from "../utils/CronogramaUtils";
 
 export default function useAgendaInstrutor() {
-  const [semana, setSemana] = useState(obterSemanaAtualDoAno());
+  const [semana, setSemana] = useState(0);
   const [datasDaSemana, setDatasDaSemana] = useState([]);
   const [aulas, setAulas] = useState([]);
   const [carregando, setCarregando] = useState(true);
@@ -21,10 +21,11 @@ export default function useAgendaInstrutor() {
       const dadosSessao = sessionService.getSession();
       const pessoa = dadosSessao?.usuario?.pessoa;
 
-      if (pessoa && pessoa.tipo_vinculo_id === 4) {
+      const instrutorId = pessoa?.id_pessoa ?? dadosSessao?.usuario?.id_usuario;
+      if (instrutorId) {
         setInstrutorInfo({
-          id: pessoa.id_pessoa,
-          nome: pessoa.nome,
+          id: instrutorId,
+          nome: pessoa?.nome || "",
         });
       }
     } catch (error) {
@@ -34,7 +35,8 @@ export default function useAgendaInstrutor() {
   }, []);
 
   useEffect(() => {
-    setDatasDaSemana(calcularDatasDaSemana(semana, 2026));
+    const dataDeReferencia = adicionarDias(new Date(), semana * 7);
+    setDatasDaSemana(calcularDatasDaSemana(dataDeReferencia));
   }, [semana]);
 
   const carregarAulasDoInstrutor = useCallback(async () => {
@@ -50,7 +52,7 @@ export default function useAgendaInstrutor() {
 
       const aulasDetalhadas = await aulaService.listarTodasAulasDetalhadas();
       const aulasFiltradas = aulasDetalhadas.filter(
-        (item) => item.aula.id_instrutor === instrutorInfo.id,
+        (item) => Number(item?.aula?.id_instrutor) === Number(instrutorInfo.id),
       );
 
       setAulas(aulasFiltradas);
