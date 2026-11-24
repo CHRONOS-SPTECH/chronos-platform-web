@@ -16,6 +16,7 @@ const HomeSecretario = lazy(loadHomeSecretario);
 const HomeDiretor = lazy(loadHomeDiretor);
 const Presenca = lazy(() => import("../pages/instrutor/Presenca"));
 const GestaoUsuarios = lazy(() => import("../pages/secretaria/GestaoUsuarios"));
+const PerfisAcessos = lazy(() => import("../pages/secretaria/PerfisAcessos"));
 const DashboardAcademica = lazy(
   () => import("../pages/instrutor/DashboardAcademica"),
 );
@@ -143,6 +144,10 @@ export const routes = createBrowserRouter([
   {
     path: "/usuarios",
     element: <PrivateRoute element={lazyPage(GestaoUsuarios)} />,
+  },
+  {
+    path: "/perfis-acessos",
+    element: <PrivateRoute element={lazyPage(PerfisAcessos)} />,
   },
   {
     path: "/dashboard-academica",

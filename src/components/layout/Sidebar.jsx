@@ -24,7 +24,8 @@ export default function Sidebar() {
   const [menuFlutuante, setMenuFlutuante] = useState(null);
   const fecharTimer = useRef(null);
   const expandido = !recolhido;
-  const paginaInicialAtiva = location.pathname === config.dashboardPath;
+  const paginaInicialAtiva =
+    config.homePermitida && location.pathname === config.dashboardPath;
   const secaoFlutuante = menuFlutuante
     ? config.secoes[menuFlutuante.indice]
     : null;
@@ -133,32 +134,38 @@ export default function Sidebar() {
               Menu
             </p>
           )}
-          <button
-            type="button"
-            title={!expandido ? "Home" : undefined}
-            aria-current={paginaInicialAtiva ? "page" : undefined}
-            onClick={() => navigate(config.dashboardPath)}
-            className={`flex min-h-11 w-full items-center rounded-xl text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-emerald-800 ${
-              expandido ? "gap-3 px-3" : "justify-center px-0"
-            } ${
-              paginaInicialAtiva
-                ? "bg-white font-semibold text-emerald-800 shadow-sm"
-                : "text-white/95 hover:bg-white/15 hover:text-white"
-            }`}
-          >
-            <Home
-              size={19}
-              strokeWidth={paginaInicialAtiva ? 2.4 : 2}
-              className="shrink-0"
-              aria-hidden="true"
-            />
-            {expandido && <span>Home</span>}
-            {paginaInicialAtiva && expandido && (
-              <span className="ml-auto size-1.5 rounded-full bg-emerald-600" />
-            )}
-          </button>
+          {config.homePermitida && (
+            <>
+              <button
+                type="button"
+                title={!expandido ? "Home" : undefined}
+                aria-current={paginaInicialAtiva ? "page" : undefined}
+                onClick={() => navigate(config.dashboardPath)}
+                className={`flex min-h-11 w-full items-center rounded-xl text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-emerald-800 ${
+                  expandido ? "gap-3 px-3" : "justify-center px-0"
+                } ${
+                  paginaInicialAtiva
+                    ? "bg-white font-semibold text-emerald-800 shadow-sm"
+                    : "text-white/95 hover:bg-white/15 hover:text-white"
+                }`}
+              >
+                <Home
+                  size={19}
+                  strokeWidth={paginaInicialAtiva ? 2.4 : 2}
+                  className="shrink-0"
+                  aria-hidden="true"
+                />
+                {expandido && <span>{config.homeNome}</span>}
+                {paginaInicialAtiva && expandido && (
+                  <span className="ml-auto size-1.5 rounded-full bg-emerald-600" />
+                )}
+              </button>
 
-          <div className="my-5 h-px bg-white/20" />
+              {config.secoes.length > 0 && (
+                <div className="my-5 h-px bg-white/20" />
+              )}
+            </>
+          )}
 
           <div className="flex flex-col gap-2">
             {config.secoes.map((secao, indice) => {

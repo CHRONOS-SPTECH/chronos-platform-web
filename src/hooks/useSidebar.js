@@ -1,8 +1,9 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { MENU_CONFIG } from "../config/navigation";
+import { criarMenuPorTelas, MENU_CONFIG } from "../config/navigation";
 import aulaService from "../services/aulaService";
+import authService from "../services/authService";
 import sessionService from "../services/sessionService";
 import { useToast } from "../components/feedback/ToastProvider";
 import { getHojeIso } from "../utils/DateUtils";
@@ -27,6 +28,10 @@ export default function useSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useToast();
+  const [dadosSessao, setDadosSessao] = useState(() =>
+    sessionService.getSession(),
+  );
+  const requisicaoMeRef = useRef(null);
   const [abertos, setAbertos] = useState({ 0: true });
   const [recolhido, setRecolhido] = useState(() => {
     try {
@@ -36,12 +41,56 @@ export default function useSidebar() {
     }
   });
 
-  const dadosSessao = sessionService.getSession();
+  useEffect(() => {
+    let ativo = true;
+
+    if (
+      !sessionService.getToken() ||
+      Array.isArray(dadosSessao?.telasPermitidas)
+    ) {
+      return () => {
+        ativo = false;
+      };
+    }
+
+    if (!requisicaoMeRef.current) {
+      requisicaoMeRef.current = authService
+        .getMe()
+        .then((dadosUsuario) => {
+          authService.setSession(dadosUsuario);
+          return sessionService.getSession();
+        })
+        .catch((erro) => {
+          console.error("Erro ao carregar as telas permitidas:", erro);
+          toast.error(
+            "Não foi possível carregar o menu de acesso. Tente novamente.",
+          );
+          return null;
+        })
+        .finally(() => {
+          requisicaoMeRef.current = null;
+        });
+    }
+
+    requisicaoMeRef.current.then((sessaoAtualizada) => {
+      if (ativo && sessaoAtualizada) setDadosSessao(sessaoAtualizada);
+    });
+
+    return () => {
+      ativo = false;
+    };
+  }, [dadosSessao?.telasPermitidas, toast]);
+
   const tipoUsuarioSessao = getTipoUsuarioFromSession(dadosSessao);
   const perfilSelecionado = sessionService.getSelectedProfile();
   const tipoUsuarioAtivo =
     perfilSelecionado || tipoUsuarioSessao || "instrutor";
-  const config = MENU_CONFIG[tipoUsuarioAtivo] || MENU_CONFIG["instrutor"];
+  const configBase =
+    MENU_CONFIG[tipoUsuarioAtivo] || MENU_CONFIG["instrutor"];
+  const config = criarMenuPorTelas(
+    configBase,
+    dadosSessao?.telasPermitidas,
+  );
 
   const abrirItemMenu = useCallback(
     async (item) => {

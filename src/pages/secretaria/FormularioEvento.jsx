@@ -245,6 +245,7 @@ export default function FormularioEvento() {
         hora_fim_evento: formData.hora_fim_evento,
         descricao: formData.descricao.trim(),
         local_evento: formData.local.trim(),
+        status_evento: formData.status,
         id_turmas: formData.id_turmas,
         incluir_publico_externo: formData.incluir_publico_externo,
       };

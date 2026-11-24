@@ -2,72 +2,77 @@ import User from "lucide-react/icons/user";
 import Mail from "lucide-react/icons/mail";
 import ShieldCheck from "lucide-react/icons/shield-check";
 import Calendar from "lucide-react/icons/calendar";
-import Eye from "lucide-react/icons/eye";
-import Pencil from "lucide-react/icons/pencil";
-import Trash2 from "lucide-react/icons/trash-2";
+
+function obterPerfil(usuario) {
+  const perfis = Array.isArray(usuario.perfis)
+    ? usuario.perfis
+        .map((perfil) => perfil?.nome_perfil || perfil?.nome)
+        .filter(Boolean)
+    : [];
+  const perfilUnico =
+    usuario.perfil?.nome_perfil ||
+    usuario.perfil?.nome ||
+    usuario.nome_perfil;
+
+  if (perfis.length > 0) return perfis.join(", ");
+  if (perfilUnico) return perfilUnico;
+  return usuario.perfilAcesso ? "Administrador" : "Secretário";
+}
+
+function formatarNascimento(data) {
+  if (!data) return "Não informado";
+  const dataValida = new Date(data);
+  return Number.isNaN(dataValida.getTime())
+    ? "Não informado"
+    : dataValida.toLocaleDateString("pt-BR");
+}
 
 function CardUsuario({ usuario }) {
+  const nome = usuario.pessoa?.nome || usuario.nome || "Usuário";
+  const email = usuario.email_login || usuario.pessoa?.email || "E-mail não informado";
+  const ativo = Boolean(usuario.status_ativo);
+
   return (
-    <div className="group grid grid-cols-1 items-center gap-4 rounded-xl border border-slate-100 bg-white px-4 py-4 transition-all hover:border-emerald-200 hover:bg-emerald-50/20 hover:shadow-sm sm:px-6 md:grid-cols-12 md:gap-0 md:py-5">
-      <div className="flex items-center gap-4 md:col-span-4">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 transition-colors group-hover:bg-emerald-100">
-          <User size={22} />
+    <article className="grid grid-cols-1 items-center gap-4 rounded-2xl border border-slate-100 bg-white px-4 py-4 transition-colors hover:border-emerald-200 hover:bg-emerald-50/20 sm:px-5 md:grid-cols-12 md:gap-0">
+      <div className="flex min-w-0 items-center gap-3 md:col-span-5">
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+          <User size={20} aria-hidden="true" />
         </div>
-        <div className="flex flex-col">
-          <span className="font-bold text-gray-800 group-hover:text-black transition-colors">
-            {usuario.pessoa.nome}
-          </span>
-          <span className="text-xs text-gray-400 flex items-center gap-1.5 mt-0.5 font-medium">
-            <Mail size={12} /> {usuario.email_login}
-          </span>
-        </div>
-      </div>
-
-      <div className="md:col-span-3">
-        <div className="flex items-center gap-2">
-          <div
-            className={`rounded-lg p-1.5 ${usuario.perfilAcesso ? "bg-violet-50 text-violet-600" : "bg-slate-50 text-slate-300"}`}
-          >
-            <ShieldCheck size={16} />
-          </div>
-          <span
-            className={`text-sm font-bold ${usuario.perfilAcesso ? "text-gray-700" : "text-gray-300 italic"}`}
-          >
-            {usuario.perfilAcesso ? "Administrador" : "Secretário"}
-          </span>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-bold text-slate-800">{nome}</p>
+          <p className="mt-1 flex min-w-0 items-center gap-1.5 truncate text-xs font-medium text-slate-500">
+            <Mail size={12} className="shrink-0 text-slate-400" aria-hidden="true" />
+            <span className="truncate">{email}</span>
+          </p>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 text-sm font-medium text-slate-500 md:col-span-2">
-        <Calendar size={16} className="opacity-40" />
-        {new Date(usuario.pessoa.data_nascimento).toLocaleDateString("pt-BR")}
+      <div className="flex items-center gap-2 md:col-span-3">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-violet-700">
+          <ShieldCheck size={16} aria-hidden="true" />
+        </span>
+        <span className="text-sm font-semibold text-slate-700">{obterPerfil(usuario)}</span>
       </div>
 
-      <div className="flex justify-start md:col-span-2 md:justify-center">
-        <div
-          className={`flex items-center gap-2 rounded-full border px-3 py-1.5 ${usuario.status_ativo ? "border-emerald-100 bg-emerald-50 text-emerald-700" : "border-slate-100 bg-slate-50 text-slate-400"}`}
+      <div className="flex items-center gap-2 text-xs font-medium text-slate-500 md:col-span-2">
+        <Calendar size={15} className="text-slate-400" aria-hidden="true" />
+        <span className="md:hidden">Nascimento:</span>
+        {formatarNascimento(usuario.pessoa?.data_nascimento || usuario.data_nascimento)}
+      </div>
+
+      <div className="flex md:col-span-2 md:justify-end">
+        <span
+          className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+            ativo
+              ? "border-emerald-100 bg-emerald-50 text-emerald-700"
+              : "border-slate-200 bg-slate-50 text-slate-500"
+          }`}
         >
-          <div
-            className={`w-1.5 h-1.5 rounded-full ${usuario.status_ativo ? "bg-green-500" : "bg-gray-300"}`}
-          />
-          <span className="text-[10px] font-black uppercase tracking-widest">
-            {usuario.status_ativo ? "Ativo" : "Inativo"}
-          </span>
-        </div>
+          <span className={`size-1.5 rounded-full ${ativo ? "bg-emerald-500" : "bg-slate-400"}`} />
+          {ativo ? "Ativo" : "Inativo"}
+        </span>
       </div>
-
-      <div className="flex justify-end gap-1 md:col-span-1">
-        <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all">
-          <Eye size={18} />
-        </button>
-        <button className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all">
-          <Pencil size={18} />
-        </button>
-        <button className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
-          <Trash2 size={18} />
-        </button>
-      </div>
-    </div>
+    </article>
   );
 }
 

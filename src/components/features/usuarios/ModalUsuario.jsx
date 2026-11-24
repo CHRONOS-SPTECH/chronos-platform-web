@@ -1,16 +1,14 @@
 import X from "lucide-react/icons/x";
-import UserPlus from "lucide-react/icons/user-plus";
-import UserCheck from "lucide-react/icons/user-check";
 import { useState, useEffect } from "react";
-import authService from "../../../services/authService";
+import perfilService from "../../../services/perfilService";
+import usuarioService from "../../../services/usuarioService";
+import usuarioPerfilService from "../../../services/usuarioPerfilService";
 import { useToast } from "../../feedback/ToastProvider";
 // import pessoaService from "../../../services/pessoaService"; // Importe seu serviço de busca de pessoas
 
 export default function ModalUsuario({ isOpen, onClose, onSuccess }) {
   const toast = useToast();
-  const [isNovaPessoa, setIsNovaPessoa] = useState(true);
   const [salvando, setSalvando] = useState(false);
-  const [pessoasExistentes, setPessoasExistentes] = useState([]);
   const [novoUsuario, setNovoUsuario] = useState({
     pessoaId: "",
     nome: "",
@@ -18,20 +16,41 @@ export default function ModalUsuario({ isOpen, onClose, onSuccess }) {
     genero: "",
     nascimento: "",
     emailLogin: "",
-    perfilId: "1",
+    perfilId: "",
     senha: "senhaSegura123",
   });
+  const [perfis, setPerfis] = useState([]);
+  const [carregandoPerfis, setCarregandoPerfis] = useState(false);
   const inputStyle =
     "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#1E7A3C] focus:bg-white focus:ring-2 focus:ring-green-700/10 disabled:opacity-50";
 
   useEffect(() => {
-    if (!isNovaPessoa && isOpen) {
-      setPessoasExistentes([
-        { id: 1, nome: "Henrique Silva" },
-        { id: 2, nome: "João Silva" },
-      ]);
-    }
-  }, [isNovaPessoa, isOpen]);
+    if (!isOpen) return;
+
+    let ativo = true;
+    setCarregandoPerfis(true);
+    perfilService
+      .listarPerfis()
+      .then((dados) => {
+        if (!ativo) return;
+        const lista = Array.isArray(dados) ? dados.filter((perfil) => perfil.status_ativo !== false) : [];
+        setPerfis(lista);
+        setNovoUsuario((atual) => ({
+          ...atual,
+          perfilId: atual.perfilId || String(lista[0]?.id_perfil || ""),
+        }));
+      })
+      .catch(() => {
+        if (ativo) toast.error("Não foi possível carregar os perfis de acesso.");
+      })
+      .finally(() => {
+        if (ativo) setCarregandoPerfis(false);
+      });
+
+    return () => {
+      ativo = false;
+    };
+  }, [isOpen, toast]);
 
   if (!isOpen) return null;
 
@@ -44,27 +63,46 @@ export default function ModalUsuario({ isOpen, onClose, onSuccess }) {
     e.preventDefault();
 
     const payload = {
-      pessoa: isNovaPessoa
-        ? {
-            nome: novoUsuario.nome,
-            email: novoUsuario.emailPessoa,
-            telefone: "11999999999",
-            genero: novoUsuario.genero,
-            cpf: Math.random().toString().slice(2, 13), // Simulação de CPF único para teste
-            bolsista: false,
-            data_nascimento: novoUsuario.nascimento,
-          }
-        : null,
-      pessoa_id: !isNovaPessoa ? parseInt(novoUsuario.pessoaId) : null,
-      perfis_id: [parseInt(novoUsuario.perfilId)],
+      pessoa: {
+        nome: novoUsuario.nome,
+        email: novoUsuario.emailPessoa,
+        telefone: "11999999999",
+        genero: novoUsuario.genero,
+        cpf: Math.random().toString().slice(2, 13),
+        bolsista: false,
+        url_foto_perfil: null,
+        tipo_vinculo_id: 1,
+        data_nascimento: novoUsuario.nascimento,
+        data_ingresso: null,
+        data_membro: null,
+        data_saida: null,
+        endereco: null,
+      },
       email_login: novoUsuario.emailLogin,
-      senha: novoUsuario.senha,
+      senha_hash: novoUsuario.senha,
+      status_ativo: true,
     };
 
     setSalvando(true);
     try {
-      await authService.register(payload);
+      const usuarioCriado = await usuarioService.criarUsuario(payload);
+      const idUsuario =
+        usuarioCriado?.id_usuario ||
+        usuarioCriado?.usuario?.id_usuario ||
+        usuarioCriado?.id;
+
+      if (!idUsuario) {
+        throw new Error("O usuário foi criado, mas o backend não retornou o ID.");
+      }
+
+      if (novoUsuario.perfilId) {
+        await usuarioPerfilService.criarVinculo(
+          Number(idUsuario),
+          Number(novoUsuario.perfilId),
+        );
+      }
       if (onSuccess) await onSuccess();
+      toast.success("Usuário cadastrado e perfil vinculado com sucesso!");
       onClose();
     } catch (error) {
       const msg = error.response?.data?.message || "Erro ao cadastrar usuário";
@@ -97,27 +135,8 @@ export default function ModalUsuario({ isOpen, onClose, onSuccess }) {
             </button>
           </div>
 
-          {/* Toggle Nova Pessoa / Existente */}
-          <div className="flex bg-gray-100 p-1 rounded-2xl mb-6">
-            <button
-              type="button"
-              onClick={() => setIsNovaPessoa(true)}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${isNovaPessoa ? "bg-white shadow-sm text-black" : "text-gray-500 hover:text-gray-700"}`}
-            >
-              <UserPlus size={18} /> Nova Pessoa
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsNovaPessoa(false)}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${!isNovaPessoa ? "bg-white shadow-sm text-black" : "text-gray-500 hover:text-gray-700"}`}
-            >
-              <UserCheck size={18} /> Já Cadastrada
-            </button>
-          </div>
-
           <form onSubmit={cadastrarUsuario} className="flex flex-col gap-4">
-            {isNovaPessoa ? (
-              <div className="space-y-4 animate-in slide-in-from-left-2 duration-300">
+            <div className="space-y-4 animate-in slide-in-from-left-2 duration-300">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
                     Nome Completo
@@ -177,28 +196,7 @@ export default function ModalUsuario({ isOpen, onClose, onSuccess }) {
                     />
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1.5 animate-in slide-in-from-right-2 duration-300">
-                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
-                  Vincular a:
-                </label>
-                <select
-                  name="pessoaId"
-                  required
-                  className={inputStyle}
-                  value={novoUsuario.pessoaId}
-                  onChange={preencherUsuario}
-                >
-                  <option value="">Selecione uma pessoa...</option>
-                  {pessoasExistentes.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.nome} (ID: {p.id})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+            </div>
 
             <div className="h-px bg-gray-100 my-2" />
 
@@ -227,10 +225,17 @@ export default function ModalUsuario({ isOpen, onClose, onSuccess }) {
                 className={inputStyle}
                 value={novoUsuario.perfilId}
                 onChange={preencherUsuario}
+                disabled={carregandoPerfis}
+                required
               >
-                <option value="1">Administrador</option>
-                <option value="2">Secretário</option>
-                <option value="3">Instrutor</option>
+                <option value="">
+                  {carregandoPerfis ? "Carregando perfis..." : "Selecione um perfil"}
+                </option>
+                {perfis.map((perfil) => (
+                  <option key={perfil.id_perfil} value={perfil.id_perfil}>
+                    {perfil.nome_perfil}
+                  </option>
+                ))}
               </select>
             </div>
 

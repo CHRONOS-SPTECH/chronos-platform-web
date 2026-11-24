@@ -15,6 +15,16 @@ const authService = {
     return response.data;
   },
 
+  refresh: async (refreshToken) => {
+    const response = await api.post("/auth/refresh", { refreshToken });
+    return response.data;
+  },
+
+  getMe: async () => {
+    const response = await api.get("/auth/me");
+    return response.data;
+  },
+
   setSession: (data) => {
     sessionService.setSession(data);
   },

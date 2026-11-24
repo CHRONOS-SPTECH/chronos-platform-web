@@ -51,7 +51,38 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const status = error?.response?.status;
+    const endpoint = error?.config?.url || "";
+    const refreshToken = sessionService.getRefreshToken();
+
+    if (
+      status === 401 &&
+      refreshToken &&
+      !endpoint.includes("/auth/refresh") &&
+      !error.config?._retry
+    ) {
+      error.config._retry = true;
+      try {
+        const refreshResponse = await api.post("/auth/refresh", {
+          refreshToken,
+        });
+        sessionService.setSession(refreshResponse.data);
+        const token = sessionService.getToken();
+        if (token) error.config.headers.Authorization = `Bearer ${token}`;
+        return api(error.config);
+      } catch {
+        sessionService.clearSession();
+        if (
+          typeof window !== "undefined" &&
+          window.location.pathname !== "/login"
+        ) {
+          window.location.href = "/login";
+        }
+        return Promise.reject(error);
+      }
+    }
+
     if (ehTokenExpirado(error) && !redirecionandoParaLogin) {
       redirecionandoParaLogin = true;
       sessionService.clearSession();
